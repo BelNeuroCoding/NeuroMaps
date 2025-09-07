@@ -1,0 +1,123 @@
+function mult_file_analysed_expt_upload(h)
+%% --- Multi-Experiment Loader & Analyzer ---
+
+% Ask user to select multiple saved results
+[fileNames, filePath] = uigetfile('*.mat', ...
+    'Select Saved Results Files', 'MultiSelect', 'on');
+
+if isequal(fileNames,0)
+    disp('User cancelled file selection.');
+    return;
+end
+
+if ischar(fileNames)
+    fileNames = {fileNames};  % single file -> cell
+end
+
+numExpts = numel(fileNames);
+allResults = cell(1, numExpts);
+allNames = cell(1, numExpts);
+
+
+% Load all selected experiments
+for i = 1:numExpts
+    S = load(fullfile(filePath, fileNames{i}), 'resultsToSave');
+    allResults{i} = S.resultsToSave;
+    allNames{i} = S.resultsToSave.metadata.filename(1:end-4);
+end
+disp([num2str(numExpts) ' experiment(s) loaded.']);
+
+%% Create a dropdown in GUI for experiment selection
+% Delete old dropdown if it exists
+if isfield(h,'expList') && isvalid(h.expList)
+    delete(h.expList);
+end
+set(h.figure,'UserData',allResults)
+updateSummary(h);
+
+h.expList = uicontrol('Parent',h.figure,'Style','popupmenu', ...
+                      'String', allNames, ...
+                      'Position', [40 20 250 25], ...
+                      'FontSize', 10, ...
+                      'Callback', @(src,~) selectExperiment(src,h,allResults));
+set(h.series_slider , 'callback', {@slider_callback, h})
+set(h.series_text,'Callback', @(src,event) update_slider(h,src))
+
+%% --- Callback function for dropdown ---
+function selectExperiment(src, h, allResults)
+    idx = src.Value; % selected experiment
+    allResults = get(h.figure,'UserData');
+    results = allResults{idx};
+    
+
+    % Clear existing buttons in portToggleGroup
+    delete(allchild(h.portToggleGroup));
+    ports =  [results.ports.port_id];
+    numPorts = length(ports);
+    for i = 1:numPorts
+        unique_ports = unique(ports);
+        % Create radio button for each port
+        h.PortsforPlots(i) = uicontrol('Style', 'radiobutton', ...
+            'String', sprintf('%d', ports(i)), ...
+            'Units', 'normalized', ...
+            'Position', [0.3+ (i-1)*0.2, 0.35, 1/length(unique_ports), 0.7], ...
+            'Parent', h.portToggleGroup, ...
+            'BackgroundColor', [1 1 1], ...
+            'ForegroundColor', [0.1, 0.4, 0.6]);
+
+        % Channels for this port
+        channel_ids = results.channels(i).id;
+        T = length(channel_ids);
+
+        % Update slider
+        set(h.series_slider, 'Max', T);
+        set(h.series_slider, 'SliderStep', [1/(T-1), 1/(T-1)]);
+        SeriesNumber = 1;
+
+        % Display port:channel in series text
+        sertxt = sprintf('%d:%d', ports(i), channel_ids(SeriesNumber));
+        set(h.series_slider, 'Value', SeriesNumber);
+        set(h.series_text,'String',sertxt);
+
+        % Make visible
+        set(h.series_slider, 'Visible', 'on');
+        set(h.series_text, 'Visible', 'on');
+    end
+    % Update summary and plots
+    updateSummary(h);
+    pop_graph_callback(h);
+    plot_traces(h,src);
+    plot_specgram(h);
+    Elec_plot_callback(h,src)
+    noise_plot_callback(h,src)
+    run_qc_callback(h)
+
+
+
+    try
+        pop_spiking_plot(h);
+    catch ME
+        warning('Error updating population plot: %s', ME.message);
+    end
+end
+
+
+%% Optional: Batch Processing (run all experiments automatically)
+doBatch = questdlg('Do you want to analyze all experiments automatically?', ...
+                   'Batch Analysis', 'Yes','No','No');
+
+if strcmp(doBatch,'Yes')
+    for i = 1:numExpts
+        disp(['Processing: ' allNames{i}]);
+        try
+            pop_spiking_plot(h);    % update GUI plots
+            GIFy_callback(h);       % generate GIFs
+            drawnow;                % ensure GUI updates
+        catch ME
+            warning('Error processing %s: %s', allNames{i}, ME.message);
+        end
+    end
+end
+
+
+end

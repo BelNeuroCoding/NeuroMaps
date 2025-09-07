@@ -1,0 +1,220 @@
+function plot_clustered_heatmap(var, chans, Zlabel, tit,range, mean_waveforms, clust_chan, time,var2,x_coords,y_coords, img,clust_col,interpmode)
+    % Inputs:
+    % - var: Spike rate or other variable to plot in heatmap.
+    % - chans: The channel numbers corresponding to the data.
+    % - Zlabel: Label for the colorbar (e.g., 'Spike Rate (Hz)').
+    % - tit: Title of the heatmap plot.
+    % - mean_waveforms: Nx121 matrix of mean waveforms (N clusters).
+    % - clust_chan: Cell array of channels associated with each cluster.
+    % - time: Time axis for plotting the waveforms.
+    % - img: Optional background image.
+    
+    % Define Grid
+    if nargin<14
+        interpmode = 1;
+    end
+    if nargin<9 
+        var2 = [];
+    end
+     if nargin< 5 || isempty(range)
+         min_rate = floor(min(var));
+         max_rate = ceil(max(var));
+     else
+         min_rate = range(1);
+         max_rate = range(2);
+     end
+     if nargin < 10
+        x_coords = [115.4919, 155.7933, 216.2454, 230.9005, 269.9807, 293.7951, 350.5835, 391.1902, 294.7111, 351.8048, ...
+                     250.4406, 226.3208, 179.6078, 102.3634, 66.6416, 168.3111, 171.3643, 114.2706, 214.4135, ...
+                     238.8386, 284.3304, 360.9642, 296.5430, 349.0569, 396.3806, 309.0608, 249.8299, 234.5642, ...
+                     194.8735, 171.3643, 122.2088, 73.6639];
+        y_coords = [195.9215, 242.5832, 186.5073, 227.0293, 302.7521, 247.9042, 269.5978, 208.6102, 202.0612, ...
+                     270.0071, 184.8701, 259.7743, 295.3845, 263.0488, 200.8333, 198.3774, 144.3481, 76.4022, ...
+                     159.9020, 85.4071, 51.0248, 83.3605, 147.2133, 148.8506, 144.3481, 101.7796, 158.6741, ...
+                     118.1521, 44.8851, 97.2772, 142.3015, 135.7525];
+        x_coords = round(x_coords);
+         y_coords = round(y_coords);
+     end
+     
+    % Initialize the heatmap
+%     x_min = 295; x_max = 620;
+%     y_min = 275; y_max = 590;
+%     grid_size_x = x_max - x_min + 30 + 100;
+%     grid_size_y = y_max - y_min + 30;
+%     [Y, X] = ndgrid(1:grid_size_y, 1:grid_size_x);
+    % Determine the grid size
+    x_min = round(min(x_coords));
+    x_max = round(max(x_coords));
+    y_min = round(min(y_coords));
+    y_max = round(max(y_coords));
+    grid_size_x = x_max - x_min + 200;
+    grid_size_y = y_max - y_min + 200;
+
+    % Precompute centers and grid
+    %x_centers = x_coords - x_min + 20;
+    %y_centers = y_coords - y_min + 20;
+    transp_scale = 1;
+    if nargin > 10 && ~isempty(img)
+%         rgb = imread(img);
+%         imagesc([min(X, [], 'all') max(X, [], 'all')], [min(Y, [], 'all') max(Y, [], 'all')], rgb);
+        imagefile = imread(img);
+        [grid_size_y, grid_size_x, num_channels] = size(imagefile);
+        himh = imshow(imagefile);
+        hold on;
+        transp_scale = 0.3;
+    end
+    [Y, X] = ndgrid(1:grid_size_y, 1:grid_size_x);
+
+    hold on;
+    cmap = jet(256); % Generate 256 colors
+
+    % Heatmap setup
+    heatmap = zeros(size(X));
+    radius = 8; % Adjust circle size
+
+
+    if interpmode == 1
+        % Assuming your electrode positions (x_coords, y_coords) are provided:
+        % Assuming x_coords, y_coords, var, X, and Y are defined
+        % Calculate the outermost radius of the electrodes
+        if ~isempty(var)
+        INTERP_POINTS = 1000;
+        
+        % Compute the mean center of the electrodes
+        center_x = mean(x_coords);
+        center_y = mean(y_coords);
+        
+        % Compute the outer radius as the max radial distance from the center
+        outer_radius = max(sqrt((x_coords - center_x).^2 + (y_coords - center_y).^2));
+        
+        % Define the extended radius for smooth interpolation beyond the outer electrodes
+        extended_radius = outer_radius + 100;  % Extend by 10 units
+        
+        % Generate additional points outside the outer radius for smooth interpolation
+        theta = linspace(0, 2*pi, 50);  % 8 points around the circle
+        [add_x, add_y] = pol2cart(theta, extended_radius);
+        add_x = add_x + center_x;
+        add_y = add_y + center_y;
+        
+        % Compute values for additional points using nearest neighbor interpolation
+        add_values = compute_nearest_values([add_x(:), add_y(:)], [x_coords(chans+1)', y_coords(chans+1)'], var(:), 4);  % 4 nearest neighbors
+        
+        % Create a grid centered around the electrode region
+        linear_grid_x = linspace(center_x - extended_radius, center_x + extended_radius, INTERP_POINTS);
+        linear_grid_y = linspace(center_y - extended_radius, center_y + extended_radius, INTERP_POINTS);
+        [interp_x, interp_y] = meshgrid(linear_grid_x, linear_grid_y);
+        
+        % Perform grid interpolation
+        interp_z = griddata([x_coords(chans+1), add_x], [y_coords(chans+1), add_y], [var(:); add_values(:)], interp_x, interp_y, 'natural');
+        
+        % Create a circular mask based on the extended radius
+        mask = sqrt((interp_x - center_x).^2 + (interp_y - center_y).^2) <= extended_radius;
+        interp_z(~mask) = NaN;  % Mask points outside the extended circular region
+        
+        % Plot the final interpolation
+       % h = pcolor(interp_x, interp_y, interp_z);
+        hImg = imagesc(linear_grid_x, linear_grid_y, interp_z);
+       % shading interp;  % Smooth shading
+        cs=colorbar('southoutside');  % Add colorbar
+        colormap(jet);  % Optional: Choose color map
+        alpha_data = ~isnan(interp_z).* rescale(interp_z, transp_scale, 1);
+        set(hImg, 'AlphaData', alpha_data);
+        set(hImg, 'Interpolation','bilinear');
+        hold on;
+        var(var>max_rate) = max_rate;
+        fr_color = interp1(linspace(min_rate, max_rate, size(cmap, 1)), cmap, var); % Map normalized values to colormap
+        for i = 1:length(chans)
+            scatter(x_coords(chans(i)+1), y_coords(chans(i)+1), 25, fr_color(i,:), 'filled'); % Adjust size (100) and color ('w' for white)
+        end
+        end
+        %h.FaceAlpha = 0.6;  % Set transparency for the heatmap
+        %[~, hfigc] = contour(interp_x, interp_y, interp_z); 
+        %set(hfigc, 'LineWidth',0.75, 'Color', [0.2 0.2 0.2]); 
+
+    else 
+        for t = 1:length(chans)
+            x_center = x_coords(chans(t) + 1);
+            y_center = y_coords(chans(t) + 1);
+            dist_squared = (X - x_center).^2 + (Y - y_center).^2;
+            circle_mask = dist_squared <= radius^2;
+            heatmap(circle_mask) = var(t);
+            circle_intensity = var(t) * double(circle_mask);
+            %circle_intensity = var(t) * exp(-dist_squared / (1 * radius^2));
+            heatmap = heatmap + circle_intensity;
+        end
+        % Plot heatmap
+        hImg = imagesc(heatmap);
+        alpha_data = ~isnan(heatmap) & heatmap > 0;
+        set(hImg, 'AlphaData', alpha_data);
+       % colormap("jet");
+        set(hImg, 'Interpolation','bilinear');
+    end
+    caxis([min_rate max_rate])
+    % Colorbar
+    %cs = colorbar('south');
+    cs.Label.String = Zlabel;
+   % cs.Label.Rotation = 270;
+   % cs.Label.VerticalAlignment = 'bottom';
+    cs.AxisLocation = 'out';  % tick marks outside of colorbar
+    set(cs, 'TickDirection', 'out');
+    cs.Label.Rotation = 0;    % horizontal orientation
+    cs.Label.VerticalAlignment = 'top';   % align vertically along colorbar
+    cs.Label.HorizontalAlignment = 'center'; % align horizontally
+
+    for t = 1:length(chans)
+        chan_id = chans(t);
+
+        x_center = x_coords(chan_id + 1);
+        y_center = y_coords(chan_id + 1);
+        
+        text(x_center + 20, y_center, num2str(chan_id), ...
+            'Color', 'w', 'FontSize', 10, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+    end
+    % Plot channel numbers and waveforms
+    for t = 1:length(chans)
+        chan_id = chans(t);
+        x_center = x_coords(chan_id + 1);
+        y_center = y_coords(chan_id + 1);
+        if nargin>4
+        % Find clusters associated with this channel
+        relevant_clusters = find(cellfun(@(x) ismember(chan_id, x), clust_chan));
+
+        if ~isempty(relevant_clusters)
+            num_clust = numel(relevant_clusters);
+            offset_distance = 30;  % Fixed offset distance between clusters
+            offset_x = (1:num_clust) * offset_distance - (num_clust / 2) * offset_distance; % Center around zero
+
+            for c = 1:num_clust
+                cluster_idx = relevant_clusters(c);
+                waveform = mean(var2{t,c});
+                %waveform = mean_waveforms(cluster_idx, :);
+                waveform = waveform / max(abs(waveform));  % Normalize to [-1, 1]
+                scale_factor = 10;
+
+                % Define snippet position with slight offset
+                x_snippet = -time(:)*10 + x_center + offset_x(c) + mean(time(:)) *10;
+                y_snippet = scale_factor * waveform + y_center-20;
+                % Define the color for the waveform snippet based on cluster
+                if nargin>12 && ~isempty(clust_col)
+                    local_fr = clust_col(t,c);   % If the channel's cluster is in the provided color map
+                    color = interp1(linspace(0, max_rate, size(cmap, 1)), cmap, local_fr); % Map normalized values to colormap
+         
+                    
+                elseif nargin > 7 && ~isempty(var2) && ~isempty(clust_col)
+                    color = clust_col(c,:);
+                else
+                    color = 'w';  % Default color if the channel's cluster is not in the list
+                end
+
+                % Plot waveform
+                plot(x_snippet, y_snippet,'Color', color, 'LineWidth', 1.5);
+            end
+        end
+        end
+    end
+    
+    axis tight, axis off; box off;
+    if exist('tit','var')
+        title(tit);
+    end
+end
