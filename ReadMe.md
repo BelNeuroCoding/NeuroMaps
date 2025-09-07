@@ -26,7 +26,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 | Network Dynamics | Firing rate heatmaps, raster plots, STTC, connectivity matrices |
 | Quality Control | Electrical properties per channel, QC flags, interactive curation |
 | Probe Map Integration | Spatial layout of channels, custom probe configurations |
-| Batch Analysis | Aggregate data across multiple sessions |
+| Batch Analysis | Upload multiple experiments, align longitudinal data, cluster spikes across sessions, compute spike features, automatically perform Kruskal-Wallis and t-tests, visualise PCA across clusters and experiments |
 
 ---
 
@@ -37,7 +37,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 | Toolboxes | Signal Processing, Statistics & Machine Learning, Wavelet, Econometrics, Mapping |
 | Python (optional) | 3.11 (for FOOOF & MATLAB-Python interface) |
 | Hardware | Minimum 1.3 GHz CPU, 16 GB RAM recommended |
-| Batch Analysis | Upload multiple experiments, align longitudinal data, cluster spikes across sessions, compute spike features, automatically perform Kruskal-Wallis and t-tests, visualise PCA across clusters and experiments |
+
 
 ---
 
