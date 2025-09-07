@@ -37,6 +37,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 | Toolboxes | Signal Processing, Statistics & Machine Learning, Wavelet, Econometrics, Mapping |
 | Python (optional) | 3.11 (for FOOOF & MATLAB-Python interface) |
 | Hardware | Minimum 1.3 GHz CPU, 16 GB RAM recommended |
+| Batch Analysis | Upload multiple experiments, align longitudinal data, cluster spikes across sessions, compute spike features, automatically perform Kruskal-Wallis and t-tests, visualise PCA across clusters and experiments |
 
 ---
 
@@ -81,8 +82,19 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 
 ### LFP Analysis Route
 1. Run FOOOF analysis, inspect oscillatory/exponent heatmaps  
-2. Measure bandpowers and perform PAC analysis after inspecting raster plots  
+2. Measure bandpowers and perform PAC analysis after inspecting raster plots
+analysis  
 
+---
+
+### Multi-Experiment / Batch Analysis
+1. Upload multiple experiment files and compare/re-process or proceed to longitudinal analysis.
+2. Run automated spike detection and clustering across experiments.
+3. Analyse longitudinal activity and comparative metrics.
+4. Perform automatic statistical analysis (Kruskal-Wallis, t-tests).
+5. Inspect PCA projections across clusters and experiments.
+6. Produce barplots and boxplots for comparisons.
+7. Export data for downstream analysis.
 ---
 
 ### Save and Export
@@ -90,6 +102,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 2. Export processed data for multi-experiment analysis via **Save → Save Data**  
 
 ---
+
 
 ## Performance
 - Analysis speed depends on CPU, RAM, and disk  
