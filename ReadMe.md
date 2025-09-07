@@ -19,6 +19,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ## Features
 | Category | Description |
 |----------|-------------|
+| Supported Files | .rhs and .rhd ; .h5 coming soon|
 | Signal Visualization | Raw and filtered traces, waterfall plots |
 | Spike Analysis | Detection, clustering, ISI, bursts, amplitude, FWHM, phase plots (dV/dt) |
 | Frequency & Spectral Analysis | PSD, spectrograms, CWT, bandpower, FOOOF fitting |
