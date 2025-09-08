@@ -18,10 +18,7 @@ for i = 1:size(selected,1)
         results = h.figure.UserData{expIdx};
     else
         results = h.figure.UserData;
-    end
-    selectedport = results.ports(selected_idx).port_id;
-    Channels = results.channels(selected_idx).id;
-    
+    end    
     timestamps = results.timestamps;
     duration_sec = max(timestamps)-min(timestamps);
     waveforms_all = results.spike_results(selected_idx).waveforms_all;

@@ -1,22 +1,52 @@
 function study_stats(h)
+    warning('off', 'all');
+
     h = guidata(h.figure); 
-    if ~isfield(h,'cumulative_spikes') || isempty(h.cumulative_spikes.all_waveforms)
+    if ~isfield(h,'cumulative_spikes') || ...
+       ~isfield(h.cumulative_spikes,'all_waveforms') || ...
+       isempty(h.cumulative_spikes.all_waveforms)
         errordlg('No cumulative spike data available. Run aggregation first.');
         return;
     end
 
     cs = h.cumulative_spikes;
 
-    % Ask user for metric(s)
-    metrics = {'Spike Rate','Burst Rate','FWHM','Peak-to-Peak Amplitude','Synchrony',...
-        'Impedance','Capacitance','Aperiodic Offset','Aperiodic Exponent','Number of Active Channels'};
+    %  Step 1: map human-readable names to fields 
+    metricMap = { ...
+        'Spike Rate',             'spike_times'; ...
+        'Burst Rate',             'spike_times'; ... % needs spike_times for bursts
+        'FWHM',                   'fwhm'; ...
+        'Peak-to-Peak Amplitude', 'ptp_amplitude'; ...
+        'Synchrony',              'spike_times'; ...
+        'Impedance',              'impedance'; ...
+        'Capacitance',            'capacitance'; ...
+        'Aperiodic Offset',       'offset'; ...
+        'Aperiodic Exponent',     'exponent'; ...
+        'Number of Active Channels','channels' ...
+        };
+
+    %  Step 2: filter available + nonempty 
+    availableMetrics = {};
+    for i = 1:size(metricMap,1)
+        dispName = metricMap{i,1};
+        fieldName = metricMap{i,2};
+        if isfield(cs, fieldName) && ~isempty(cs.(fieldName))
+            availableMetrics{end+1} = dispName; %#ok<AGROW>
+        end
+    end
+
+    if isempty(availableMetrics)
+        errordlg('No valid metrics found in cumulative_spikes.');
+        return;
+    end
+
+    %  Step 3: ask user which to plot 
     [idx, ok] = listdlg('PromptString','Select metrics to plot:', ...
-        'SelectionMode','multiple','ListString',metrics);
+        'SelectionMode','multiple', 'ListString',availableMetrics);
     if ~ok, return; end
-    metric_names = metrics(idx); 
+    metric_names = availableMetrics(idx);
     nMetrics = numel(metric_names);
 
-    group_name = 'Experiment/Port';
 
     % Ask user if they want statistics
     statChoice = questdlg('Compute statistics?', 'Statistics', ...

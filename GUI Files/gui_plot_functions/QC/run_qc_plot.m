@@ -48,7 +48,9 @@ for i = 1:numTiles
         if results.channels(portIdx).bad_impedance(c), labels{end+1} = 'Impedance'; end
         if results.channels(portIdx).high_std(c), labels{end+1} = 'STD/MAD'; end
         if results.channels(portIdx).high_psd(c), labels{end+1} = 'PSD'; end
+        if isfield(results.channels(portIdx),'dead_chans')
         if results.channels(portIdx).dead_chans(c), labels{end+1} = 'Dead'; end
+        end
         qc_status{c} = labels;
     end
 

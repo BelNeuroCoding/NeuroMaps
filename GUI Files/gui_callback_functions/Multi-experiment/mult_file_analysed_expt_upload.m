@@ -19,10 +19,22 @@ allResults = {}; % preallocate cell array
 hWait = waitbar(0, 'Loading files...');  % create waitbar
 for i = 1:length(FileNames)
     fullFileName = fullfile(FilePath, FileNames{i});
-    loaded = load(fullFileName, 'resultsToSave');
+    loaded = load(fullFileName);
     
     if isfield(loaded, 'resultsToSave')
         allResults{i} = loaded.resultsToSave;
+    elseif isfield(loaded,'wclustered')
+        allResults{i}.fs = loaded.wclustered.fs;
+        allResults{i}.metadata.filename = loaded.wclustered.experimental_ID{1};
+        allResults{i}.metadata.date = datestr(datetime(loaded.wclustered.experimental_ID{1}(1:end-7),'InputFormat','yyMMdd'),'dd-mmm-yyyy');
+        allResults{i}.timestamps = loaded.wclustered.TimeStamps;
+        for p = 1:numel(loaded.wclustered.clustered)
+            allResults{i}.spike_results(p).waveforms_all =  loaded.wclustered.clustered{p};
+            if isfield(allResults{i}.spike_results(p).waveforms_all,'cluster')
+                [allResults{i}.spike_results(p).waveforms_all.clusters] = allResults{i}.spike_results(p).waveforms_all.cluster;
+            end
+            allResults{i}.ports(p).port_id = p;
+        end
     else
         warning('File %s does not contain ''resultsToSave''. Skipping.', FileNames{i});
     end
@@ -53,13 +65,4 @@ m=msgbox(sprintf('Loaded %d experiments successfully.', length(allResults)), ...
 t= timer('StartDelay',2,'TimerFcn',@(~,~)delete(m));
 start(t);
 updateSummary(h);
-init_traces_tab(h);
-init_power_spectrum_tab(h);
-update_traces_tab(h);
-update_power_spectrum_tab(h);
-pop_graph_callback(h);
-Elec_plot_callback(h);
-noise_plot_callback(h);
-run_qc_plot(h);
-update_spike_summary_tab(h);
 end

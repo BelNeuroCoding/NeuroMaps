@@ -3,21 +3,24 @@ function cluster_raster_plot(data_to_raster,TimeStamps,ax)
 clusters = [data_to_raster.clusters];
 unique_clusters = unique([data_to_raster.clusters]);
 colors = lines(length(unique_clusters));
-unique_channels = unique([data_to_raster.channel]);
+nclust = length(unique_clusters);
+spacing = 1;
 hold all;
 for i = 1:length(unique_clusters)    
     plot_idx = find(clusters == unique_clusters(i));
     spike_times = [data_to_raster(plot_idx).time_stamp];
     spike_channels = [data_to_raster(plot_idx).channel];
-    cluster_handles(i) = plot(spike_times+min(TimeStamps), spike_channels, '|', 'Color', colors(i,:), 'LineWidth', 1);
-
+    yval = i * spacing;
+    cluster_handles(i) = scatter(spike_times+min(TimeStamps),  yval * ones(size(spike_times)),10, colors(i,:), '|', 'LineWidth', 1);
     hold on;
 end
 
-yticks(unique_channels);          % put ticks exactly at channel numbers
-yticklabels(string(unique_channels)); % show the channel numbers
-ylabel('Channel');
+
+yticks((1:nclust) * spacing);
+yticklabels(string(unique_clusters));
+ylabel('Cluster');
 xlabel('Time (s)');
+ylim([0 length(unique_clusters)*1.5])
 
 xlim([min(TimeStamps) max(TimeStamps)]); % Set x-axis limits based on time
 

@@ -1,40 +1,45 @@
-function amplitude_raster_plot(data_to_raster,TimeStamps)
+function amplitude_raster_plot_fast(data_to_raster, TimeStamps)
 
 channels = [data_to_raster.channel];
 unique_channels = unique(channels);
 ptp_amplitudes = [data_to_raster.ptp_amplitude];
+
+%  Amplitude limits and colormap 
 amp_lims = [0 ceil(max(ptp_amplitudes))];
+cmap = jet(256);
 
-cmap = colormap('jet');
+% Scale amplitudes to colormap indices
 scaled_amp = min(max(ptp_amplitudes, 0), amp_lims(2));
-color_idx = round(scaled_amp / amp_lims(2) * (size(cmap, 1) - 1)) + 1;
-spike_colors = cmap(color_idx, :);
+color_idx = round(scaled_amp / amp_lims(2) * (size(cmap,1)-1)) + 1;
+spike_colors = cmap(color_idx,:);
 
-hold all;
-for i = 1:length(unique_channels)    
-    plot_idx = find(channels == unique_channels(i));
-    spike_times = [data_to_raster(plot_idx).time_stamp];
-    scatter(spike_times+min(TimeStamps), channels(plot_idx), 30, spike_colors(plot_idx,:), '|','LineWidth',1.5); 
+%  Map channels to vertical positions 
+[~, ~, y_idx] = unique(channels);  % returns 1..nCh for each spike
+y_positions = y_idx;               % evenly spaced rows
 
-    hold on;
-end
+%  Single scatter call for all spikes 
+hold on;
+scatter([data_to_raster.time_stamp] + min(TimeStamps), y_positions, 10, spike_colors, '|', 'LineWidth', 1);
 
-yticks(unique_channels);          % put ticks exactly at channel numbers
-yticklabels(string(unique_channels)); % show the channel numbers
+%  Axes and labels 
+nCh = length(unique_channels);
+
+% Pick a subset of channels for ticks, e.g., max 5 ticks
+max_ticks = 7;
+tick_idx = round(linspace(1, nCh, min(max_ticks,nCh)));  % pick evenly spaced indices
+yticks(tick_idx);
+yticklabels(string(unique_channels(tick_idx)));
 ylabel('Channel');
 xlabel('Time (s)');
-xlim([min(TimeStamps) max(TimeStamps)]); % Set x-axis limits based on time
+ylim([0.5 nCh + 0.5]);
+xlim([min(TimeStamps) max(TimeStamps)]);
+set(gca, 'YDir', 'normal', 'TickDir', 'out', 'Color', 'none');
 
-% Add colorbar for amplitude
+%  Colorbar 
 c = colorbar('southoutside');
 caxis(amp_lims);
-ylabel(c, 'Peak-to-Peak Amplitude (\muV)');  % label colorbar
+ylabel(c, 'Peak-to-Peak Amplitude (\muV)');
 
-
-% Final figure settings
 hold off;
-set(gca, 'Color', 'none');  % Make the background transparent
-
-
 
 end

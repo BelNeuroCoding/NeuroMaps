@@ -112,11 +112,10 @@ function plot_fwhm_callback(h)
         hold(ax,'on');
 
         if h.feats_mode_toggle.Value  % cumulative/global
-            for c = 1:length(data(i).channels)
-                histogram(ax, data(i).fwhm_data{c}, 'BinWidth', 0.01, ...
-                    'FaceColor', colors(mod(c-1,32)+1,:), ...
-                    'DisplayName', sprintf('Ch %d', data(i).channels(c)));
-            end
+             allfwhm = horzcat(data(i).fwhm_data{:});  
+             histogram(ax, allfwhm, 'BinWidth', 0.05, ...
+                          'FaceColor', colors(mod(i-1,32)+1,:), ...
+                          'DisplayName', sprintf('Exp %d, Port %d', data(i).expIdx, data(i).portIdx));
            % legend(ax,'show','Location','northeast');
             titleStr = sprintf('Exp %d, Port %d (Global)', data(i).expIdx, data(i).portIdx);
         else  % single channel

@@ -67,9 +67,13 @@ function aggregate_spikes(h)
             ptp_all = [ptp_all; cell2mat(arrayfun(@(x) x.ptp_amplitude, wf_all,'UniformOutput',false)')];
             fwhm_all = [fwhm_all; cell2mat(arrayfun(@(x) x.fwhm, wf_all,'UniformOutput',false)')];
             rec_time_spike = [rec_time_spike ; recording_time*ones(size(wf_interp,1),1)];
-            all_spec_chans = [all_spec_chans; [res.channels(portIdx).id]'];
-            all_impedance = [all_impedance;[res.electrical_properties(portIdx).electrode_impedance]'];
-            all_capacitance = [all_capacitance;[res.electrical_properties.electrode_capacitance]'];
+            if isfield(res, 'channels') 
+                all_spec_chans = [all_spec_chans; [res.channels(portIdx).id]'];
+            end
+            if isfield(res,'electrical_properties')
+                all_impedance = [all_impedance;[res.electrical_properties(portIdx).electrode_impedance]'];
+                all_capacitance = [all_capacitance;[res.electrical_properties.electrode_capacitance]'];
+            end
              % Check if fields exist and are non-empty
             if isfield(res, 'foof_lfp') && length(res.foof_lfp) >= portIdx && isfield(res.foof_lfp(portIdx), 'foof_results') && ~isempty(res.foof_lfp(portIdx).foof_results)
                         if all(arrayfun(@(x) isfield(x, 'aperiodic_params'), res.foof_lfp(portIdx).foof_results))

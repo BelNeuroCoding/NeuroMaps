@@ -110,11 +110,11 @@ function plot_ibi_callback(h)
         hold(ax,'on');
 
         if h.feats_mode_toggle.Value  % cumulative/global
-            for c = 1:length(data(i).channels)
-                histogram(ax, data(i).IBI_data{c}, 'BinWidth', 0.1, ...
-                    'FaceColor', colors(mod(c-1,32)+1,:), ...
-                    'DisplayName', sprintf('Ch %d', data(i).channels(c)));
-            end
+             allIBI = horzcat(data(i).IBI_data{:});  
+             histogram(ax, allIBI, 'BinWidth', 0.1, ...
+                          'FaceColor', colors(mod(i-1,32)+1,:), ...
+                          'DisplayName', sprintf('Exp %d, Port %d', data(i).expIdx, data(i).portIdx));
+
            % legend(ax,'show','Location','northeast');
             titleStr = sprintf('Exp %d, Port %d (Global) - %d Bursts', ...
                                data(i).expIdx, data(i).portIdx, sum(data(i).numBursts));

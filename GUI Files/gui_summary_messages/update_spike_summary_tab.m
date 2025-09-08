@@ -17,10 +17,19 @@ summaryLines{end+1} = sprintf('Experiments Loaded: %d', numExpts);
 
 for exps = 1:numExpts
     results = allResults{exps};
+    if isfield(results,'spike_results') && ~isfield(results.spike_results,'set')
+        h.portList.Value =1:numel(results.ports);
+        spike_feats_callback(h);
+        h=guidata(h.figure);
+        allResults = get(h.figure,'UserData');
+        if ~iscell(allResults)
+            allResults = {allResults}; 
+        end
+        results = allResults{exps};
+    end
     if isfield(results,'spike_results') && isfield(results.spike_results,'set')
-        for ports = 1:numel(results.spike_results)
+        for ports = 1:numel(results.ports)
         analysedset = results.spike_results(ports).set;
-
         % Per-experiment header
         summaryLines{end+1} = sprintf('\nExperiment: %d Port: %d', exps,results.ports(ports).port_id);
 

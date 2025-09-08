@@ -59,14 +59,19 @@ for i = 1:size(selected,1)
             plain_raster_plot(waveforms_all, TimeStamps);
         case 'amplitude'
             amplitude_raster_plot(waveforms_all, TimeStamps);
+
         case 'clusters'
             cluster_raster_plot(waveforms_all, TimeStamps,ax);
+
         case 'bursts'
             analysis_results = results.spike_results(selected_idx).set.spike_analysis;
             bursts_raster_plot(analysis_results, TimeStamps,ax);
+
     end
 
-    ylim(ax, [-1 max(unique([waveforms_all.channel]))+1]);
+    set(ax, 'FontSize', 8);
+    set(ax,'TickDir','out');
+
 
     %  Network overlay if requested 
     if h.rast_pop_plot_toggle.Value

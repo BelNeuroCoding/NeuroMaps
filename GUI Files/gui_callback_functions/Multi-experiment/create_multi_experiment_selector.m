@@ -60,9 +60,6 @@ h.stepCurrent = 1;
 stepperSet(h);
 guidata(h.figure,h);
 
-create_spike_tabs(h);
-create_lfp_foof_tabs(h);
-create_cumulative_tabs(h);
 % Initial port update
 
 update_port_list(h);
@@ -96,40 +93,67 @@ map = h.portList.UserData;           % Nx2 mapping array [expIdx, portIdx]
 selected = map(idx,:);
 expIdx = selected(1,1);
 portIdx = selected(1,2);  
-if isfield(results{expIdx}.signals(portIdx),'raw')
-    h.formatsPlot.Raw = uicontrol('Style', 'radiobutton', 'String', 'Raw', ...
-    'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
-    'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
-end
-if isfield(results{expIdx}.signals(portIdx),'hpf')
-    if isfield(h.formatsPlot,'Spikes') && isvalid(h.formatsPlot.Spikes)
-                delete(h.formatsPlot.Spikes);  % remove the old one
-   end
-   h.formatsPlot.Spikes = uicontrol('Style', 'radiobutton', 'String', 'Spikes', ...
-    'Units', 'normalized', 'Position', [0.64, 0.1, 0.2, 0.8], ...
-    'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
-
-end
-if isfield(results{expIdx}.signals(portIdx),'lfp')
-            if isfield(h.formatsPlot,'LFP') && isvalid(h.formatsPlot.LFP)
-                delete(h.formatsPlot.LFP);  % remove the old one
-            end
-             h.formatsPlot.LFP = uicontrol('Style', 'radiobutton', 'String', 'LFP', ...
-            'Units', 'normalized', 'Position', [0.43, 0.1, 0.2, 0.8], ...
-            'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
-end
-
-if isfield(results{expIdx}.signals(portIdx),'ref')
-    if isfield(h.formatsPlot,'Ref') && isvalid(h.formatsPlot.Ref)
-        delete(h.formatsPlot.Ref);  % remove the old one
+if isfield(results{expIdx},'signals')
+    create_signal_tabs(h);
+    h=guidata(h.figure);
+    if isfield(results{expIdx}.signals(portIdx),'raw')
+        h.formatsPlot.Raw = uicontrol('Style', 'radiobutton', 'String', 'Raw', ...
+        'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
+        'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
     end
-    h.formatsPlot.Ref = uicontrol('Style', 'radiobutton', 'String', 'Ref', ...
-    'Units', 'normalized', 'Position', [0.22, 0.1, 0.2, 0.8], ...
-    'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
+    if isfield(results{expIdx}.signals(portIdx),'hpf')
+        if isfield(h.formatsPlot,'Spikes') && isvalid(h.formatsPlot.Spikes)
+                    delete(h.formatsPlot.Spikes);  % remove the old one
+       end
+       h.formatsPlot.Spikes = uicontrol('Style', 'radiobutton', 'String', 'Spikes', ...
+        'Units', 'normalized', 'Position', [0.64, 0.1, 0.2, 0.8], ...
+        'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
+    
+    end
+    if isfield(results{expIdx}.signals(portIdx),'lfp')
+                if isfield(h.formatsPlot,'LFP') && isvalid(h.formatsPlot.LFP)
+                    delete(h.formatsPlot.LFP);  % remove the old one
+                end
+                 h.formatsPlot.LFP = uicontrol('Style', 'radiobutton', 'String', 'LFP', ...
+                'Units', 'normalized', 'Position', [0.43, 0.1, 0.2, 0.8], ...
+                'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
+    end
+    
+    if isfield(results{expIdx}.signals(portIdx),'ref')
+        if isfield(h.formatsPlot,'Ref') && isvalid(h.formatsPlot.Ref)
+            delete(h.formatsPlot.Ref);  % remove the old one
+        end
+        h.formatsPlot.Ref = uicontrol('Style', 'radiobutton', 'String', 'Ref', ...
+        'Units', 'normalized', 'Position', [0.22, 0.1, 0.2, 0.8], ...
+        'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
+    end
+    guidata(h.figure,h);
+    pop_graph_callback(h);
+    noise_plot_callback(h);
+    T = size(results{expIdx}.signals(portIdx).raw, 1); %channels in experiments 
 end
+if isfield(results{expIdx},'spike_results')
+     create_spike_tabs(h);
+     h=guidata(h.figure);
+     update_spike_summary_tab(h);
+     h=guidata(h.figure);
 
-T = size(results{expIdx}.signals(portIdx).raw, 1); %channels in experiments 
+end
+if isfield(results{expIdx},'foof_lfp')
+    create_lfp_foof_tabs(h);
+    h=guidata(h.figure);
+end
+if isfield(results{expIdx},'electrical_properties')
+    create_ZC_tabs(h);
+    h=guidata(h.figure);
+    Elec_plot_callback(h);
+    run_qc_plot(h);
+    h=guidata(h.figure);
+end
+create_cumulative_tabs(h);
+h=guidata(h.figure);
 unique_ports = [results{expIdx}.ports.port_id];
+if isfield(results{expIdx},'channels')
 all_channels = [results{expIdx}.channels(portIdx).id];
 set(h.series_slider, 'Max', T)
 set(h.series_slider, 'SliderStep', [1/(T-1), 1/(T-1)])
@@ -160,6 +184,8 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
 ind_pl = find(maps == all_channels(SeriesNumber));
 plot(h.probe_map_axes, x_coords(ind_pl), y_coords(ind_pl), 'bo', 'MarkerSize', 4, 'MarkerFaceColor', 'r');  % Red circles at current ch+1 - current_ch starts at 0.
 hold(h.probe_map_axes, 'off');
+end
+
 
 guidata(h.figure,h);
 end

@@ -90,7 +90,7 @@ function plot_cluster_callback(h)
 
     marginX = 0.05;   % left/right
     marginY_top = 0.1;    % space at top
-    marginY_bottom = 0.2; % reserve space at bottom for toggles
+    marginY_bottom = 0.25; % reserve space at bottom for toggles
     gapX = 0.04;      % horizontal gap
     gapY = 0.1;      % vertical gap
     

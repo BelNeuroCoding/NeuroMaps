@@ -47,6 +47,9 @@ function plot_isi_callback(h)
              % Check if the user wants to analyze only good channels
             exclude_impedance_chans_toggle = get(h.excl_imp_toggle, 'Value');
             exclude_noisy_chans_toggle = get(h.excl_high_STD_toggle,'Value');
+            if ~isfield(results,'channels')
+                warndlg('Select Global Data to Plot')
+            end
             channels = [results.channels(port_idx).id];
             mask = true(1,numel(channels));
         
@@ -111,14 +114,12 @@ function plot_isi_callback(h)
         hold(ax,'on');
     
         if h.feats_mode_toggle.Value  % cumulative/global
-            for c = 1:length(data(i).channels)
-                hHist = histogram(ax, data(i).ISI_ms{c}, 'BinWidth', 1, ...
-                    'FaceColor', colors(mod(c-1,32)+1,:), ...
-                    'DisplayName', sprintf('Ch %d', data(i).channels(c)));
-                allHandles(end+1) = hHist; %#ok<AGROW>
-                allLabels{end+1} = hHist.DisplayName; %#ok<AGROW>
-            end
-            titleStr = sprintf('Exp %d, Port %d (Global)', data(i).expIdx, data(i).portIdx);
+                % Concatenate all channels into one ISI vector
+                allISI = horzcat(data(i).ISI_ms{:});  
+                hHist = histogram(ax, allISI, 'BinWidth', 1, ...
+                                  'FaceColor', colors(mod(i-1,32)+1,:), ...
+                                  'DisplayName', sprintf('Exp %d, Port %d', data(i).expIdx, data(i).portIdx));
+                titleStr = sprintf('Exp %d, Port %d (Global)', data(i).expIdx, data(i).portIdx);
         else  % single channel
             hHist = histogram(ax, data(i).ISI_ms{1}, 'BinWidth', 1, 'FaceColor', 'k', ...
                 'DisplayName', sprintf('Ch %d', data(i).channels(1)));
