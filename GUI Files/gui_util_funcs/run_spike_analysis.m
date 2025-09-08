@@ -130,11 +130,26 @@ h=guidata(h.figure);
 update_spike_summary_tab(h);
 
 plot_fr_callback(h)
+drawnow()
 plot_isi_callback(h)
+drawnow()
 plot_ibi_callback(h)
+drawnow()
 plot_amplitudes_callback(h)
+drawnow()
 plot_fwhm_callback(h)
+drawnow()
 plot_raster_callback(h)
+drawnow()
+pop_spiking_plot(h)
+drawnow()
+compute_sttc_latency(h)
+drawnow()
+network_conn_callback(h)
+drawnow()
+plot_dvdt_phase(h)
+drawnow()
+
 currentText = get(h.summary_text,'String');
 if ischar(currentText)
     currentText = cellstr(currentText);

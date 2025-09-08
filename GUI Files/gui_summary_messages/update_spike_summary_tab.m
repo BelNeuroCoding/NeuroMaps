@@ -28,7 +28,7 @@ for exps = 1:numExpts
         results = allResults{exps};
     end
     if isfield(results,'spike_results') && isfield(results.spike_results,'set')
-        for ports = 1:numel(results.ports)
+        for ports = 1:numel(results.spike_results)
         analysedset = results.spike_results(ports).set;
         % Per-experiment header
         summaryLines{end+1} = sprintf('\nExperiment: %d Port: %d', exps,results.ports(ports).port_id);

@@ -1,42 +1,35 @@
-function [recording_data, electrode_stream, fsample] = read_MCS_h5_file(file_path)
+function [dat, AmpChs, t,metadata] = read_MCS_h5_file(file_path)
 
-% read_MCS_h5_file - Reads MCS .h5 file and extracts recording data.
-%
-% This function opens a .h5 file from Multi Channel Systems (MCS), extracts
-% the raw recording data, electrode stream information, and the sampling frequency.
-%
-% Parameters:
-%   file_path - Path to the .h5 file to be read.
-%
-% Returns:
-%   recording_data - Corrected recording data in microvolts.
-%   electrode_stream - The electrode stream object containing metadata.
-%   fsample - Sampling frequency of the recording data.
-%
-% Example:
-%   [recording_data, electrode_stream, fsample] = read_MCS_h5_file('data.h5');
-%
-% Notes:
-%   - The function loads the .h5 file using the McsHDF5 library.
-%   - The raw data is corrected using ADC step and zero values and converted to microvolts.
+% Neu
     import McsHDF5.*
     % Load the .h5 file
-    file = McsHDF5.McsData(file_path);
-    electrode_stream = file.Recording{1}.AnalogStream{1};
-    fsample = double(electrode_stream.ChannelData(1).Info.SamplingFrequency);
-    
-    % Extract the raw data from the electrode stream
-    signal = [];
-    for i = 1:length(electrode_stream.ChannelData)
-        signal = [signal; double(electrode_stream.ChannelData(i).Data)];
+    data_file = McsHDF5.McsData(file_path);
+    exponent = data_file.Recording{1}.AnalogStream{1}.Info.Exponent(:);
+    exponent = double(exponent);
+    label = data_file.Recording{1}.AnalogStream{1}.Info.Label(:);
+    numChannels = length(label);
+
+    channels = zeros(numChannels, 1) + nan;
+    for channelIdx = 1:numChannels
+        channelStr = split(label{channelIdx}, ' ');
+
+        if strcmp(channelStr{end}, 'Ref')
+           channelNumber = 15; 
+        else
+           channelNumber = str2num(channelStr{end});
+        end
+
+        channels(channelIdx) = channelNumber;
     end
-    
-    % Correct the signal
-    scale = double(electrode_stream.ChannelData(1).Info.ADCStep);
-    ad_zero = double(electrode_stream.ChannelData(1).Info.ADZero);
-    signal_corrected = (signal - ad_zero) * scale;
-    
-    % Convert the signal to microvolts
-    scale_factor_for_uV = 1e6;  % Conversion factor from volts to microvolts
-    recording_data = signal_corrected * scale_factor_for_uV;
+
+    cfg = [];
+    cfg.dataType = 'double';
+    dat = data_file.Recording{1}.AnalogStream{1}.getConvertedData(cfg); 
+    dat = (dat.*10.^(exponent-(exponent+6))); % (NChans, NSamps)
+    fs = data_file.Recording{1}.AnalogStream{1}.getSamplingRate;
+    t = (0:length(dat)-1)/fs;
+    [AmpChs.custom_order, sort_idx] = sort(channels);  
+    dat = dat(sort_idx,:);        % reorder rows of dat
+    AmpChs.port_number = 1*ones(size(channels));
+    metadata = data_file.Data.Date;
 end

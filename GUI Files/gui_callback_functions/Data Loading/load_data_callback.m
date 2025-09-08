@@ -22,7 +22,7 @@ function load_data_callback(h)
 switch h.selectedSystem
     case 'RHS'
         filterSpec = {'*.rhs', 'RHS Files (*.rhs)'; '*.*', 'All Files (*.*)'};
-    case 'MCS'
+    case 'h5'
         filterSpec = {'*.h5', 'H5 Files (*.h5)'; '*.*', 'All Files (*.*)'};
     case 'RHD'
         filterSpec = {'*.rhd', 'RHD Files (*.rhd)'; '*.*', 'All Files (*.*)'};
@@ -63,8 +63,20 @@ if FlagUp
                     % Load single file
                     [RawData, AmpChs, TimeStamps] = read_Intan_RHS2000_file(FileName, FilePath);                    
                 end
+                    % Extract Experimental Names/Metadata
+
+                if ~ischar(FileName)
+                    Data.metadata.filename=FileName{i};
+                    date_time_str = strsplit([FileName{i}(end-16:end-4)],'_');
+                else
+                    Data.metadata.filename=FileName;
+                    date_time_str = strsplit([FileName(end-16:end-4)],'_');
+                end
+                Data.metadata.date = datetime(date_time_str{1}, 'InputFormat', 'yyMMdd');
+                t= datetime(date_time_str{2}, 'InputFormat', 'HHmmss');
+                Data.metadata.time = t-dateshift(t,'start','day');
                 
-              case 'MCS'
+              case 'h5'
                     % Load MCS data
                     disp('Loading data for MCS...');
                     if ~ischar(FileName)
@@ -79,9 +91,9 @@ if FlagUp
                         
                         % Loop through each file
                         for i = 1:length(FileName)
-                            [raw, electrode_stream, fsample] = read_MCS_h5_file(fullfile(FilePath, FileName{i}));
+                            [raw, AmpChs,times,metadata] = read_MCS_h5_file(fullfile(FilePath, FileName{i}));
                             rawCell{i} = raw;
-                            timesCell{i} = (0:(size(raw, 2)-1)) / fsample; % Generate timestamps
+                            timesCell{i} = times;
                         end
                         
                         % Concatenate data after the loop
@@ -89,11 +101,11 @@ if FlagUp
                         TimeStamps = [timesCell{:}];
                         
                     else
-                        % Load single file
-                        [RawData, electrode_stream, fsample] = read_MCS_h5_file(fullfile(FilePath, FileName));
-                        TimeStamps = (0:(size(RawData, 2)-1)) / fsample; % Generate timestamps
+                        [RawData,AmpChs,TimeStamps,metadata] = read_MCS_h5_file(fullfile(FilePath, FileName));
                         
                     end
+                    Data.metadata.filename = metadata;
+                    Data.metadata.date = metadata;
                 
             case 'RHD'
                 % Load RHD data
@@ -122,6 +134,18 @@ if FlagUp
                     [RawData, AmpChs, TimeStamps] = read_Intan_RHD2000_file(FileName, FilePath);
                     
                 end
+                % Extract Experimental Names/Metadata
+
+                if ~ischar(FileName)
+                    Data.metadata.filename=FileName{i};
+                    date_time_str = strsplit([FileName{i}(end-16:end-4)],'_');
+                else
+                    Data.metadata.filename=FileName;
+                    date_time_str = strsplit([FileName(end-16:end-4)],'_');
+                end
+                Data.metadata.date = datetime(date_time_str{1}, 'InputFormat', 'yyMMdd');
+                t= datetime(date_time_str{2}, 'InputFormat', 'HHmmss');
+                Data.metadata.time = t-dateshift(t,'start','day');
                 
             otherwise
                 error('Unknown measurement system.');
@@ -132,26 +156,17 @@ if FlagUp
         errordlg('Failed to load data. Please check the selected files.');
         return
     end
-    % Extract Experimental Names/Metadata
 
-    if ~ischar(FileName)
-        Data.metadata.filename=FileName{i};
-        date_time_str = strsplit([FileName{i}(end-16:end-4)],'_');
-    else
-        Data.metadata.filename=FileName;
-        date_time_str = strsplit([FileName(end-16:end-4)],'_');
-    end
-    Data.metadata.date = datetime(date_time_str{1}, 'InputFormat', 'yyMMdd');
-    t= datetime(date_time_str{2}, 'InputFormat', 'HHmmss');
-    Data.metadata.time = t-dateshift(t,'start','day');
 
     % Extract recording parameters and electrode properties
     Data.fs = round(1/(TimeStamps(2)-TimeStamps(1)));
     Data.timestamps = TimeStamps;
     
-    all_impedance = [AmpChs.electrode_impedance_magnitude]/1000; %kohms
-    all_phase = [AmpChs.electrode_impedance_phase];
-    all_capacitance = -1000000./(2*pi()*Data.fs.*abs(all_impedance).*sind(all_phase)); %capacitance in nF
+    if isfield(AmpChs,'electrode_impedance_magnitude')
+        all_impedance = [AmpChs.electrode_impedance_magnitude]/1000; %kohms
+        all_phase = [AmpChs.electrode_impedance_phase];
+        all_capacitance = -1000000./(2*pi()*Data.fs.*abs(all_impedance).*sind(all_phase)); %capacitance in nF
+    end
     all_channels = [AmpChs.custom_order];
     ch_ports = [AmpChs.port_number];
     unique_ports = unique(ch_ports); 
@@ -163,9 +178,11 @@ if FlagUp
         idx = find(ch_ports == unique_ports(i));
         % Calculate capacitance from impedance and phase
         Data.ports(i).port_id = unique_ports(i);
-        Data.electrical_properties(i).electrode_impedance =all_impedance(idx); % impedance in kOhms
-        Data.electrical_properties(i).electrode_phase = all_phase(idx); % phase in degrees
-        Data.electrical_properties(i).electrode_capacitance = all_capacitance(idx);
+        if isfield(AmpChs,'electrode_impedance_magnitude')
+            Data.electrical_properties(i).electrode_impedance =all_impedance(idx); % impedance in kOhms
+            Data.electrical_properties(i).electrode_phase = all_phase(idx); % phase in degrees
+            Data.electrical_properties(i).electrode_capacitance = all_capacitance(idx);
+        end
         Data.signals(i).raw = RawData(idx,:);
         [T, N] = size(RawData(idx,:));
         Data.channels(i).id = all_channels(idx);
@@ -228,16 +245,23 @@ if FlagUp
     'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
     'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
     guidata(h.figure,h);
+    slider_callback([],[],h);
     pop_graph_callback(h);
+    drawnow()
     noise_plot_callback(h);
+    drawnow()
     update_power_spectrum_tab(h);
     if mean(all_impedance)>0
         create_ZC_tabs(h);
         h=guidata(h.figure);
         Elec_plot_callback(h);
-        run_qc_plot(h);
+        drawnow();
+        run_qc_callback(h);
         h=guidata(h.figure);
+        run_qc_plot(h);
+        guidata(h.figure,h);
     end
+
 
 end
 end

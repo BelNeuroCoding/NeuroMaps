@@ -102,7 +102,10 @@ if ~isfield(h,'overviewTabs') || ~isvalid(h.waterfall_tab)
         'SelectionChangedFcn', @portSelectionChanged);
 end
 if  ~isfield(h,'QCTabs') || ~isvalid(h.QCTabs)
-    h.QCTabs = uitabgroup('Parent', h.quality_metrics_tab,'Units', 'normalized','Position', [0 0 1 1]);
+    if ~isfield(h,'quality_metrics_tab') || ~isvalid(h.quality_metrics_tab)
+        h.quality_metrics_tab = uitab(h.tabgroup2, 'Title', 'Quality Check','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
+        h.QCTabs = uitabgroup('Parent', h.quality_metrics_tab,'Units', 'normalized','Position', [0 0 1 1]);
+    end
     h.noise_tab  = uitab(h.QCTabs, 'Title', 'Noise Levels','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
     h.noise_button = uicontrol('Style', 'pushbutton','Parent', h.noise_tab,'String', 'Plot Noise Levels', ...
     'Units', 'normalized','Position', [0.80, 0.0, 0.20, 0.05], ... 
@@ -144,4 +147,12 @@ end
     init_traces_tab(h);
     update_traces_tab(h);
     init_power_spectrum_tab(h);
+end
+function updateSTDValue(src, handles,stdval)
+    h = guidata(h.figure);
+    % Callback function to update STD value
+    new_val = get(src, 'Value');
+    set(stdval, 'String', num2str(new_val, '%.1f'));
+    update_thresholds(h);
+    
 end
