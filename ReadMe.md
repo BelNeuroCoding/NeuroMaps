@@ -53,7 +53,8 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ## Installation
 1. Clone or download this repository  
 2. Add the `NeuroMaps` folder and all subfolders to your MATLAB path  
-3. Launch the GUI: run `NeuroMaps` or open `NeuroMaps.m`  
+3. Launch the GUI: run `NeuroMaps` or open `NeuroMaps.m`
+!(media/demo_launch_NeuroMaps.gif)
 
 ---
 
