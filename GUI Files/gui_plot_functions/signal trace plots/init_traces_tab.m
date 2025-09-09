@@ -31,6 +31,7 @@ if isfield(sig,'raw')
     h.adjusted_axes(panelIdx) = nexttile(tiled,panelIdx);
     h.trLines.raw = plot(h.adjusted_axes(panelIdx), nan, nan, 'k','LineWidth',1);
     ylabel('Voltage (\muV)');
+    box off
     panelIdx = panelIdx+1;
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
@@ -38,6 +39,7 @@ end
 
 % - Ref -
 if isfield(sig,'ref')
+    
     h.adjusted_axes(panelIdx) = nexttile(tiled,panelIdx);
     hold(h.adjusted_axes(panelIdx),'on');
     h.trLines.ref = plot(h.adjusted_axes(panelIdx), nan, nan, 'b','LineWidth',0.5);
@@ -50,9 +52,12 @@ if isfield(sig,'ref')
         h.trLines.ref_thresh(i) = plot(h.adjusted_axes(panelIdx), nan, nan, 'b','LineWidth',1,'Tag','ThresholdLine');
     end
     ylabel('Voltage (\muV)');
+    box off
     panelIdx = panelIdx+1;
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
+else
+    xlabel('Time (s)');
 end
 
 % - Spike / HPF -
@@ -69,6 +74,7 @@ if isfield(sig,'hpf')
         h.trLines.hpf_thresh(i) = plot(h.adjusted_axes(panelIdx), nan, nan, 'b','LineWidth',1,'Tag','ThresholdLine');
     end
     ylabel('Voltage (\muV)');
+    box off
     panelIdx = panelIdx+1;
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
@@ -80,9 +86,11 @@ if isfield(sig,'lfp')
     h.trLines.lfp = plot(h.adjusted_axes(panelIdx), nan, nan, 'k','LineWidth',1);
     ylabel('Voltage (\muV)'); xlabel('Time (s)');
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    box off
 
 end
 
+xlabel('Time (s)');
 % Store updated handles
 guidata(h.figure,h);
 end
