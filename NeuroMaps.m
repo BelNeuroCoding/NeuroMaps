@@ -179,7 +179,19 @@ h.summary_text = uicontrol('Style', 'edit', ...
 h.probe_map = uitable(...
     'Units', 'normalized',...
     'Position', [0 0 1 1 ],...
-    'Visible' , 'off');
+    'Visible' , 'off','Data',{ ...
+        'sparseimg.tif'; ...
+        'sparse_x_y_coords.mat'});
+h.elecdesign = imread('sparseimg.tif');
+set(h.probe_map_axes, 'Visible', 'on'); 
+imshow(h.elecdesign, 'Parent', h.probe_map_axes); 
+hold(h.probe_map_axes, 'on'); 
+load('sparse_x_y_coords.mat', 'x_coords', 'y_coords', 'maps');
+h.x_coords = x_coords;
+h.y_coords = y_coords;
+h.maps = maps;
+h.marker = plot(h.probe_map_axes, NaN, NaN, 'bo', 'MarkerSize',4,'MarkerFaceColor','r'); % placeholder
+
 
 h.bg = uibuttongroup('Parent',h.figure, ...
     'Units','normalized', ...
@@ -213,6 +225,7 @@ uicontrol('Style', 'radiobutton', ...
     'BackgroundColor', backgdcolor, ...
     'ForegroundColor', accentcolor, ...
     'FontName', 'Cambria', 'FontSize', 11);
+
 
 % Exclusion Criteria Toggles
 h.excl_imp_toggle = uicontrol('Style', 'checkbox', ...
@@ -331,6 +344,7 @@ function updateclusternumValue(src, handles)
     % Update your processing with the new STD value if necessary
 end
 function loadProbeMapCallback(h)
+    h=guidata(h.figure);
     [imgFile, imgPath] = uigetfile({'*.tif;*.png;*.jpg', 'Image Files'}, ...
         'Select Probe Design Image');
     if isequal(imgFile,0)
@@ -347,6 +361,17 @@ function loadProbeMapCallback(h)
     set(h.probe_map, 'Data', { ...
         fullfile(imgPath, imgFile); ...
         fullfile(matPath, matFile)});
+    h.elecdesign = imread(imgFile);
+    set(h.probe_map_axes, 'Visible', 'on'); 
+    imshow(h.elecdesign, 'Parent', h.probe_map_axes); 
+    hold(h.probe_map_axes, 'on'); 
+    load(matFile, 'x_coords', 'y_coords', 'maps'); 
+    h.x_coords = x_coords;
+    h.y_coords = y_coords;
+    h.maps = maps;
+    h.marker = plot(h.probe_map_axes, NaN, NaN, 'bo', 'MarkerSize',4,'MarkerFaceColor','r'); 
+
+    guidata(h.figure,h)
 end
 
 
