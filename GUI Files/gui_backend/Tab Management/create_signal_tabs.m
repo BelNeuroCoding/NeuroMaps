@@ -149,7 +149,7 @@ end
     init_power_spectrum_tab(h);
 end
 function updateSTDValue(src, handles,stdval)
-    h = guidata(h.figure);
+    h = guidata(handles.figure);
     % Callback function to update STD value
     new_val = get(src, 'Value');
     set(stdval, 'String', num2str(new_val, '%.1f'));
