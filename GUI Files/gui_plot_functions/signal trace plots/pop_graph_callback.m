@@ -53,7 +53,11 @@ for i = 1:size(selected,1)
     end
     signals = results.signals(portIdx).(lab)(mask,:);
     channels = results.channels(portIdx).id(mask);
-    TimeStamps = results.timestamps;
+    if strcmp(lab,'lfp')
+        TimeStamps = results.resampled_time;
+    else
+        TimeStamps = results.timestamps;
+    end
     port_num = results.ports(portIdx).port_id;
     title_str = [exptit ' port ' num2str(port_num)];
     if nargin<2
