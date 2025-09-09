@@ -100,8 +100,33 @@ Timestamps = Timestamps(tIdx);
 
 %  Compute and plot spectrogram 
 axes(h.specgram_plots_axes);
-[P, F, T] = pspectrum(signals', Timestamps, ...
-                      'spectrogram', 'FrequencyLimits', frequencyLimits, 'OverlapPercent', 50);
+if ~isfield(h,'specgramCache')
+    h.specgramCache = struct();
+end
+
+% Only recompute if anything changed
+needsRecompute = ...
+    ~isfield(h.specgramCache,'SeriesNumber') || h.specgramCache.SeriesNumber ~= SeriesNumber || ...
+    ~isequal(h.specgramCache.time_plot,time_plot) || ...
+    ~strcmp(h.specgramCache.label,label);
+
+if needsRecompute
+    % compute spectrogram
+    [P,F,T] = pspectrum(signals', Timestamps, 'spectrogram', 'FrequencyLimits', frequencyLimits,'OverlapPercent',50);
+    
+    % store cache
+    h.specgramCache.P = P;
+    h.specgramCache.F = F;
+    h.specgramCache.T = T;
+    h.specgramCache.SeriesNumber = SeriesNumber;
+    h.specgramCache.time_plot = time_plot;
+    h.specgramCache.label = label;
+else
+    P = h.specgramCache.P;
+    F = h.specgramCache.F;
+    T = h.specgramCache.T;
+end
+
 imagesc(h.specgram_plots_axes, T, F, pow2db(P));
 set(h.specgram_plots_axes, 'YDir','normal', 'Visible','on');
 colormap(h.specgram_plots_axes, jet);
@@ -111,27 +136,5 @@ c.FontSize = 12;
 ylim(h.specgram_plots_axes, [frequencyLimits(1) frequencyLimits(2)/2]);
 title(h.specgram_plots_axes, [label ' Signal Spectrogram Ch: ' num2str(current_ch)]);
 axtoolbar({'datacursor','save','zoomin','zoomout','restoreview','pan'});
-
-%  Plot probe design + electrode markers 
-probe_maps = get(h.probe_map, 'Data');
-if ~isempty(probe_maps)
-    imgFile = probe_maps{1}; 
-    matFile = probe_maps{2};
-else
-    imgFile = 'sparseimg.tif';
-    matFile = 'sparse_x_y_coords.mat';
-end
-
-elecdesign = imread(imgFile);
-set(h.probe_map_axes, 'Visible', 'on');
-imshow(elecdesign, 'Parent', h.probe_map_axes);
-hold(h.probe_map_axes, 'on');
-load(matFile, 'x_coords', 'y_coords', 'maps');
-
-ind_pl = find(maps == current_ch);
-plot(h.probe_map_axes, x_coords(ind_pl), y_coords(ind_pl), 'bo', 'MarkerSize', 4, 'MarkerFaceColor', 'r');
-hold(h.probe_map_axes, 'off');
-try h.tabgroup2.SelectedTab = h.probe_map_tab; catch, end
-
-
+guidata(h.figure,h);
 end

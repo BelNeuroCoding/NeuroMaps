@@ -96,9 +96,29 @@ else
     winLen = round(fs*2);
     stepLen = round(fs/2);
     f_axis = 0:0.5:fs/2;
+    if ~isfield(h,'psdCache') || ...
+       h.psdCache.expIdx ~= expIdx || ...
+       h.psdCache.port_idx ~= port_idx || ...
+       h.psdCache.SeriesNumber ~= SeriesNumber || ...
+       ~strcmp(h.psdCache.lab, lab)
+    
+        % compute PSD
+        PSDm = mPSD(sig', round(fs), winLen, stepLen, stepLen);
+        PSDw = pwelch(sig, winLen, round(fs), winLen, round(fs));
+    
+        % store in cache
+        h.psdCache.expIdx = expIdx;
+        h.psdCache.port_idx = port_idx;
+        h.psdCache.SeriesNumber = SeriesNumber;
+        h.psdCache.lab = lab;
+        h.psdCache.PSDm = PSDm;
+        h.psdCache.PSDw = PSDw;
+    end
+    
+    % use cached PSDs for plotting
+    PSDm = h.psdCache.PSDm;
+    PSDw = h.psdCache.PSDw;
 
-    PSDm = mPSD(sig', round(fs), winLen, stepLen, stepLen);
-    PSDw = pwelch(sig, winLen, round(fs), winLen, round(fs));
     if isfield(h,'psLines') || isvalid(h.psLines)
         set(h.psLines, 'XData', nan, 'YData', nan);
     end
@@ -110,7 +130,7 @@ else
     set(h.psLinesWelch, 'XData', f_axis, 'YData', PSDw);
     xlim(h.psAxes,[1 fs/2])
     legendStrings = {'Median PSD','Welch PSD'};
-    title(h.psAxes,sprintf('Port %d Ch %d %s', results.ports(port_idx).port_id,results.channels(port_idx).id(SeriesNumber),[upper(lab(1)) lower(lab(2:end))]));
+    title(h.psAxes,sprintf('Port %d Ch %d %s', results.ports(port_idx).port_id,channels(SeriesNumber),[upper(lab(1)) lower(lab(2:end))]));
 end
 
 % Axis formatting
