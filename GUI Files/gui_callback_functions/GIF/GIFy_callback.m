@@ -1,6 +1,6 @@
 function GIFy_callback(h,src)
 h = guidata(h.figure);
-%% --- Get selected port ---
+%%  Get selected port 
 idx = h.portList.Value;              % positions in the listbox
 map = h.portList.UserData;           % Nx2 mapping array [expIdx, portIdx]
 selected = map(idx,:);
@@ -40,6 +40,7 @@ frame_delay = str2double(answer{2});
 cluster_num = get(h.clusterListBox,'Value');
 isFirstFrame = true; 
 f = figure('Units','normalized','OuterPosition',[0 0 1 1]);
+ax = axes('Parent', f);
 % Ask user where to save the GIF
 [filename, pathname] = uiputfile({'*.gif','GIF Files (*.gif)'}, ...
     'Save GIF As', ['spike_rate_evolution_' results.metadata.filename(1:end-4) '_cluster_' num2str(cluster_num) '.gif']);
@@ -97,15 +98,20 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
             end
             spike_rate(nch) = sum(windowed_channels == uniquech(nch)) / time_window_sec;
         end
-        
+ 
+        % Exit early if figure closed mid-plot
+        if ~isvalid(f) || ~isvalid(ax)
+            msgbox('GIF generation stopped: figure was closed by user.');
+            return;
+        end
         % Generate heatmap with waveform snippets
        % figure(1)
        if time_window_sec<1
            ptp_amp = max(mean_waveforms,[],2)-min(mean_waveforms,[],2);
-           plot_heatmap_simplified_waveform(ptp_amp, uniquech, 'Peak-to-peak Amplitude (\mu V)', ['Heatmap with Waveforms T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,"sparseimg.tif",x_coords,y_coords);
+           plot_heatmap_simplified_waveform(ax,ptp_amp, uniquech, 'Peak-to-peak Amplitude (\mu V)', ['Heatmap with Waveforms T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,"sparseimg.tif",x_coords,y_coords);
            caxis([0 1000]);
        else
-            plot_heatmap_simplified_waveform(spike_rate, uniquech, 'Spike Rate (Hz)', ['Heatmap with Waveforms  T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,"sparseimg.tif",x_coords,y_coords);
+            plot_heatmap_simplified_waveform(ax,spike_rate, uniquech, 'Spike Rate (Hz)', ['Heatmap with Waveforms  T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,"sparseimg.tif",x_coords,y_coords);
              % Set color limits for heatmap (adjust if necessary)
              caxis([0 3]);
        end
