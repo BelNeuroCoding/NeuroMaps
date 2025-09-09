@@ -7,6 +7,7 @@ function [x_coords, y_coords] = probe_map_config(image_file)
     %       [x, y] = probe_map_config('myimage.png');  % Loads given image
 
     % If no image_file provided, ask user to choose one
+    clc;
     if nargin < 1 || isempty(image_file)
         [file, path] = uigetfile({'*.png;*.jpg;*.jpeg;*.tif;*.bmp','Image Files (*.png, *.jpg, *.jpeg, *.tif, *.bmp)'}, ...
                                  'Select an image for probe mapping');
@@ -58,6 +59,7 @@ function [x_coords, y_coords] = probe_map_config(image_file)
             point_count = point_count + 1;
             x_coords(point_count) = x;
             y_coords(point_count) = y;
+            maps(point_count) = point_count-1;
 
             % Plot the point and label it
             points(end+1) = plot(x, y, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
@@ -80,8 +82,13 @@ function [x_coords, y_coords] = probe_map_config(image_file)
             'Units','normalized','Position',[0 0 1 1]);
 
 
-    % Save to MAT file
-    [img_path, ~, ~] = fileparts(image_file);
-    save(fullfile(img_path, 'sparse_x_y_coords.mat'), 'x_coords', 'y_coords');
+    % Prompt user to select output path and filename
+    [filename, pathname] = uiputfile('*.mat', 'Save coordinates as');
+    if isequal(filename,0) || isequal(pathname,0)
+        msgbox('Save operation canceled by user.', 'Info', 'warn');
+    else
+        save(fullfile(pathname, filename), 'x_coords', 'y_coords','maps');
+        msgbox(['Coordinates saved to: ', fullfile(pathname, filename)], 'Success', 'help');
+    end
 
 end
