@@ -1,6 +1,4 @@
 function update_power_spectrum_tab(h)
-h = guidata(h.figure);
-
 % Get selection
 idx = h.portList.Value;
 map = h.portList.UserData;

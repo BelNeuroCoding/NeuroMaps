@@ -223,7 +223,17 @@ if FlagUp
                                   'String','Deselect All', ...
                                   'Units','normalized','Position',[0.50 0.87 0.50 0.08], ...
                                   'Callback', @(src,evt) set(h.portList,'Value',[]),'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
-
+    guidata(h.figure,h)
+    % Plot and Update Summary Data
+    updateSummary(h);
+    % Create radio button for series      
+    create_signal_tabs(h);
+    
+    h=guidata(h.figure);
+    h.formatsPlot.Raw = uicontrol('Style', 'radiobutton', 'String', 'Raw', ...
+    'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
+    'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
+    
     % % Set slider properties
     set(h.series_slider, 'Max', T)
     set(h.series_slider, 'SliderStep', [1/(T-1), 1/(T-1)]) 
@@ -234,33 +244,25 @@ if FlagUp
     set(h.series_text,'String',sertxt)
     set(h.series_slider, 'Visible', 'on')
     set(h.series_text, 'Visible', 'on')
+    ind_pl = find(h.maps == all_channels(SeriesNumber));
+    set(h.marker, 'XData', h.x_coords(ind_pl), 'YData', h.y_coords(ind_pl));
     guidata(h.figure,h)
-    create_signal_tabs(h);
-    create_ZC_tabs(h)
-    h=guidata(h.figure);
-    % Plot and Update Summary Data
-    updateSummary(h);
-    % Create radio button for series
-    h.formatsPlot.Raw = uicontrol('Style', 'radiobutton', 'String', 'Raw', ...
-    'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
-    'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
-    guidata(h.figure,h);
-    slider_callback([],[],h);
+   
     pop_graph_callback(h);
     drawnow()
+    update_traces_tab(h);
+
+    create_ZC_tabs(h)
     noise_plot_callback(h);
-    drawnow()
+    drawnow limitrate
     if mean(all_impedance)>0
         create_ZC_tabs(h);
-        h=guidata(h.figure);
         Elec_plot_callback(h);
-        drawnow();
+        drawnow limitrate;
         run_qc_callback(h);
-        h=guidata(h.figure);
-        run_qc_plot(h);
-        guidata(h.figure,h);
-        
+        run_qc_plot(h);        
     end
+    h=guidata(h.figure);
     update_power_spectrum_tab(h);
     plot_specgram(h);
 end
