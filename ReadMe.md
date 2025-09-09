@@ -61,15 +61,14 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ## Usage
 
 ### Upload and Visualise
-1. Open NeuroMaps in MATLAB  
-2. Upload recordings via **Data Files → Upload** (multiple files per session supported)  
-3. Inspect signals and QC:
+1. Upload recordings via **Data Files → Upload** (multiple files per session supported)  
+2. Inspect signals and QC:
 
    **Signal Traces Tab**: Waterfall plots and signal traces  
    **Quality Checks Tab**: Electrical properties, noise levels, QC flags  
    **Probe Map**: Channel position displayed (Port:Channel slider)  
 
-4. Perform referencing or filtering. Toggle Raw/Filtered to view updated PSD, spectrogram, and CWT plots. Set spike detection thresholds.
+3. Perform referencing or filtering. Toggle Raw/Filtered to view updated PSD, spectrogram, and CWT plots. Set spike detection thresholds.
 
 
 ---
