@@ -64,9 +64,25 @@ function plot_cwt(h,src)
 
     LFPData = LFPData(:,tIdx);
     resampled_time = resampled_time(tIdx);
-    
-    %LP = decimate(LFPData(SeriesNumber, :), 30); % resample original times
-    [wt,f] = cwt(LFPData(SeriesNumber, :), resampleFs,'FrequencyLimits',[0 300]);
+    if ~isfield(h,'cwtCache') || ...
+       h.cwtCache.expIdx ~= expIdx || ...
+       h.cwtCache.port_idx ~= port_idx || ...
+       h.cwtCache.SeriesNumber ~= SeriesNumber || ...
+       any(h.cwtCache.time_plot ~= time_plot)
+        
+        [wt,f] = cwt(LFPData(SeriesNumber,:), resampleFs, ...
+                     'FrequencyLimits',[0 300]);
+        h.cwtCache.wt = wt;
+        h.cwtCache.f = f;
+        h.cwtCache.expIdx = expIdx;
+        h.cwtCache.port_idx = port_idx;
+        h.cwtCache.SeriesNumber = SeriesNumber;
+        h.cwtCache.time_plot = time_plot;
+    else
+        wt = h.cwtCache.wt;
+        f = h.cwtCache.f;
+    end
+
     [minf maxf]=cwtfreqbounds(numel(LFPData(SeriesNumber, :)),resampleFs);
    % pick powers of 2 within [minf,maxf]
     yticks = 2.^round(log2(minf):log2(maxf));

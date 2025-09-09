@@ -250,7 +250,6 @@ if FlagUp
     drawnow()
     noise_plot_callback(h);
     drawnow()
-    update_power_spectrum_tab(h);
     if mean(all_impedance)>0
         create_ZC_tabs(h);
         h=guidata(h.figure);
@@ -260,8 +259,9 @@ if FlagUp
         h=guidata(h.figure);
         run_qc_plot(h);
         guidata(h.figure,h);
+        
     end
-
-
+    update_power_spectrum_tab(h);
+    plot_specgram(h);
 end
 end

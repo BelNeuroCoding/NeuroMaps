@@ -36,29 +36,22 @@ function update_slider(h,src)
         return;
     end
     set(h.series_slider,'Value',SeriesNumber);
-    update_traces_tab(h)
-    update_power_spectrum_tab(h)
-    plot_specgram(h)
-    % Load probe design + coords from what user selected at startup
-    probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
-    if ~isempty(probe_maps)
-    imgFile = probe_maps{1};   % first row (image file)
-    matFile = probe_maps{2};   % second row (.mat file)
-    else
-        imgFile = 'sparseimg.tif';
-        matFile = 'sparse_x_y_coords.mat';
+    ind_pl = find(h.maps == channels(SeriesNumber));
+    set(h.marker, 'XData', h.x_coords(ind_pl), 'YData', h.y_coords(ind_pl));
+    guidata(h.figure,h)
+    activeTab = h.tabgroup1.SelectedTab;
+    if strcmp(activeTab.Title, 'Signal Traces')
+        update_traces_tab(h);
     end
-    elecdesign = imread(imgFile);
-    set(h.probe_map_axes, 'Visible', 'on');
-    imshow(elecdesign, 'Parent', h.probe_map_axes);
-    hold(h.probe_map_axes, 'on');
-    
-    load(matFile, 'x_coords', 'y_coords', 'maps');
-    
-    % Plot markers on the image at specified points
-    ind_pl = find(maps == channels(SeriesNumber));
-    plot(h.probe_map_axes, x_coords(ind_pl), y_coords(ind_pl), 'bo', 'MarkerSize', 4, 'MarkerFaceColor', 'r');  % Red circles at current ch+1 - current_ch starts at 0.
-    hold(h.probe_map_axes, 'off');
-    PlotFooof_callback(h)
-
+    if strcmp(activeTab.Title, 'Frequency Analysis')
+        if strcmp(h.SpectralTabs.SelectedTab.Title,'CWT')
+            plot_cwt(h);
+        elseif strcmp(h.SpectralTabs.SelectedTab.Title,'Spectrogram')
+            plot_specgram(h);
+        elseif strcmp(h.SpectralTabs.SelectedTab.Title,'FOOOF Analysis')
+            PlotFooof_callback(h);
+        else
+            update_power_spectrum_tab(h);
+        end
+    end
 end
