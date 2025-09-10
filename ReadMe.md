@@ -139,8 +139,13 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 
 ![](media/demo_lfp_feats.gif)
 
-3. Measure bandpowers and perform PAC analysis after inspecting raster plots
-analysis  
+3. Apply time-resolved bandpower if needed
+
+![](media/demo_timeres_bandpower.gif)
+
+4.   Inspect connectivity and perform PAC analysis on selected channels
+
+![](media/demo_pac_conn.gif)
 
 ---
 
@@ -152,6 +157,9 @@ analysis
 5. Inspect PCA projections across clusters and experiments.
 6. Produce barplots and boxplots for comparisons.
 7. Export data for downstream analysis.
+
+![](media/demo_cumulative_analysis.gif)
+
 ---
 
 ### Save and Export
@@ -182,6 +190,7 @@ analysis
 #### Heatmap Plots
 - Heatmap plots can be customised as Topographic, Simple, or Distribution
 
+![](media/demo_topo_plain_dist.gif)
 
 
 #### Edit Colourmap Limits
