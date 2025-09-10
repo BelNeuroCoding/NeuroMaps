@@ -320,6 +320,19 @@ function study_evolution(h)
                     end
                     if strcmp(metric_name,'Impedance'), vals(vals>1000) = 1000; end
                     group_data{g} = vals;
+                 case 'Number of Active Channels'
+                    combo_ids = unique(combo_idx(mask));
+                    if useDenseOrCombo(numel(combo_ids))
+                        vals = length(unique(cs.channels(mask)));
+                    else
+                        vals = [];
+                        for c = combo_ids(:)'
+                            submask = mask & (combo_idx==c);
+                            chans_c = cs.channels(submask);
+                            vals(end+1,1) = length(unique(chans_c));
+                        end
+                    end
+                    group_data{g} = vals;
             end
         end
     
