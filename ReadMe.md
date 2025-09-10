@@ -69,7 +69,9 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 6. Save the probe at a desired location  
 7. Load the map before proceeding via **Probe Map Tab → Load Map**  
 
+
 💡 **Tip:** Use Backspace to delete any incorrectly selected electrode location  
+
 
 ⚠️ **Warning:** Electrodes will be labelled 0, 1, 2… This may not be compatible with MCS configuration, but it can be modified manually by editing the `'maps'` array in the probe map file. Future versions of **NeuroMaps** will handle this automatically
 ![](media/demo_setup_load_probes.gif)
@@ -90,9 +92,13 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ![](media/demo_inspect_specgram.gif)
 
 4. Apply exclusion criteria and perform referencing or filtering. New toggles for Raw/Filtered views will be available and can be used to update the waterplots, PSD, spectrogram, and continuous wavelet transform (CWT) plots.
+
+
 💡 **Tip:**
 - It may be useful to increase the spike detection range to 6000 Hz to detect fast-spiking events
 - When changing the time range for the waterfall plot or CWT, always press enter
+
+
 ⚠️ **Warnings:**
 - CWT will only be generated using the LFP signals
 - In future additions, manual channel curation will be implemented
