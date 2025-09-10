@@ -182,7 +182,7 @@ analysis
 #### Heatmap Plots
 - Heatmap plots can be customised as Topographic, Simple, or Distribution
 
-![](media/demo_raster_modes.gif)
+
 
 #### Edit Colourmap Limits
 - You can use MATLAB built-in editor which is enabled on all plots to customise colourmap ranges.
