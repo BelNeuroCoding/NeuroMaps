@@ -80,15 +80,18 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 
 ### Upload and Visualise
 1. Upload recordings via **Data Files → Upload** (multiple files per session supported)
+
   ![](media/demo_open_files.gif)
 
 2. Inspect signals and QC:
    **Signal Traces Tab**: Waterfall plots and signal traces
    **Quality Checks Tab**: Electrical properties, noise levels, QC flags  
    **Probe Map**: Channel position displayed (Port:Channel slider)  
+
 ![](media/demo_inspect_signals.gif)
 
 3. Inspect power spectral density curves and spectrogram locally or plot the global PSD (mean of PSD from channels - with or without exclusion criteria)
+
 ![](media/demo_inspect_specgram.gif)
 
 4. Apply exclusion criteria and perform referencing or filtering. New toggles for Raw/Filtered views will be available and can be used to update the waterplots, PSD, spectrogram, and continuous wavelet transform (CWT) plots.
@@ -102,6 +105,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ⚠️ **Warnings:**
 - CWT will only be generated using the LFP signals
 - In future additions, manual channel curation will be implemented
+
 ![](media/demo_filt_data.gif)
 
 ---
@@ -112,12 +116,19 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 2. Set spike threshold using the sliders at the bottom of the screen 
 3. Detect spikes  
 4. View firing rates, raster plots, network connectivity, STTC, spike features
+
 ![](media/demo_detect_spikes.gif)
 
 #### Clustering
 1. Cluster spikes using PCA/K-Means or PCA/Gaussian Mixture Model or Gaussian Mixture Model. You could view the clusters per channel or in separate subplot using the **Cluster View Toggle**
+
 ![](media/demo_cluster_spikes.gif)
 
+2. Inspect spike features such as ISI, Bursts, Amplitude, and FWHM histograms for specific clusters at an electrode level or globally across all electrodes
+
+![](media/demo_cluster_features.gif)
+
+3. 
 ---
 
 ### LFP Analysis Route
@@ -142,6 +153,15 @@ analysis
 2. Export processed data for multi-experiment analysis via **Save → Save Data**  
 
 ---
+
+### Supported Plotting Modes
+#### Raster Plots
+- Multiple raster plot modes are supported including:
+  **Plain Rasters** spike time stamps plotted in black
+  **Amplitude Rasters** spike time stamps colour-coded based on amplitude
+  **Cluster Rasters** identification of cluster occurance globally
+  **Burst Rasters** bursts are overlayed in red on plain rasters
+  ![](media/demo_raster_modes.gif)
 
 
 ## Performance
