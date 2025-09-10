@@ -131,8 +131,15 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ---
 
 ### LFP Analysis Route
-1. Run FOOOF analysis, inspect oscillatory/exponent heatmaps  
-2. Measure bandpowers and perform PAC analysis after inspecting raster plots
+1. Run FOOOF analysis, inspect fitted plots for local/global analysis (similar to PSDs)
+
+![](media/demo_inspect_foof.gif)
+
+2. Inspect oscillatory/exponent/bandpower heatmaps
+
+![](media/demo_lfp_feats.gif)
+
+3. Measure bandpowers and perform PAC analysis after inspecting raster plots
 analysis  
 
 ---
@@ -148,8 +155,17 @@ analysis
 ---
 
 ### Save and Export
-1. Save GIFs of spike activity via **Save → Save GIF**  
-2. Export processed data for multi-experiment analysis via **Save → Save Data**  
+1. Save GIFs of spike activity via **Save → Save GIF**. You can set how often you would like to average the waveforms (e.g. 3 seconds) and the delay time in s between frames.
+
+  ![](media/demo_save_gif.gif)
+  
+2. Export processed data for multi-experiment analysis via **Save → Save Data**
+
+![](media/demo_save_data.gif)
+
+⚠️ **Warnings:**
+- Saving all metadata comes at the cost of subsequent computation power and storage space
+- Metadata selection may enable downstream re-processing
 
 ---
 
@@ -160,12 +176,18 @@ analysis
   **Amplitude Rasters** spike time stamps colour-coded based on amplitude
   **Cluster Rasters** identification of cluster occurance globally
   **Burst Rasters** bursts are overlayed in red on plain rasters
-  ![](media/demo_raster_modes.gif)
+
+   ![](media/demo_raster_modes.gif)
 
 #### Heatmap Plots
-- Heatmap plots can be customised as Topographic, Plain, or Distributions
+- Heatmap plots can be customised as Topographic, Simple, or Distribution
 
-#### 
+![](media/demo_raster_modes.gif)
+
+#### Edit Colourmap Limits
+- You can use MATLAB built-in editor which is enabled on all plots to customise colourmap ranges.
+
+![](media/demo_customise_cmap.gif)
 
 
 ## Performance
