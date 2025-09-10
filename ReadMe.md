@@ -128,7 +128,6 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 
 ![](media/demo_cluster_features.gif)
 
-3. 
 ---
 
 ### LFP Analysis Route
@@ -162,6 +161,11 @@ analysis
   **Cluster Rasters** identification of cluster occurance globally
   **Burst Rasters** bursts are overlayed in red on plain rasters
   ![](media/demo_raster_modes.gif)
+
+#### Heatmap Plots
+- Heatmap plots can be customised as Topographic, Plain, or Distributions
+
+#### 
 
 
 ## Performance
