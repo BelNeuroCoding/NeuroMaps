@@ -59,25 +59,64 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ---
 
 ## Usage
+### Setup Probe
+
+1. Click on **Probe Map Tab → Define Map**  
+2. Upload a photo containing the design or the image of interest  
+3. Use your mouse to zoom/pan to locate each electrode  
+4. Press **Enter** to confirm the selection for an electrode; repeat for all electrodes  
+5. Once all electrodes are selected, **double-press Enter** to confirm the map  
+6. Save the probe at a desired location  
+7. Load the map before proceeding via **Probe Map Tab → Load Map**  
+
+
+💡 **Tip:** Use Backspace to delete any incorrectly selected electrode location  
+
+
+⚠️ **Warning:** Electrodes will be labelled 0, 1, 2… This may not be compatible with MCS configuration, but it can be modified manually by editing the `'maps'` array in the probe map file. Future versions of **NeuroMaps** will handle this automatically
+![](media/demo_setup_load_probes.gif)
+
+---
 
 ### Upload and Visualise
-1. Upload recordings via **Data Files → Upload** (multiple files per session supported)  
-2. Inspect signals and QC:
+1. Upload recordings via **Data Files → Upload** (multiple files per session supported)
+  ![](media/demo_open_files.gif)
 
-   **Signal Traces Tab**: Waterfall plots and signal traces  
+2. Inspect signals and QC:
+   **Signal Traces Tab**: Waterfall plots and signal traces
    **Quality Checks Tab**: Electrical properties, noise levels, QC flags  
    **Probe Map**: Channel position displayed (Port:Channel slider)  
+![](media/demo_inspect_signals.gif)
 
-3. Perform referencing or filtering. Toggle Raw/Filtered to view updated PSD, spectrogram, and CWT plots. Set spike detection thresholds.
+3. Inspect power spectral density curves and spectrogram locally or plot the global PSD (mean of PSD from channels - with or without exclusion criteria)
+![](media/demo_inspect_specgram.gif)
 
+4. Apply exclusion criteria and perform referencing or filtering. New toggles for Raw/Filtered views will be available and can be used to update the waterplots, PSD, spectrogram, and continuous wavelet transform (CWT) plots.
+
+
+💡 **Tip:**
+- It may be useful to increase the spike detection range to 6000 Hz to detect fast-spiking events
+- When changing the time range for the waterfall plot or CWT, always press enter
+
+
+⚠️ **Warnings:**
+- CWT will only be generated using the LFP signals
+- In future additions, manual channel curation will be implemented
+![](media/demo_filt_data.gif)
 
 ---
 
 ### Spike Detection Route
-1. Exclude bad channels with toggle at bottom  
-2. Detect spikes  
-3. View firing rates, raster plots, network connectivity, STTC, spike features  
-4. Cluster spikes. Only selected clusters used for downstream analysis  
+#### Detection and Inspection
+1. Exclude bad channels with toggle at bottom
+2. Set spike threshold using the sliders at the bottom of the screen 
+3. Detect spikes  
+4. View firing rates, raster plots, network connectivity, STTC, spike features
+![](media/demo_detect_spikes.gif)
+
+#### Clustering
+1. Cluster spikes using PCA/K-Means or PCA/Gaussian Mixture Model or Gaussian Mixture Model. You could view the clusters per channel or in separate subplot using the **Cluster View Toggle**
+![](media/demo_cluster_spikes.gif)
 
 ---
 
