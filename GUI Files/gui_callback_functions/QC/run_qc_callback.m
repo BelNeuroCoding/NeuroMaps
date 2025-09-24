@@ -49,8 +49,12 @@ for i = 1:numTiles
 
     %  Compute QC 
     fs = round(results.fs);
-    impedances = results.electrical_properties(portIdx).electrode_impedance;
-    [good_channels,bad_chs] = evaluate_chans(port_chans, impedances, signals', fs, 1);
+    if isfield(results,'electrical_poperties')
+        impedances = results.electrical_properties(portIdx).electrode_impedance;
+        [good_channels,bad_chs] = evaluate_chans(port_chans, impedances, signals', fs, 1);
+    else
+        [good_channels,bad_chs] = evaluate_chans(port_chans, [], signals', fs, 0);
+    end
 
     results.channels(portIdx).bad_impedance = ismember(port_chans,bad_chs.bad_channels_impedance);
     results.channels(portIdx).high_psd = ismember(port_chans,bad_chs.bad_channels_psd);

@@ -370,8 +370,30 @@ function loadProbeMapCallback(h)
     h.y_coords = y_coords;
     h.maps = maps;
     h.marker = plot(h.probe_map_axes, NaN, NaN, 'bo', 'MarkerSize',4,'MarkerFaceColor','r'); 
-
-    guidata(h.figure,h)
+    
+    h.elecdesign = imread(imgFile);
+    
+    % Make axes visible
+    set(h.probe_map_axes, 'Visible', 'on');
+    
+    % Clear previous content
+    cla(h.probe_map_axes);
+    
+    % Show image and make it fill the axes
+    hImg = imshow(h.elecdesign, 'Parent', h.probe_map_axes); 
+    axis(h.probe_map_axes, 'image');   % maintain aspect ratio
+    hold(h.probe_map_axes, 'on');      % keep axes for plotting markers
+    
+    % Store coordinates and maps
+    h.x_coords = x_coords;
+    h.y_coords = y_coords;
+    h.maps = maps;
+    
+    % Add placeholder marker
+    h.marker = plot(h.probe_map_axes, NaN, NaN, 'bo', 'MarkerSize', 4, 'MarkerFaceColor', 'r'); 
+    
+    % Save data
+    guidata(h.figure, h);
 end
 
 

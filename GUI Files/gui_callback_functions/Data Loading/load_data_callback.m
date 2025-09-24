@@ -106,6 +106,7 @@ if FlagUp
                     end
                     Data.metadata.filename = metadata;
                     Data.metadata.date = metadata;
+                    AmpChs.custom_order = 0:59;
                 
             case 'RHD'
                 % Load RHD data
@@ -161,16 +162,18 @@ if FlagUp
     % Extract recording parameters and electrode properties
     Data.fs = round(1/(TimeStamps(2)-TimeStamps(1)));
     Data.timestamps = TimeStamps;
-    
-    if isfield(AmpChs,'electrode_impedance_magnitude')
-        all_impedance = [AmpChs.electrode_impedance_magnitude]/1000; %kohms
-        all_phase = [AmpChs.electrode_impedance_phase];
-        all_capacitance = -1000000./(2*pi()*Data.fs.*abs(all_impedance).*sind(all_phase)); %capacitance in nF
-    end
     all_channels = [AmpChs.custom_order];
     ch_ports = [AmpChs.port_number];
     unique_ports = unique(ch_ports); 
     Data.metadata.ports =  unique_ports;
+    if isfield(AmpChs,'electrode_impedance_magnitude')
+        all_impedance = [AmpChs.electrode_impedance_magnitude]/1000; %kohms
+        all_phase = [AmpChs.electrode_impedance_phase];
+        all_capacitance = -1000000./(2*pi()*Data.fs.*abs(all_impedance).*sind(all_phase)); %capacitance in nF
+    else
+        all_impedance = zeros(size(all_channels));
+    end
+
 
     % Categorise Data based on ports
 
