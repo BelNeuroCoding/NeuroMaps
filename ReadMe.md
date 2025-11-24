@@ -111,6 +111,18 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 ---
 
 ### Spike Detection Route
+#### Data Referencing
+Referencing can be applied to attenuate common mode noise in extracellular recordings. NeuroMaps currently supports two 'global' referencing modules:
+- Average reference (subtracts mean of all included channels from each channel)
+- Median reference (subtracts median of all included channels from each channel)
+Median referencing is recommended to avoid biasing the data during periods of high activity.
+If common mode noise is minimal (i.e., artefacts do not appear simultaneously across active, non-excluded channels), this step can be skipped.
+
+Before applying referencing:
+- Enable "Exclude Bad Impedance Channels"
+- Optionally enable "Exclude Noisy Channels" to prevent corrupted inputs from distorting the reference.
+- Select the high-pass filtered data ('Spikes') under the Probe Map, this ensures that the signals are not distorted due to slow oscillations.
+
 #### Detection and Inspection
 1. Exclude bad channels with toggle at bottom
 2. Set spike threshold using the sliders at the bottom of the screen 
