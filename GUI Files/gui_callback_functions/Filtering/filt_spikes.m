@@ -9,7 +9,10 @@ end
 if nargin<3
     spike_freq = [100,6000];
 end
+tic
 
 [b_high,a_high] = butter(order, 2*spike_freq/fs, 'bandpass'); % Order usually odd number 3, 5, etc..
 Sp = filtfilt(b_high,a_high,data);
+t_spikes_filter = toc;
+fprintf('\n Spikes filtering took %.3f s \n', t_spikes_filter)
 end

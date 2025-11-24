@@ -22,9 +22,12 @@ for i = 1:size(selected,1)
     
     lfp_filt = results.signals(selected_idx).lfp; % LFP filtered dataset (chans x timepoints)
     fs_lfp = results.filt_params(selected_idx).lfp;
-    
+    tic
     fooof_results_fitted = fit_lfps(lfp_filt',fs_lfp,results(selected_idx).filt_params);
+    t_elapsed_fitting_lfp = toc;
+    fprintf('Time Elapsed Fitting LFP: %.3f s \n',t_elapsed_fitting_lfp);
     results.foof_lfp(selected_idx).foof_results = fooof_results_fitted;
+    
     % Save updated results
     if iscell(h.figure.UserData)
         allresults = h.figure.UserData;

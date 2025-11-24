@@ -51,6 +51,7 @@ mode_choice = questdlg('Choose clustering mode:', ...
                        'Clustering Method', ...
                        'PCA/KMEANS','PCA/GM', 'GMM (Souza et al)',...
                        'PCA/KMEANS');
+tic
 all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
 X_scaled = zscore(double(all_waveforms),0,2);
 if isempty(mode_choice)
@@ -78,6 +79,8 @@ else
     clusters = cluster(gm, principal_components);
     end
 end
+total_time = toc;
+fprintf('Total time for Clustering %.3f s',total_time)
 clust = num2cell(clusters);
 [waveforms_all.clusters] = deal(clust{:});
 results.spike_results(selected_idx).waveforms_all = waveforms_all;

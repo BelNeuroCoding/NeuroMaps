@@ -1,6 +1,7 @@
 function run_qc_callback(h)
 %% Perform QC on selected ports across experiments, plotting per port in tiled layout
-
+backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
+accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
 h = guidata(h.figure);
 
 % Get selected ports from listbox
@@ -22,6 +23,13 @@ if ~iscell(all_Results)
     all_Results = {all_Results};
 end
 
+if ~isfield(h,'qc_tab') || ~isvalid(h.qc_tab)
+h.qc_tab     = uitab(h.QCTabs, 'Title', 'QC','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
+h.qc_plot_button = uicontrol('Style', 'pushbutton','Parent', h.qc_tab,'String', 'Plot', ...
+'Units', 'normalized','Position', [0.80, 0.9, 0.18, 0.05], 'BackgroundColor',backgdcolor,'ForegroundColor',accentcolor, 'Callback', @(src, event) run_qc_plot(h));
+h.qc_run_button = uicontrol('Style', 'pushbutton','Parent', h.qc_tab,'String', 'Run', ...
+'Units', 'normalized','Position', [0.80, 0.95, 0.18, 0.05], 'BackgroundColor',backgdcolor,'ForegroundColor',accentcolor, 'Callback', @(src, event) run_qc_callback(h));
+end 
 numTiles = size(selected,1);
 wb = waitbar(0, 'Running QC...','Name','QC Progress');
 
@@ -41,7 +49,7 @@ for i = 1:numTiles
                     signals = results.signals(portIdx).lfp;
         case 'Spikes'
                     signals = results.signals(portIdx).hpf;           
-        case 'Referenced'
+        case 'Ref'
             signals = results.signals(portIdx).ref;
         otherwise
             error('Unexpected toggle state.');
@@ -49,7 +57,7 @@ for i = 1:numTiles
 
     %  Compute QC 
     fs = round(results.fs);
-    if isfield(results,'electrical_poperties')
+    if isfield(results,'electrical_properties')
         impedances = results.electrical_properties(portIdx).electrode_impedance;
         [good_channels,bad_chs] = evaluate_chans(port_chans, impedances, signals', fs, 1);
     else

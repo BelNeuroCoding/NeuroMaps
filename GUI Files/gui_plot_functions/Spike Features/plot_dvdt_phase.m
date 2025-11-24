@@ -97,7 +97,7 @@ function plot_dvdt_phase(h)
             all_chans = all_chans(mask);
             selectedChMask = all_chans(SeriesNumber);
             if h.feats_clust_mode_toggl.Value
-                groupingIDs = [waveforms_all(selectedChMask).clusters];
+                groupingIDs = [waveforms_all.clusters];
                 uniqueIDs = unique(groupingIDs);
                 labelType = 'Cluster';
             else

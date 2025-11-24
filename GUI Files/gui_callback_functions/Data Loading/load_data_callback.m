@@ -22,7 +22,7 @@ function load_data_callback(h)
 switch h.selectedSystem
     case 'RHS'
         filterSpec = {'*.rhs', 'RHS Files (*.rhs)'; '*.*', 'All Files (*.*)'};
-    case 'h5'
+    case 'MCS H5'
         filterSpec = {'*.h5', 'H5 Files (*.h5)'; '*.*', 'All Files (*.*)'};
     case 'RHD'
         filterSpec = {'*.rhd', 'RHD Files (*.rhd)'; '*.*', 'All Files (*.*)'};
@@ -32,7 +32,7 @@ end
 
 % % Let the user choose a file to analyze
 [FileName, FilePath, FlagUp] = uigetfile(filterSpec, 'Choose Data File', 'MultiSelect', 'on');
-
+tic
 % If the user didn't click "cancel", try to open the file
 if FlagUp
 
@@ -58,6 +58,11 @@ if FlagUp
                     % Concatenate data after the loop
                     RawData = [rawCell{:}];
                     TimeStamps = [timesCell{:}];
+                    if TimeStamps(1)<2
+                        idx_amp = find(TimeStamps>2);
+                        TimeStamps = TimeStamps(idx_amp);
+                        RawData = RawData(:,idx_amp);
+                    end
                     
                 else
                     % Load single file
@@ -76,7 +81,7 @@ if FlagUp
                 t= datetime(date_time_str{2}, 'InputFormat', 'HHmmss');
                 Data.metadata.time = t-dateshift(t,'start','day');
                 
-              case 'h5'
+              case 'MCS H5'
                     % Load MCS data
                     disp('Loading data for MCS...');
                     if ~ischar(FileName)
@@ -158,7 +163,9 @@ if FlagUp
         return
     end
 
+t1=toc;
 
+tic
     % Extract recording parameters and electrode properties
     Data.fs = round(1/(TimeStamps(2)-TimeStamps(1)));
     Data.timestamps = TimeStamps;
@@ -192,7 +199,7 @@ if FlagUp
     end
     % Store Data
     set(h.figure,'UserData',Data)
-
+    t2=toc;
     % Setup GUI
     h.expList.Value =1;
     portNames = arrayfun(@(p) sprintf('Port %d', p.port_id), Data.ports, 'UniformOutput', false);
@@ -255,16 +262,15 @@ if FlagUp
     drawnow()
     update_traces_tab(h);
 
-    create_ZC_tabs(h)
     noise_plot_callback(h);
     drawnow limitrate
     if mean(all_impedance)>0
         create_ZC_tabs(h);
         Elec_plot_callback(h);
-        drawnow limitrate;
-        run_qc_callback(h);
-        run_qc_plot(h);        
+        drawnow limitrate;       
     end
+    run_qc_callback(h);
+    run_qc_plot(h); 
     h=guidata(h.figure);
     update_power_spectrum_tab(h);
     plot_specgram(h);

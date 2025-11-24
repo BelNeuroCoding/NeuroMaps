@@ -9,7 +9,7 @@ function openSystemSelectionDialog(h)
     d = dialog('Position', [300, 300, 300, dialogHeight], 'Name', 'Select Measurement Type','Color',backgdcolor);
     
     % Define the options
-    options = {'RHS', 'h5', 'RHD','Analysed Dataset'};
+    options = {'RHS', 'MCS H5', 'RHD','Analysed Dataset'};
     
     % Create radio buttons for each option
     numOptions = length(options);

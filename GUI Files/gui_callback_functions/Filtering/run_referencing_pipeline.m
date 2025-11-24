@@ -12,6 +12,7 @@ exclude_noisy_chans_toggle = get(h.excl_high_STD_toggle,'Value');
 n = size(selected,1);
 wb = waitbar(0,'Referencing all selected data..','Name','Referencing');
 cleanupObj = onCleanup(@() delete(wb));
+tic
 % Loop over all selected ports
 for i = 1:size(selected,1)
     expIdx = selected(i,1);
@@ -98,6 +99,8 @@ for i = 1:size(selected,1)
     waitbar(i/n,wb,sprintf('Referencing port %d of %d',i,n));
 end
 delete(wb);
+t_refs = toc;
+disp(['Referencing took: ' num2str(t_refs)])
 h=guidata(h.figure);
 guidata(h.figure, h);
 init_traces_tab(h);

@@ -182,7 +182,12 @@ h.probe_map = uitable(...
     'Visible' , 'off','Data',{ ...
         'sparseimg.tif'; ...
         'sparse_x_y_coords.mat'});
-h.elecdesign = imread('sparseimg.tif');
+try
+    h.elecdesign = imread('sparseimg.tif');
+catch
+    msgbox('Please make sure all folders are added to path and try again')
+    return
+end
 set(h.probe_map_axes, 'Visible', 'on'); 
 imshow(h.elecdesign, 'Parent', h.probe_map_axes); 
 hold(h.probe_map_axes, 'on'); 

@@ -29,14 +29,14 @@ end
 
 exclude_impedance_chans_toggle = get(h.excl_imp_toggle, 'Value');
 exclude_noisy_chans_toggle = get(h.excl_high_STD_toggle,'Value');
-bad_impedance = results.channels(port_idx).bad_impedance;
-noisy = results.channels(port_idx).high_psd & results.channels(port_idx).high_std;
 channels = results.channels(port_idx).id;
 mask = true(1,numel(channels));
 if exclude_impedance_chans_toggle
+    bad_impedance = results.channels(port_idx).bad_impedance;
     mask = mask & ~bad_impedance;
 end
 if exclude_noisy_chans_toggle
+    noisy = results.channels(port_idx).high_psd & results.channels(port_idx).high_std;
     mask =mask & ~noisy;
 end
 channels = channels(mask);

@@ -99,7 +99,10 @@ if exclude_noisy_chans_toggle
 end
 
 % Spike detection
+tic
 waveforms = detect_spks(filteredObservations(mask,:), fs, cfg.pre_time, cfg.post_time,[STDEVmin, STDEVmax], Channels(mask));
+t_spikes = toc;
+fprintf('Spike detection time taken: %.3f s \n', t_spikes)
 if numel(waveforms)<2
     warndlg('No spikes were detected for the selected settings.', ...
             'Spike Analysis');
@@ -125,7 +128,11 @@ end
 h=guidata(h.figure);
 %% Plot Functions
 plot_spikes_callback(h);
+tic
 spike_feats_callback(h);
+t_feats =toc;
+fprintf('Feature calculation: %.3f s\n',t_feats)
+
 h=guidata(h.figure);
 update_spike_summary_tab(h);
 
@@ -145,7 +152,10 @@ pop_spiking_plot(h)
 drawnow()
 compute_sttc_latency(h)
 drawnow()
+tic
 network_conn_callback(h)
+t_nwcc = toc;
+fprintf('NCC  computation %.3f s \n', t_nwcc);
 drawnow()
 plot_dvdt_phase(h)
 drawnow()

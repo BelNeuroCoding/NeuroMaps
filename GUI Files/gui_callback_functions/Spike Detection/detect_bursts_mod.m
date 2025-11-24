@@ -1,54 +1,81 @@
-function bursts = detect_bursts_mod(spike_times, isi_threshold, min_spikes_per_burst, min_burst_duration)
-    % Detect bursts based on ISI threshold, minimum spikes per burst, and minimum burst duration
-    
-    % Initialize burst detection
-    bursts = struct('start', {}, 'end', {});  % Preallocate as empty structure array
-    num_spikes = length(spike_times);
-    if num_spikes < min_spikes_per_burst
-        return;  % Not enough spikes to form a burst
-    end
-    
-    % Variables for tracking bursts
-    spike_counts = 0;
-    current_burst = [];
-    burst_index = 0;
-    
-    % Loop through spike times to detect bursts
-    for i = 1:num_spikes-1
-        isi = spike_times(i+1) - spike_times(i);
-        
-        if isi < isi_threshold
-            % Spike is part of a burst
-            spike_counts = spike_counts + 1;
-            if isempty(current_burst)
-                current_burst = [spike_times(i), spike_times(i+1)];
-            else
-                current_burst(2) = spike_times(i+1);
-            end
-        else
-            % End of a burst
-            if spike_counts >= min_spikes_per_burst
-                burst_index = burst_index + 1;
-                bursts(burst_index).start = current_burst(1);
-                bursts(burst_index).end = current_burst(2);
-                bursts(burst_index).duration = current_burst(2)-current_burst(1);
-                bursts(burst_index).num_spikes = spike_counts;
-            end
-            % Reset burst detection
-            current_burst = [];
-            spike_counts = 0;
-        end
-    end
-    
-    % Check the last burst
-    if ~isempty(current_burst) && spike_counts >= min_spikes_per_burst
-        burst_index = burst_index + 1;
-        bursts(burst_index).start = current_burst(1);
-        bursts(burst_index).end = current_burst(2);
-        bursts(burst_index).duration = current_burst(2)-current_burst(1);
-        bursts(burst_index).num_spikes = spike_counts;
-    end
-    
-    % Filter bursts based on duration
-    bursts = bursts(arrayfun(@(x) (x.end - x.start) >= min_burst_duration, bursts));
+function run_qc_callback(h)
+%% Perform QC on selected ports across experiments, plotting per port in tiled layout
+
+h = guidata(h.figure);
+
+% Get selected ports from listbox
+idx = h.portList.Value;                  % selected rows in the listbox
+map = h.portList.UserData;               % Nx2 mapping [expIdx, portIdx]
+selected = map(idx,:);                   % rows correspond to each selected port
+
+%  signal type
+lab = get(h.formatToggleGroup, 'SelectedObject').String;
+if isempty(lab)
+    lab = questdlg('What would you like to perform QC on?', ...
+                   'Plot Selection','Raw','Filtered','Referenced','Raw');
+
 end
+
+% Load all results
+all_Results = get(h.figure,'UserData');
+if ~iscell(all_Results)
+    all_Results = {all_Results};
+end
+
+numTiles = size(selected,1);
+wb = waitbar(0, 'Running QC...','Name','QC Progress');
+
+%  Loop through selected ports 
+for i = 1:numTiles
+    expIdx = selected(i,1);
+    portIdx = selected(i,2);
+
+    results = all_Results{expIdx};
+    port_chans = results.channels(portIdx).id;
+
+    % Select signals
+    switch lab
+        case {'Raw','AC Filtered'}
+            signals = results.signals(portIdx).raw;
+        case 'LFP'
+                    signals = results.signals(portIdx).lfp;
+        case 'Spikes'
+                    signals = results.signals(portIdx).hpf;           
+        case 'Ref'
+            signals = results.signals(portIdx).ref;
+        otherwise
+            error('Unexpected toggle state.');
+    end
+
+    %  Compute QC 
+    fs = round(results.fs);
+    if isfield(results,'electrical_properties')
+        impedances = results.electrical_properties(portIdx).electrode_impedance;
+        [good_channels,bad_chs] = evaluate_chans(port_chans, impedances, signals', fs, 1);
+    else
+        [good_channels,bad_chs] = evaluate_chans(port_chans, [], signals', fs, 0);
+    end
+
+    results.channels(portIdx).bad_impedance = ismember(port_chans,bad_chs.bad_channels_impedance);
+    results.channels(portIdx).high_psd = ismember(port_chans,bad_chs.bad_channels_psd);
+    results.channels(portIdx).high_std = ismember(port_chans,[bad_chs.bad_channels_std,bad_chs.bad_channels_mad]);
+    results.channels(portIdx).dead_chans = ismember(port_chans,[bad_chs.channels_dead]);
+    all_Results{expIdx} = results; % store back
+
+    %  Update waitbar 
+    waitbar(i/numTiles, wb, sprintf('Processing %d of %d ports...', i, numTiles));
+    % Save updated results
+    if iscell(h.figure.UserData)
+        allresults = h.figure.UserData;
+        allresults{expIdx} = results;
+        set(h.figure, 'UserData', allresults);
+    else
+        set(h.figure, 'UserData', results);
+    end
+end
+delete(wb);
+
+guidata(h.figure,h)
+run_qc_plot(h)
+end
+

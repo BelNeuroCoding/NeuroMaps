@@ -65,6 +65,7 @@ function PAC_callback(h)
         
     %  2. Filter and compute envelope/phase 
     lfp_features = struct();
+    tic
     for ch = analysis_chans
         for b = fieldnames(bands)'
             band_name = b{1};
@@ -78,7 +79,7 @@ function PAC_callback(h)
     end
 
     %  3. Define PAC pairs (phase -> amplitude) 
-    phase_bands = {'delta', 'theta'};          % user can expand
+    phase_bands = {'delta', 'theta','alpha','beta'};          % user can expand
     amp_bands = {'gamma', 'low_gamma', 'high_gamma'};
     
     MI_results = struct();
@@ -141,6 +142,6 @@ function PAC_callback(h)
             end
         end
     end
-
+    toc
     disp('PAC/MI computation complete.');
 end

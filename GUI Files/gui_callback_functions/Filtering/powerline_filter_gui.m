@@ -7,7 +7,7 @@ linefreq = [50;100; 150; 200;250;300; 350;400; 450;500; 550; 650; 750; 850;950;1
 bandwidth = 4;  % Bandwidth of ±2 Hz around each frequency
 end
 hWait = waitbar(0, 'Applying powerline filters...', 'Name', 'Filtering Progress');
-
+tic
 for j = 1:length(linefreq)
 
     tstep = 1/fs;
@@ -33,9 +33,11 @@ for j = 1:length(linefreq)
     for i=3:L
         data_out(:,i) = (a*b2*data(:,i-2) + a*b1*data(:,i-1) + a*b0*data(:,i) - a2*data_out(:,i-2) - a1*data_out(:,i-1))/a0;
     end
+    data = data_out;
     waitbar(j / length(linefreq), hWait, sprintf('Filtering frequency %d%% Complete', round((j / length(linefreq))*100)));
 
 end
 close(hWait);
-toc
+t_powerlinefiltering = toc;
+fprintf('Powerline filtering took %.3f s',t_powerlinefiltering)
 end
