@@ -215,6 +215,11 @@ Before applying referencing:
 - Analysis speed depends on CPU, RAM, and disk  
 - Recommended: process files ≤5 minutes (initial analysis: 1-minute segments)  
 
+## FAQs
+Q: What is "Binarisation Rate" in population spike plots?
+A: The binarisation rate sets how many time bins per second are used to convert spike times into a binary matrix. For example, a rate of 1000 Hz means 1 ms bins. 
+- Higher rates would yield finer temporal resolution, capturing fast bursts, but can be sparser and noisier.
+- Lower rates would yield coarser bins, smoother population trends, and can be better for slower network events.
 ---
 
 ## Citation
