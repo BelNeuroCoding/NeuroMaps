@@ -16,7 +16,7 @@ recording_time_min = length(data)/(fs*60);
 waveforms = struct();
 hWaitbar = waitbar(0, 'Spike Detection in Progress...');
 
-choice = questdlg('Would you like to exclude low amplitude spikes (<10 \muV)?', ...
+choice = questdlg('Would you like to exclude low amplitude spikes (<10 uV)?', ...
                   'Spike Exclusion', ...
                   'Yes', 'No','Yes');
 switch choice
@@ -43,7 +43,7 @@ for chan = 1:length(valid_channels)
         channel_data = data(chan,start_idx:end_idx);
         thresh = STDEV(1) *median(abs(channel_data))/0.6745;
         threshmax = STDEV(2) *median(abs(channel_data))/0.6745;
-        if ~isempty(noise_thresh) && thresh>10
+        if ~isempty(noise_thresh) && thresh<=10
             thresh = 10;
         end
         locs = [];
