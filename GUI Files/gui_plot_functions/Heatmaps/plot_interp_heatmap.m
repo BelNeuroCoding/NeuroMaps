@@ -69,10 +69,15 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords)
         [add_x, add_y] = pol2cart(theta, extended_radius);
         add_x = add_x + center_x;
         add_y = add_y + center_y;
+
+        try
+         % Compute values for additional points using nearest neighbor interpolation
+          add_values = compute_nearest_values([add_x(:), add_y(:)], [x_coords(chans+1)', y_coords(chans+1)'], var(:), 4);  % 4 nearest neighbors
+        catch
+          errordlg('Please load correct map for mapping functionalities');
+          return;
         
-        % Compute values for additional points using nearest neighbor interpolation
-        add_values = compute_nearest_values([add_x(:), add_y(:)], [x_coords(chans+1)', y_coords(chans+1)'], var(:), 4);  % 4 nearest neighbors
-        
+        end
         % Create a grid centered around the electrode region
         linear_grid_x = linspace(center_x - extended_radius, center_x + extended_radius, INTERP_POINTS);
         linear_grid_y = linspace(center_y - extended_radius, center_y + extended_radius, INTERP_POINTS);

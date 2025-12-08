@@ -36,6 +36,7 @@ end
 
     % Precompute the mask template
     radius_squared = 80;
+    try
     for t = 1:length(chans)
         x_center = x_centers(chans(t)+1)+100;
         y_center = y_centers(chans(t)+1)+100;
@@ -43,7 +44,10 @@ end
         mask = ((X_shifted - x_center).^2 + (Y_shifted - y_center).^2) <= radius_squared;
         heatmap(mask) = var(t);
     end
-
+    catch
+        errordlg('Please load correct map for mapping functionalities')
+        return;
+    end
     % Plot the heatmap
     hImg = imagesc(heatmap);
     cs = colorbar('southoutside');
