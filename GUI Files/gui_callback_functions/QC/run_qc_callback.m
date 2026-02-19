@@ -37,9 +37,10 @@ wb = waitbar(0, 'Running QC...','Name','QC Progress');
 for i = 1:numTiles
     expIdx = selected(i,1);
     portIdx = selected(i,2);
-    selectedport = results.ports(portIdx).port_id;
 
     results = all_Results{expIdx};
+    selectedport = results.ports(portIdx).port_id;
+
     port_chans = results.channels(portIdx).id;
 
     % Select signals
