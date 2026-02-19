@@ -37,6 +37,7 @@ wb = waitbar(0, 'Running QC...','Name','QC Progress');
 for i = 1:numTiles
     expIdx = selected(i,1);
     portIdx = selected(i,2);
+    selectedport = results.ports(portIdx).port_id;
 
     results = all_Results{expIdx};
     port_chans = results.channels(portIdx).id;
@@ -69,6 +70,14 @@ for i = 1:numTiles
     results.channels(portIdx).high_std = ismember(port_chans,[bad_chs.bad_channels_std,bad_chs.bad_channels_mad]);
     results.channels(portIdx).dead_chans = ismember(port_chans,[bad_chs.channels_dead]);
     all_Results{expIdx} = results; % store back
+
+    % --- Update summary text
+    currentText = get(h.summary_text,'String');
+    if ischar(currentText), currentText = cellstr(currentText); end
+    newMsg = sprintf('QC (%s) - Exp %d, Port %d: %d good channels out of %d', ...
+                     lab, expIdx, selectedport,length(good_channels), length(port_chans));
+    currentText{end+1} = newMsg;
+    set(h.summary_text,'String',currentText);
 
     %  Update waitbar 
     waitbar(i/numTiles, wb, sprintf('Processing %d of %d ports...', i, numTiles));
