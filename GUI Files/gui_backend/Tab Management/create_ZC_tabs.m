@@ -14,4 +14,5 @@ h.Elec_plot_button = uicontrol('Style', 'pushbutton','Parent', h.ZC_tab,'String'
 'BackgroundColor',backgdcolor,'ForegroundColor',accentcolor, ...
 'Callback', @(src, event) Elec_plot_callback(h));
 end
+guidata(h.figure,h);
 end
