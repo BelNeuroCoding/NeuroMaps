@@ -226,6 +226,12 @@ A: Dual thresholding is used to omit non-biological signals. 7 is the max. stand
 Q: How does validating clusters work?
 A: After clustering, the user can first select desired clusters and plot the corresponding firing rates, features, etc.. on the right panel to explore if any clusters/spikes are to be excluded. Once the user decided which clusters to keep, validate selected cluster locks these into the final results deleting other spikes/computed features which do not belong to the selected clusters.
 
+Q: Averaging results for different trials and doing statistics with results 
+A: This functionality is currently available on analysed datasets (for multi-experiment analysis). Averages currently appear in the spike summary.
+To generate comparative box-plots go to Cumulative Analysis Tab  and either compute:
+- Stats: When you click on Compute, you can select from the available list what features you would like to compare and if you would like to compare statistics. Stats are only computed if there are more than 2 groups and more than 2 data points per group compared. Please note, when data is not available for a specific metric, a warning dialog box will appear.
+- Evolution: this is appropriate when tracking longitudinal developmental changes in the sample. You will be prompted to enter sample age and start date for each experiment, for instance if I know that my organoids from Exp. 1 and Exp. 2 were DIV 110 and DIV 120 respectively on 2025-10-02;  NeuroMaps can automatically infer the corresponding ‘ages’ and produce boxplots based on the time-resolution required: “Days”, “weeks”, or “months”
+
 ---
 
 ## Citation
