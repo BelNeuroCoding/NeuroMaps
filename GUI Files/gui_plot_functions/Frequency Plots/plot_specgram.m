@@ -76,10 +76,10 @@ else
 end
 % Validate times
 if isnan(time_plot(1)) || time_plot(1) < min(Timestamps)
-    time_plot(1) = min(Timestamps);
+    time_plot(1) = int32(min(Timestamps));
 end
 if isnan(time_plot(2)) || time_plot(2) <= time_plot(1) || time_plot(2)>max(Timestamps)
-    time_plot(2) = max(Timestamps);
+    time_plot(2) = int32(max(Timestamps));
 end
 if nargin>1
 src.String=num2str(time_plot);

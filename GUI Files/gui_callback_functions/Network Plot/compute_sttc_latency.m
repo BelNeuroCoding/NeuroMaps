@@ -26,6 +26,19 @@ function compute_sttc_latency(h, dtv)
     end
     tstamps = results.timestamps;
     networkconndata = results.spike_results(selected_idx).waveforms_all;
+    ptp  = [networkconndata.ptp_amplitude]';
+    fwhm = [networkconndata.fwhm]';
+    if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
+
+            r = h.spike_filter_ranges;
+        
+            idx_keep = ...
+                ptp  >= r.amp(1)  & ptp  <= r.amp(2) & ...
+                fwhm >= r.fwhm(1) & fwhm <= r.fwhm(2);
+        
+            networkconndata = networkconndata(idx_keep);
+    end
+
     if ~isfield(networkconndata,'clusters')
         [networkconndata.clusters] = deal(1);
     else

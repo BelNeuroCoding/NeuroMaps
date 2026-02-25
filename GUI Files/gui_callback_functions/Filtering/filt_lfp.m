@@ -13,6 +13,5 @@ end
 
 [b_low,a_low] = butter(order, 2*lfp_freq/fs, 'low');
 LFP = filtfilt(b_low,a_low,data);
-t_LFPfiltering = toc;
-fprintf('LFP filtering took %.3f s',t_LFPfiltering)
+
 end

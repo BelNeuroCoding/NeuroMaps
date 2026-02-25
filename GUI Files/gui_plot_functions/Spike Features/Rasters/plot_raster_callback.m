@@ -36,6 +36,19 @@ for i = 1:size(selected,1)
     selected_idx = selected(i,2);      % single-experiment mode: selected(i,1) is always 1
 
     waveforms_all = results.spike_results(selected_idx).waveforms_all;
+    ptp  = [waveforms_all.ptp_amplitude]';
+    fwhm = [waveforms_all.fwhm]';
+    if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
+
+            r = h.spike_filter_ranges;
+        
+            idx_keep = ...
+                ptp  >= r.amp(1)  & ptp  <= r.amp(2) & ...
+                fwhm >= r.fwhm(1) & fwhm <= r.fwhm(2);
+        
+            waveforms_all = waveforms_all(idx_keep);
+    end
+
     if ~isfield(waveforms_all,'clusters')
         [waveforms_all.clusters] = deal(1);
     end

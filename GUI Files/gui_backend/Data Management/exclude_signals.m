@@ -1,4 +1,8 @@
 function exclude_signals(h)
+wb = waitbar(0,'Excluding channels...');
+drawnow;
+
+
 h = guidata(h.figure);  
 
 idx = h.portList.Value;              % positions in the listbox
@@ -44,8 +48,10 @@ SeriesNumber = 1;
 sertxt = [num2str(port), ':', num2str(channels(SeriesNumber))];
 set(h.series_slider, 'Value', SeriesNumber);
 set(h.series_text,'String',sertxt);
-
+waitbar(0.5, wb, 'Updating traces...');
 update_traces_tab(h)
+waitbar(0.9, wb, 'Generating plots...');
 pop_graph_callback(h)
+delete(wb);
 end
 end

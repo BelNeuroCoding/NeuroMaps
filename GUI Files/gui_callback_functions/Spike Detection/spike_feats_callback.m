@@ -22,6 +22,18 @@ for i = 1:size(selected,1)
     timestamps = results.timestamps;
     duration_sec = max(timestamps)-min(timestamps);
     waveforms_all = results.spike_results(selected_idx).waveforms_all;
+    ptp  = [waveforms_all.ptp_amplitude]';
+    fwhm = [waveforms_all.fwhm]';
+    if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
+
+            r = h.spike_filter_ranges;
+        
+            idx_keep = ...
+                ptp  >= r.amp(1)  & ptp  <= r.amp(2) & ...
+                fwhm >= r.fwhm(1) & fwhm <= r.fwhm(2);
+        
+            waveforms_all = waveforms_all(idx_keep);
+    end
     
     
     analysedset = {};

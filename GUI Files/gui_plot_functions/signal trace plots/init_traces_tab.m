@@ -38,7 +38,9 @@ if isfield(sig,'raw')
         'Color','k','LineWidth',lw.main);
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
+    h.trTitles.raw = title(h.adjusted_axes(panelIdx), '');
     panelIdx = panelIdx+1;
+
 end
 
 % - Ref -
@@ -59,7 +61,10 @@ if isfield(sig,'ref')
     end
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
+    h.trTitles.ref = title(h.adjusted_axes(panelIdx), '');
     panelIdx = panelIdx+1;
+
+
 else
     xlabel('Time (s)','FontSize',fs.labels);
 end
@@ -81,7 +86,10 @@ if isfield(sig,'hpf')
     end
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
+    h.trTitles.hpf = title(h.adjusted_axes(panelIdx), '');
     panelIdx = panelIdx+1;
+
+
 end
 
 % - LFP -
@@ -92,6 +100,8 @@ if isfield(sig,'lfp')
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     xlabel('Time (s)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
+    h.trTitles.lfp = title(h.adjusted_axes(panelIdx), '');
+
 end
 
 xlabel('Time (s)','FontSize',fs.labels);

@@ -44,6 +44,15 @@ for i = 1:size(selected,1)
     oscillatory_power = all_fooofed_spectrum - all_apfit;
     total_osc_power =  trapz(freqs(1,:), oscillatory_power')';
     chans = results.channels(port_idx).id(mask);
+    %  Load probe map 
+    probe_maps = get(h.probe_map, 'Data');  
+    if ~isempty(probe_maps)
+        matFile = probe_maps{2};
+    else
+        matFile = 'sparse_x_y_coords.mat';
+    end
+    load(matFile, 'x_coords', 'y_coords', 'maps');
+
 
     %  Axes for this experiment 
     ax = nexttile(tlo,i);

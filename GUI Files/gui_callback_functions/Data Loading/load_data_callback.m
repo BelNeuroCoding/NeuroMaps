@@ -18,6 +18,7 @@ function load_data_callback(h)
 % and allows easy extension to additional measurement systems. Multiple-file 
 % selection is handled efficiently using cell arrays and concatenation.
 
+%% FILE SELECTION POP-UP
 % Set file filter based on the selected measurement system
 switch h.selectedSystem
     case 'RHS'
@@ -32,7 +33,8 @@ end
 
 % % Let the user choose a file to analyze
 [FileName, FilePath, FlagUp] = uigetfile(filterSpec, 'Choose Data File', 'MultiSelect', 'on');
-tic
+
+%% DATA LOADING
 % If the user didn't click "cancel", try to open the file
 if FlagUp
 
@@ -58,11 +60,6 @@ if FlagUp
                     % Concatenate data after the loop
                     RawData = [rawCell{:}];
                     TimeStamps = [timesCell{:}];
-                    if TimeStamps(1)<2
-                        idx_amp = find(TimeStamps>2);
-                        TimeStamps = TimeStamps(idx_amp);
-                        RawData = RawData(:,idx_amp);
-                    end
                     
                 else
                     % Load single file
@@ -163,9 +160,13 @@ if FlagUp
         return
     end
 
-t1=toc;
+    % Ignore first three seconds
+    if TimeStamps(1)<3
+        idx_amp = find(TimeStamps>3);
+        TimeStamps = TimeStamps(idx_amp);
+        RawData = RawData(:,idx_amp);
+    end
 
-tic
     % Extract recording parameters and electrode properties
     Data.fs = round(1/(TimeStamps(2)-TimeStamps(1)));
     Data.timestamps = TimeStamps;
@@ -180,8 +181,6 @@ tic
     else
         all_impedance = zeros(size(all_channels));
     end
-
-
     % Categorise Data based on ports
 
     for i = 1:length(unique_ports)
@@ -199,8 +198,11 @@ tic
     end
     % Store Data
     set(h.figure,'UserData',Data)
-    t2=toc;
+    
+    %%
     % Setup GUI
+    wb = waitbar(0,'Setting up GUI...','Name','Setting up GUI');
+    cleanupObj = onCleanup(@() delete(wb));
     h.expList.Value =1;
     portNames = arrayfun(@(p) sprintf('Port %d', p.port_id), Data.ports, 'UniformOutput', false);
     expIdx = 1;  % only one experiment
@@ -233,20 +235,28 @@ tic
                                   'String','Deselect All', ...
                                   'Units','normalized','Position',[0.50 0.87 0.50 0.08], ...
                                   'Callback', @(src,evt) set(h.portList,'Value',[]),'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
-    guidata(h.figure,h)
-    % Plot and Update Summary Data
-    updateSummary(h);
-    % Create radio button for series      
-    create_signal_tabs(h);
-    
-    h=guidata(h.figure);
     h.formatsPlot.Raw = uicontrol('Style', 'radiobutton', 'String', 'Raw', ...
     'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
     'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
-    
     % % Set slider properties
     set(h.series_slider, 'Max', T)
     set(h.series_slider, 'SliderStep', [1/(T-1), 1/(T-1)]) 
+    
+    guidata(h.figure,h)
+    
+    % Plot and Update Summary Data
+    updateSummary(h);
+    drawnow limitrate
+    waitbar(0.05,wb,'Plotting Signal...');
+    init_traces_tab(h);
+    h=guidata(h.figure);
+    init_power_spectrum_tab(h);
+    % Create radio button for series      
+    %create_signal_tabs(h);
+    h=guidata(h.figure);
+    pop_graph_callback(h);
+    drawnow limitrate
+    update_traces_tab(h);
     % % Update series number and text
     SeriesNumber = 1;
     sertxt = [num2str(unique_ports(SeriesNumber)), ':', num2str(all_channels(SeriesNumber))];
@@ -257,11 +267,15 @@ tic
     ind_pl = find(h.maps == all_channels(SeriesNumber));
     set(h.marker, 'XData', h.x_coords(ind_pl), 'YData', h.y_coords(ind_pl));
     guidata(h.figure,h)
-   
-    pop_graph_callback(h);
-    drawnow()
-    update_traces_tab(h);
+    drawnow limitrate
 
+    waitbar(0.5,wb,'Plotting Power Spectra...');
+    update_power_spectrum_tab(h);
+    drawnow limitrate
+    waitbar(0.75,wb,'Plotting Spectrogram...');
+    plot_specgram(h);
+    drawnow limitrate
+    waitbar(0.5,wb,'Plotting Noise and Electrical Properties...');
     noise_plot_callback(h);
     drawnow limitrate
     if mean(all_impedance)>0
@@ -272,7 +286,7 @@ tic
     run_qc_callback(h);
     run_qc_plot(h); 
     h=guidata(h.figure);
-    update_power_spectrum_tab(h);
-    plot_specgram(h);
+    waitbar(1,wb,'Loading Complete');
+    close(wb)
 end
 end

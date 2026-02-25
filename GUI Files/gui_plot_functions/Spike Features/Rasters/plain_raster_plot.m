@@ -1,4 +1,4 @@
-function plain_raster_plot(data_to_raster, TimeStamps)
+function plain_raster_plot(data_to_raster, TimeStamps,col)
 
 channels = [data_to_raster.channel];
 unique_channels = unique(channels);
@@ -9,12 +9,15 @@ hold on;
 spacing = 1.5;
 y_positions = (1:nCh) * spacing;  % actual y-values for each channel
 
+if nargin<3
+    col = 'k';
+end
 for i = 1:nCh
     plot_idx = find(channels == unique_channels(i));
     spike_times = [data_to_raster(plot_idx).time_stamp];
     scatter(spike_times + min(TimeStamps), ...
             y_positions(i) * ones(size(spike_times)), ...
-            10, 'k', '|', 'LineWidth', 1);
+            10, col, '|', 'LineWidth', 1);
 end
 
 % Set ticks at the same spaced positions

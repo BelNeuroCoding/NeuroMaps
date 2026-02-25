@@ -93,6 +93,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords)
         % Plot the final interpolation
        % h = pcolor(interp_x, interp_y, interp_z);
         hImg = imagesc(linear_grid_x, linear_grid_y, interp_z);
+        set(gca,'YDir','reverse');
        % shading interp;  % Smooth shading
         cs=colorbar('southoutside');  % Add colorbar
         colormap(jet);  % Optional: Choose color map

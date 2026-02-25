@@ -33,6 +33,7 @@ prange = 1:size(Observations,2);
 if isfield(results.signals(port_idx),'raw')
     set(h.trLines.raw, 'XData', Timestamps(prange), ...
                        'YData', Observations(SeriesNumber,prange));
+    set(h.trTitles.raw, 'String', ['Broadband Signal Ch: ' num2str(channels(SeriesNumber))]);
 end
 
 % - Ref -
@@ -49,7 +50,7 @@ if isfield(results.signals(port_idx),'ref')
     set(h.trLines.ref_thresh(2),'YData', -STDEVMIN*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.ref_thresh(3),'YData', STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.ref_thresh(4),'YData', -STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
-end
+    set(h.trTitles.ref, 'String', ['Reference Signal Ch: ' num2str(channels(SeriesNumber))]);end
 
 % - HPF -
 if isfield(results.signals(port_idx),'hpf')
@@ -64,12 +65,14 @@ if isfield(results.signals(port_idx),'hpf')
     set(h.trLines.hpf_thresh(2),'YData', -STDEVMIN*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.hpf_thresh(3),'YData', STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.hpf_thresh(4),'YData', -STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
+    set(h.trTitles.hpf, 'String', ['High Freq Signal Ch: ' num2str(channels(SeriesNumber))]);
 end
 
 % - LFP -
 if isfield(results.signals(port_idx),'lfp')
     LFPData = results.signals(port_idx).lfp(mask,:);
     set(h.trLines.lfp,'XData', results.resampled_time, 'YData', LFPData(SeriesNumber,:));
+    set(h.trTitles.lfp, 'String', ['LFP Signal Ch: ' num2str(channels(SeriesNumber))]);
 end
 
 drawnow limitrate;

@@ -32,7 +32,18 @@ for exps = 1:numExpts
         analysedset = results.spike_results(ports).set;
         % Per-experiment header
         summaryLines{end+1} = sprintf('\nExperiment: %d Port: %d', exps,results.ports(ports).port_id);
+        % Safe access with fallbacks
+        filename = '';
+        if isfield(results, 'metadata') && isfield(results.metadata, 'filename')
+            filename = results.metadata.filename;
+        end
+        
+        dateStr = '';
+        if isfield(results, 'metadata') && isfield(results.metadata, 'date')
+            dateStr = char(results.metadata.date);
+        end
 
+        summaryLines{end+1} = sprintf(' File Name: %s \n Date: %s ',string(filename),string(dateStr));
         % Main stats
         summaryLines{end+1} = sprintf('  Number of Active Channels: %d', analysedset.num_activechans);
         summaryLines{end+1} = sprintf('  Mean Spike Rate (Hz): %.2f ± %.2f', analysedset.mean_spike_rate, analysedset.std_spike_rate);

@@ -21,7 +21,7 @@ numTiles = size(selected,1);
 cols = ceil(sqrt(numTiles));
 rows = ceil(numTiles / cols);
 
-tlo = tiledlayout(h.qc_tab, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+tlo = tiledlayout(h.qc_tab, cols, rows, 'TileSpacing', 'Compact', 'Padding', 'Compact');
 
 %  Loop through selected ports 
 for i = 1:numTiles
@@ -88,6 +88,7 @@ for i = 1:numTiles
             'Tag',sprintf('QCcat%d',catIdx));
         text(ax,x_coords(j),y_coords(j)+0.1,string(elec_num), ...
             'HorizontalAlignment','center','FontSize',8);
+        set(gca,'YDir','reverse')
     end
 
     axis(ax,'equal'); axis(ax,'off');

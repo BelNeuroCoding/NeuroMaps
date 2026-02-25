@@ -4,9 +4,10 @@ function applyFilters(h)
     selected = map(idx,:);
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
-    % Setup waitbar
-    wb = waitbar(0,'Filtering all selected data..','Name','Filtering');
     n=size(selected,1);
+
+    % Setup waitbar
+    wb = waitbar(0,'Preparing Filters...','Name','Filtering');
     cleanupObj = onCleanup(@() delete(wb));
 
     exclude_impedance_chans_toggle = get(h.excl_imp_toggle, 'Value');
@@ -16,6 +17,12 @@ function applyFilters(h)
     for i = 1:size(selected,1)
         expIdx = selected(i,1);
         selected_idx = selected(i,2);
+        baseProgress = (i-1)/n;
+        portWeight   = 1/n;
+        waitbar(baseProgress + 0.05*portWeight, wb, ...
+        sprintf('Preparing port %d of %d...', i, n));
+        drawnow limitrate
+
         % Pull results
         if iscell(h.figure.UserData)
             results = h.figure.UserData{expIdx};
@@ -53,8 +60,6 @@ function applyFilters(h)
             case 'Referenced'
                 data = results.signals(selected_idx).ref(mask,:);
         end
-        waitbar(0/n,wb, sprintf('Filtering port %d of %d',i,n));
-
         if isempty(data)
             if size(selected,1)>1
                 tit = ['Exp ' num2str(expIdx)];
@@ -71,6 +76,9 @@ function applyFilters(h)
         fs = round(results.fs);    
         filters = h.selectedFilters;
         if isfield(filters,'ACLineNoise')    
+                waitbar(baseProgress + 0.20*portWeight, wb, ...
+                sprintf('Powerline filtering port %d...', i));
+                drawnow limitrate
                 notchHz = filters.ACLineNoise.NotchFreq_Hz__;
                 bandwidth = filters.ACLineNoise.Bandwidth_;    % bandwidth
                 if notchHz == 50
@@ -101,6 +109,9 @@ function applyFilters(h)
 
         end
         if isfield(filters, 'Low_passFilter_LFP_')
+             waitbar(baseProgress + 0.50*portWeight, wb, ...
+             sprintf('Computing LFP port %d...', i));
+             drawnow limitrate
              lfp_freq = filters.Low_passFilter_LFP_.Cutoff_Hz__;
              ds_freq  = filters.Low_passFilter_LFP_.DownsampledFrequency_;
              LFP_data(mask,:) = filt_lfp(data', fs, lfp_freq)';
@@ -118,6 +129,9 @@ function applyFilters(h)
             'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
         end
         if isfield(filters, 'BandpassFilter_Spikes_')
+            waitbar(baseProgress + 0.50*portWeight, wb, ...
+            sprintf('Bandpass filtering spikes port %d...', i));
+            drawnow limitrate
             lowCut = filters.BandpassFilter_Spikes_.Low_Hz__;
             highCut= filters.BandpassFilter_Spikes_.High_Hz__;
             order  = filters.BandpassFilter_Spikes_.Order_;
@@ -132,7 +146,15 @@ function applyFilters(h)
             'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
 
         end
-    
+        waitbar(baseProgress + portWeight, wb, ...
+        sprintf('Finalising port %d...', i));
+        drawnow limitrate
+        delete(wb);
+
+        wb = waitbar(0,'Updating interface...','Name','Finalizing');
+        cleanupObj = onCleanup(@() delete(wb));
+        waitbar(0.2,wb,'Saving results...');
+        drawnow limitrate
 
         % Save back
         if iscell(h.figure.UserData)
@@ -141,13 +163,20 @@ function applyFilters(h)
             h.figure.UserData = results;
         end
         guidata(h.figure,h)
-        create_lfp_tabs(h);
-        h=guidata(h.figure);
-        plot_cwt(h);
+        waitbar(0.4,wb,'Updating traces...');
+        drawnow limitrate
         init_traces_tab(h);
         update_traces_tab(h);
+        waitbar(0.6,wb,'Building LFP tabs...');
+        drawnow limitrate
+        if isfield(filters, 'Low_passFilter_LFP_')
+            create_lfp_tabs(h);
+            h=guidata(h.figure);
+            waitbar(0.8,wb,'Computing wavelet transform...');
+            plot_cwt(h);
+            drawnow limitrate
+        end
         msgbox('Filters applied successfully.','Success');
 
     end
-    delete(wb);
 end

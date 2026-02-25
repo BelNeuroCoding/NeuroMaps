@@ -297,6 +297,7 @@ end
 
 if (data_present)
     wb = waitbar(0, 'Reading amplifier and board data...', 'Name', 'Intan File Loading');
+    cleanupObj = onCleanup(@() delete(wb)); 
     % Pre-allocate memory for data.
     fprintf(1, 'Allocating memory for data...\n');
 

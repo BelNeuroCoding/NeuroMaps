@@ -1,7 +1,10 @@
-function plot_cluster_callback(h)
+function plot_cluster_callback(h,delta)
     h = guidata(h.figure);  
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
+    if nargin<2
+        delta = 0;
+    end
 
     % --- Get selected ports ---
     idx = h.portList.Value;        
@@ -67,13 +70,15 @@ function plot_cluster_callback(h)
 
     % --- Clear old content ---
     delete(findall(h.clusters_tab, 'Type', 'uipanel'));
-
     if ~isfield(h, 'clustPanel') || ~isvalid(h.clustPanel)
         h.clustPanel = uipanel(h.clusters_tab, ...
             'Position', [0 0.15 1 0.8], ...
             'BackgroundColor', backgdcolor, ...
             'ForegroundColor', accentcolor);
     end
+    delete(findall(h.clustPanel, 'Type', 'axes'));       % remove old plots
+    delete(findall(h.clustPanel, 'Tag','pagingButton')); % remove old Prev/Next buttons
+
 
     % --- Tiledlayout for plots ---
     tiled = tiledlayout(h.clustPanel, 'flow', ...
@@ -93,20 +98,41 @@ function plot_cluster_callback(h)
         tile_label = 'Ch';
     end
 
-    nTiles = numel(tileIDs);
+    %nTiles = numel(tileIDs);
+    % --- Paging setup ---
+    nTilesPerPage = 12;
+    nPages = ceil(numel(tileIDs)/nTilesPerPage);
+    
+    % Initialize currentPage if missing
+    if ~isfield(h,'currentPage') || isempty(h.currentPage)
+        h.currentPage = 1;
+    end
+    
+    % Update page with delta (Prev/Next)
+    h.currentPage = h.currentPage + delta;
+    h.currentPage = max(1, min(nPages, h.currentPage));  % clamp
+    
+    % Store updated h before plotting
+    guidata(h.figure,h);
+    
+    startIdx = (h.currentPage-1)*nTilesPerPage + 1;
+    endIdx   = min(h.currentPage*nTilesPerPage, numel(tileIDs));
+    tileIDsPage = tileIDs(startIdx:endIdx);
+
+    %nTiles = min(numel(tileIDs),12);
     lineHandles = gobjects(numel(detected_clusters),1);
 
     % --- Style settings ---
     lw.main = 1.5;
-    fnt.labels = 12;   % bump font size for clarity
-    fnt.ticks  = 10;
+    fnt.labels = 8;   % bump font size for clarity
+    fnt.ticks  = 8;
 
     % --- Plotting ---
-    for ti = 1:nTiles
+    for ti = 1:numel(tileIDsPage)
         ax = nexttile(tiled, ti);
         hold(ax,'on')
 
-        currentID = tileIDs(ti);
+        currentID = tileIDsPage(ti);
 
         for k = 1:numel(detected_clusters)
             clus = detected_clusters(k);
@@ -132,19 +158,25 @@ function plot_cluster_callback(h)
         end
 
         title(ax, sprintf('%s %d', tile_label, currentID), ...
-              'FontSize', fnt.labels, 'FontWeight','bold', ...
-              'Color', accentcolor);
-        xlabel(ax,'Time (ms)','FontSize',fnt.labels,'Color',accentcolor);
-        ylabel(ax,'Amplitude (\muV)','FontSize',fnt.labels,'Color',accentcolor);
+              'FontSize', fnt.labels, 'FontWeight','bold');
+        xlabel(ax,'Time (ms)');
+        ylabel(ax,'Voltage (\muV)');
         set_pubstyle(ax,fnt);
     end
-
+    if nPages > 1
+        h.btnPrev = uicontrol('Parent', h.clustPanel,'Style','pushbutton','String','Prev',...
+                              'Units','normalized','Position',[0.2 0.01 0.1 0.05],...
+                              'Tag','pagingButton','Callback',@(src,evt) plot_cluster_callback(h,-1));
+        h.btnNext = uicontrol('Parent', h.clustPanel,'Style','pushbutton','String','Next',...
+                              'Units','normalized','Position',[0.7 0.01 0.1 0.05],...
+                              'Tag','pagingButton','Callback',@(src,evt) plot_cluster_callback(h,1));
+    end
     % --- Single toolbar ---
     axtoolbar(tiled, {'save','zoomin','zoomout','restoreview','pan'});
     % Legend in reserved panel bottom (same parent as plots)
-    legendPanel = uipanel('Parent', h.clustPanel, 'Units','normalized', ...
-                          'Position',[0 0.05 1 0.07], ...
-                          'BorderType','none','BackgroundColor',backgdcolor);
+    legendPanel = uipanel('Parent', h.clusters_tab, 'Units','normalized', ...
+                          'Position',[0.05 0.07 0.8 0.07], ...
+                          'BorderType','etchedin','BackgroundColor',backgdcolor);
     
     axL = axes('Parent', legendPanel, 'Visible','off'); hold(axL,'on');
     

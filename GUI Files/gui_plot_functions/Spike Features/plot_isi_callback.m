@@ -27,6 +27,18 @@ function plot_isi_callback(h)
         end
 
         waveforms_all = results.spike_results(port_idx).waveforms_all;
+        ptp  = [waveforms_all.ptp_amplitude]';
+        fwhm = [waveforms_all.fwhm]';
+        if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
+    
+                r = h.spike_filter_ranges;
+            
+                idx_keep = ...
+                    ptp  >= r.amp(1)  & ptp  <= r.amp(2) & ...
+                    fwhm >= r.fwhm(1) & fwhm <= r.fwhm(2);
+            
+                waveforms_all = waveforms_all(idx_keep);
+        end
 
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')

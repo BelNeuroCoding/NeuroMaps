@@ -27,7 +27,7 @@ cols = min(maxCols, ceil(numTiles*2/rows));
 
 
 % Create tiled layout
-tlo = tiledlayout(h.ZC_tab, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+tlo = tiledlayout(h.ZC_tab, cols, rows, 'TileSpacing', 'Compact', 'Padding', 'Compact');
 
 % Get selected topography option
 topo_togg = get(h.bg.SelectedObject,'String');

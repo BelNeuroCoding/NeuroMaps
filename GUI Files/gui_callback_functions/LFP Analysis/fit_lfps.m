@@ -11,7 +11,7 @@ freqs = freqs';
 powers_int2 =zeros(size(psds))'; 
 hWait = waitbar(0, 'Interpolating spectra...');
 for i = 1:size(lfp_filt,2)
-if mean(lfp_filt(:,i))>0
+if max(lfp_filt(:,i))>0
 % Convert inputs
 freqs = py.numpy.array(freqs);
 power_spectrum = py.numpy.array(psds(:,i));

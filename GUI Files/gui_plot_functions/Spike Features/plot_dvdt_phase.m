@@ -28,6 +28,18 @@ function plot_dvdt_phase(h)
         end
 
         waveforms_all = results.spike_results(port_idx).waveforms_all;
+        ptp  = [waveforms_all.ptp_amplitude]';
+        fwhm = [waveforms_all.fwhm]';
+        if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
+    
+                r = h.spike_filter_ranges;
+            
+                idx_keep = ...
+                    ptp  >= r.amp(1)  & ptp  <= r.amp(2) & ...
+                    fwhm >= r.fwhm(1) & fwhm <= r.fwhm(2);
+            
+                waveforms_all = waveforms_all(idx_keep);
+        end
 
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
@@ -95,13 +107,13 @@ function plot_dvdt_phase(h)
                 mask = mask & ~noisy;
             end
             all_chans = all_chans(mask);
-            selectedChMask = all_chans(SeriesNumber);
+            selectedChMask = [waveforms_all.channel] == all_chans(SeriesNumber);
             if h.feats_clust_mode_toggl.Value
                 groupingIDs = [waveforms_all.clusters];
                 uniqueIDs = unique(groupingIDs);
                 labelType = 'Cluster';
             else
-                groupingIDs = ones(1,sum(selectedChMask));
+                groupingIDs = [waveforms_all(selectedChMask).clusters];
                 uniqueIDs = 1;
                 labelType = 'Channel';
             end
