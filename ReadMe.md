@@ -220,6 +220,12 @@ Q: What is "Binarisation Rate" in population spike plots?
 A: The binarisation rate sets how many time bins per second are used to convert spike times into a binary matrix. For example, a rate of 1000 Hz means 1 ms bins. 
 - Higher rates would yield finer temporal resolution, capturing fast bursts, but can be sparser and noisier.
 - Lower rates would yield coarser bins, smoother population trends, and can be better for slower network events.
+Q: What does the other default spike threshold (7) indicate?
+A: Dual thresholding is used to omit non-biological signals. 7 is the max. standard deviations above which spikes are omitted and it is plotted as a blue horizontal line on top of the signal traces.
+
+Q: How does validating clusters work?
+A: After clustering, the user can first select desired clusters and plot the corresponding firing rates, features, etc.. on the right panel to explore if any clusters/spikes are to be excluded. Once the user decided which clusters to keep, validate selected cluster locks these into the final results deleting other spikes/computed features which do not belong to the selected clusters.
+
 ---
 
 ## Citation
