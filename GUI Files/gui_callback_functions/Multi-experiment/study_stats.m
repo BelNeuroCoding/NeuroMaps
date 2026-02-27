@@ -67,7 +67,7 @@ function study_stats(h)
         computeStats = true; statMethod = statChoice; % 'Kruskal-Wallis' or 'Pairwise t-tests'
     end
     burstParams = [];
-    if any(strcmp(metrics,'Burst Rate')) || any(strcmp(metrics,'Synchrony'))
+    if any(strcmp(metric_names,'Burst Rate')) || any(strcmp(metric_names,'Synchrony'))
 
     % Default burst/synchrony params
     burstParams.min_spikes_per_burst = str2double(get(h.burst_param(2),'String'));
