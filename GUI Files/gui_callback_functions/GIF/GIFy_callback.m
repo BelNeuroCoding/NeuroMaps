@@ -51,8 +51,10 @@ num_windows = floor(duration_sec / time_window_sec);  % Number of 1-sec windows
 probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
 if ~isempty(probe_maps)
 matFile = probe_maps{2};   % second row (.mat file)
+imgFile = probe_maps{1};
 else
     matFile = 'sparse_x_y_coords.mat';
+    imgFile = "sparseimg.tif";
 end
 
 load(matFile, 'x_coords', 'y_coords', 'maps');
@@ -108,10 +110,10 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
        % figure(1)
        if time_window_sec<1
            ptp_amp = max(mean_waveforms,[],2)-min(mean_waveforms,[],2);
-           plot_heatmap_simplified_waveform(ptp_amp, uniquech, 'Peak-to-peak Amplitude (\mu V)', ['Heatmap with Waveforms T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,"sparseimg.tif",x_coords,y_coords);
+           plot_heatmap_simplified_waveform(ptp_amp, uniquech, 'Peak-to-peak Amplitude (\mu V)', ['Heatmap with Waveforms T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,imgFile,x_coords,y_coords);
            caxis([0 1000]);
        else
-            plot_heatmap_simplified_waveform(spike_rate, uniquech, 'Spike Rate (Hz)', ['Heatmap with Waveforms  T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,"sparseimg.tif",x_coords,y_coords);
+            plot_heatmap_simplified_waveform(spike_rate, uniquech, 'Spike Rate (Hz)', ['Heatmap with Waveforms  T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,imgFile,x_coords,y_coords);
              % Set color limits for heatmap (adjust if necessary)
              caxis([0 3]);
        end
