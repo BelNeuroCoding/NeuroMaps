@@ -123,6 +123,7 @@ function plot_ibi_callback(h)
     end
     
     if isempty(allibi)
+        warndlg('No bursts to display for the selected channels/time window.', 'No Bursts');
         return
     end
     
