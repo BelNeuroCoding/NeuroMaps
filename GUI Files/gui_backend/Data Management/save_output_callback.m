@@ -61,10 +61,14 @@ function save_output_callback(h)
                 selectedFields{end+1} = mandatoryFields{mf};
             end
         end
+        totalSteps = numel(selIdx) * numel(selectedFields);
 
         % Build struct to save
         resultsToSave = struct();
         for i = 1:numel(selectedFields)
+            if s == 1 && i==1
+                hWait = waitbar(0,'Preparing data for saving...');
+            end
             resultsToSave.(selectedFields{i}) = res.(selectedFields{i});
         end
 
@@ -83,11 +87,16 @@ function save_output_callback(h)
         
         % Save
         try
+            waitbar(0.5,hWait,'Saving MAT File. Please Wait...');
             save(fullFileName, 'resultsToSave', '-v7.3');
+            waitbar(1,hWait,'Finished saving.');
+            pause(0.5)
+            close(hWait)
             msgbox(sprintf('%s saved to %s', comboList{selIdx(s)}, fullFileName), ...
                    'Save Complete', 'help');
         catch ME
             errordlg(sprintf('Error saving %s: %s', comboList{selIdx(s)}, ME.message), 'Save Error');
         end
     end
+
 end
