@@ -45,7 +45,7 @@ function plot_cluster_callback(h,delta)
     waveforms_all = results.spike_results(selected_idx).waveforms_all;
 
     if ~isfield(waveforms_all,'clusters')
-        clusters = clusters_callback(h);
+        clusters = clusters_callback(h,1);
         detected_clusters = unique(clusters);
         waveforms_all = results.spike_results(selected_idx).waveforms_all;
     else
