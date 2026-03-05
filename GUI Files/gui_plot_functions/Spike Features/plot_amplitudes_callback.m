@@ -123,7 +123,7 @@ function plot_amplitudes_callback(h)
     end
     
     globalXLim = [min(allAmps), max(allAmps)];
-    binWidth = 5;   % binwidth
+    binWidth = 1;   % binwidth
 
     edges = globalXLim(1):binWidth:globalXLim(2);
     maxCount = 0;
