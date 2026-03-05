@@ -203,7 +203,7 @@ function plot_cluster_callback(h,delta)
         'FontSize', fnt.labels+2, 'FontWeight','bold');
 
     % --- Update cluster list ---
-    set(h.clusterListBox,'String',cellstr(num2str(detected_clusters)));
+    set(h.clusterListBox,'Value',1,'String',cellstr(num2str(detected_clusters)));
 end
 
 % --- Helper: Publication style ---
