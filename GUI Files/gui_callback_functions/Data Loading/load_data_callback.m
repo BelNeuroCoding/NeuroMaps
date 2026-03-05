@@ -106,8 +106,7 @@ if FlagUp
                         [RawData,AmpChs,TimeStamps,metadata] = read_MCS_h5_file(fullfile(FilePath, FileName));
                         
                     end
-                    Data.metadata.filename = metadata;
-                    Data.metadata.date = metadata;
+                    Data.metadata = metadata;
                     AmpChs.custom_order = 0:59;
                 
             case 'RHD'
