@@ -56,7 +56,7 @@ for i = 1:size(selected,1)
     end
     else
         waveforms_all = results.spike_results(selected_idx).waveforms_all;
-         ptp  = [waveforms_all.ptp_amplitude]';
+        ptp  = [waveforms_all.ptp_amplitude]';
         fwhm = [waveforms_all.fwhm]';
         if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
     
@@ -68,11 +68,13 @@ for i = 1:size(selected,1)
             
                 waveforms_all = waveforms_all(idx_keep);
         end
-        selectedClusters = get(h.clusterListBox,'Value');
         TimeStamps = results.timestamps;
         recording_time = max(TimeStamps)-min(TimeStamps);
-    
-        if ~isempty(selectedClusters) && isfield(waveforms_all,'clusters')
+         %  Filter selected clusters 
+        selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+        selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+        if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters')
+            selectedClusters = str2double(selectedStrings(selectedIdx));
             waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
             chans = unique([waveforms_all.channel]);
             fr = zeros(size(chans));

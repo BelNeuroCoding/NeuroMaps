@@ -59,7 +59,7 @@ for i = 1:size(selected,1)
     %  Create subplot axes for this experiment 
     ax = nexttile(tlo, i);
     hold(ax,'on');
-
+    if isfield(h,'clusterListBox')
     %  Filter selected clusters 
     selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
     selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
@@ -74,6 +74,7 @@ for i = 1:size(selected,1)
             % fallback if clusters are stored as strings
             waveforms_all = waveforms_all(ismember({waveforms_all.clusters}, selectedStrings(selectedIdx)));
         end
+    end
     end
 
 

@@ -1,9 +1,6 @@
-function [clusters] = clusters_callback(h,check)
+function [clusters] = clusters_callback(h)
 
 h = guidata(h.figure);  
-if nargin<2
-    check=0;
-end
 % Get selected ports
 idx = h.portList.Value;        % listbox indices
 map = h.portList.UserData;     % Nx2 mapping [expIdx, portIdx]
@@ -108,7 +105,5 @@ else
     set(h.figure, 'UserData', results);
 end
 guidata(h.figure);
-if check==0
 plot_cluster_callback(h);
-end
 end

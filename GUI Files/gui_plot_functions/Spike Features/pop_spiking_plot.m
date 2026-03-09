@@ -52,9 +52,21 @@ for i = 1:size(selected,1)
     if ~isfield(waveforms_all,'clusters')
         [waveforms_all.clusters] = deal(1);
     else
-    selectedClusters = get(h.clusterListBox,'Value');
-    if ~isempty(selectedClusters)
-        waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+    
+   %  Filter selected clusters 
+    selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+    selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+    if ~isempty(selectedIdx)
+        % Convert selected strings to numeric values if waveforms_all.clusters is numeric
+        selectedClusters = str2double(selectedStrings(selectedIdx));
+    
+        % Filter waveforms
+        if isnumeric([waveforms_all.clusters])
+            waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+        else
+            % fallback if clusters are stored as strings
+            waveforms_all = waveforms_all(ismember({waveforms_all.clusters}, selectedStrings(selectedIdx)));
+        end
     end
     end
     fs = results.fs;
@@ -67,6 +79,6 @@ for i = 1:size(selected,1)
     ylabel('Population Spiking Plot')
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
-    hold all
+    hold all;
 
 end

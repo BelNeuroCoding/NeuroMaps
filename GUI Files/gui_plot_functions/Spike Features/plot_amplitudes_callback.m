@@ -39,12 +39,17 @@ function plot_amplitudes_callback(h)
 
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
-            selectedClusters = get(h.clusterListBox,'Value');
-            if ~isempty(selectedClusters)
+            %  Filter selected clusters 
+            selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+            selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+
+            if ~isempty(selectedIdx)
                 if ~isfield(waveforms_all,'clusters')
                     [waveforms_all.clusters] = deal(1);
-                end
+                else
+                selectedClusters = str2double(selectedStrings(selectedIdx));
                 waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+                end
             end
         end
 

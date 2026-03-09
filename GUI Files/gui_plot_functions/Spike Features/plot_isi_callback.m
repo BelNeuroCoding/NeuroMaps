@@ -28,26 +28,30 @@ function plot_isi_callback(h)
 
         waveforms_all = results.spike_results(port_idx).waveforms_all;
         ptp  = [waveforms_all.ptp_amplitude]';
-        isi = [waveforms_all.fwhm]';
+        fwhm_sp = [waveforms_all.fwhm]';
         if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
     
                 r = h.spike_filter_ranges;
             
                 idx_keep = ...
                     ptp  >= r.amp(1)  & ptp  <= r.amp(2) & ...
-                    isi >= r.fwhm(1) & isi <= r.fwhm(2);
+                    fwhm_sp >= r.fwhm(1) & fwhm_sp <= r.fwhm(2);
             
                 waveforms_all = waveforms_all(idx_keep);
         end
 
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
-            selectedClusters = get(h.clusterListBox,'Value');
-            if ~isempty(selectedClusters)
+                %  Filter selected clusters 
+            selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+            selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+            if ~isempty(selectedIdx)
                 if ~isfield(waveforms_all,'clusters')
                     [waveforms_all.clusters] = deal(1);
-                end
+                else
+                selectedClusters = str2double(selectedStrings(selectedIdx));
                 waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+                end
             end
         end
         analysed_chans = unique([waveforms_all.channel]);
@@ -126,8 +130,10 @@ function plot_isi_callback(h)
     if isempty(allisi)
         return
     end
+   %
+    if min(allisi)<200
+        globalXLim = [0, 200];
     
-    globalXLim = [min(allisi), 100];
     binWidth = 1;   % binwidth
 
     edges = globalXLim(1):binWidth:globalXLim(2);
@@ -172,6 +178,8 @@ function plot_isi_callback(h)
         ylim(ax, globalYLim);
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
     end
-    
+    else
+        warndlg('No ISI below 100 ms detected.')
+    end
 
 end

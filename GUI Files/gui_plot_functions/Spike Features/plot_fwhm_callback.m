@@ -44,12 +44,16 @@ function plot_fwhm_callback(h)
 
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
-            selectedClusters = get(h.clusterListBox,'Value');
-            if ~isempty(selectedClusters)
+             %  Filter selected clusters 
+            selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+            selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+            if ~isempty(selectedIdx)
                 if ~isfield(waveforms_all,'clusters')
                     [waveforms_all.clusters] = deal(1);
+                else
+                    selectedClusters = str2double(selectedStrings(selectedIdx));
+                    waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
                 end
-                waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
             end
         end
         analysed_chans = unique([waveforms_all.channel]);
@@ -165,7 +169,7 @@ function plot_fwhm_callback(h)
         ylabel(ax, 'Count');
         title(ax, titleStr);
         set(ax, 'Box', 'off', 'Color', 'none');
-        xlim(ax, [0 globalXLim(2)]);
+        xlim(ax, [0.1 globalXLim(2)*1.2]);
         ylim(ax, globalYLim);
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
     end

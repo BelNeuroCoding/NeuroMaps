@@ -45,7 +45,7 @@ function plot_cluster_callback(h,delta)
     waveforms_all = results.spike_results(selected_idx).waveforms_all;
 
     if ~isfield(waveforms_all,'clusters')
-        clusters = clusters_callback(h,1);
+        clusters = clusters_callback(h);
         detected_clusters = unique(clusters);
         waveforms_all = results.spike_results(selected_idx).waveforms_all;
     else
@@ -203,7 +203,7 @@ function plot_cluster_callback(h,delta)
         'FontSize', fnt.labels+2, 'FontWeight','bold');
 
     % --- Update cluster list ---
-    set(h.clusterListBox,'Value',1,'String',cellstr(num2str(detected_clusters)));
+    set(h.clusterListBox,'String',cellstr(num2str(detected_clusters)));
 end
 
 % --- Helper: Publication style ---

@@ -42,9 +42,10 @@ function compute_sttc_latency(h, dtv)
     if ~isfield(networkconndata,'clusters')
         [networkconndata.clusters] = deal(1);
     else
-    % filter clusters if user selected
-    selectedClusters = get(h.clusterListBox,'Value');
-    if isfield(networkconndata,'clusters') && ~isempty(selectedClusters)
+        selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+        selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+    if isfield(networkconndata,'clusters') && ~isempty(selectedIdx)
+        selectedClusters = str2double(selectedStrings(selectedIdx));
         networkconndata = networkconndata(ismember([networkconndata.clusters], selectedClusters));
     end
     end
