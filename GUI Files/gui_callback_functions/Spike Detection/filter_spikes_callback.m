@@ -1,6 +1,7 @@
 function filter_spikes_callback(h)
 
     h = guidata(h.figure);
+    set_status(h.figure,"loading","Filtering Spikes in Range...");
 
     backgdcolor = [1 1 1];
     accentcolor = [0.1 0.4 0.6];
@@ -83,4 +84,7 @@ function filter_spikes_callback(h)
         uiresume(d);
         delete(d);
     end
+     set_status(h.figure,"ready","Filtering Spikes Complete...");
+     plot_spikes_callback(h);
+
 end

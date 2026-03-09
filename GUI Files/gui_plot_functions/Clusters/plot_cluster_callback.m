@@ -205,8 +205,8 @@ function plot_cluster_callback(h,delta)
         'FontSize', fnt.labels+2, 'FontWeight','bold');
 
     % --- Update cluster list ---
-    set(h.clusterListBox,'String',cellstr(num2str(detected_clusters)));
-    set_status(h.figure,"ready","Cluster Plot Complete...");
+set(h.clusterListBox, 'Value',1:numel(detected_clusters),'String',cellstr(num2str(detected_clusters)));
+set_status(h.figure,"ready","Cluster Plot Complete...");
 
 end
 

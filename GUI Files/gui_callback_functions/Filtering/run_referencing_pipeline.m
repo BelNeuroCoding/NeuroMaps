@@ -1,5 +1,6 @@
 function run_referencing_pipeline(h)
 h = guidata(h.figure);  
+ set_status(h.figure,"loading","Referencing Signal...");
 
 % Get selected port indices
 idx = h.portList.Value;           % positions in the listbox
@@ -101,6 +102,8 @@ end
 delete(wb);
 t_refs = toc;
 disp(['Referencing took: ' num2str(t_refs)])
+ set_status(h.figure,"ready","Referencing Complete...");
+
 h=guidata(h.figure);
 guidata(h.figure, h);
 init_traces_tab(h);
