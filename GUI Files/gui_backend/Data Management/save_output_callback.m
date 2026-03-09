@@ -2,7 +2,8 @@ function save_output_callback(h)
     % SAVE_OUTPUT_CALLBACK Save selected fields from one or more experiment/port results
 
     results = get(h.figure,'UserData');
-    
+    set_status(h.figure,"loading","Saving Data...");
+
     % Ensure results is a cell array
     if ~iscell(results)
         results = {results};
@@ -98,5 +99,7 @@ function save_output_callback(h)
             errordlg(sprintf('Error saving %s: %s', comboList{selIdx(s)}, ME.message), 'Save Error');
         end
     end
+        set_status(h.figure,"ready","Data Saved Successfully...");
+
 
 end
