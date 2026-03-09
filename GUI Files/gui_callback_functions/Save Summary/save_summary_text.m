@@ -1,4 +1,5 @@
 function save_summary_text(h)
+    set_status(h.figure,"loading","Saving Summary Text...");
 
     % Get text from UI
     spikeSummaryText = get(h.spike_summary_text,'String');
@@ -36,5 +37,6 @@ function save_summary_text(h)
     fclose(fid);
 
     msgbox('Summary saved successfully.');
+    set_status(h.figure,"ready","Summary Text Saving Complete...");
 
 end
