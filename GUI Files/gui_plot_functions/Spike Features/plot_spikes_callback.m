@@ -1,6 +1,7 @@
 function plot_spikes_callback(h)
 
     h = guidata(h.figure);
+    set_status(h.figure,"loading","Spike waveform plot...");
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
     %% ---------------- DELETE OLD BUTTONS ----------------
@@ -115,6 +116,7 @@ function plot_spikes_callback(h)
     guidata(h.figure,h);
 
     updateAxes();
+    set_status(h.figure,"ready","Spike waveform plot complete...");
 
 end
 

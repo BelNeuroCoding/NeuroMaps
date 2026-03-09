@@ -1,5 +1,7 @@
 function validate_clusters_callback(h)
 h = guidata(h.figure);
+set_status(h.figure,"loading","Validate Clusters...");
+
 idx = h.portList.Value;        % listbox indices
 map = h.portList.UserData;     % Nx2 mapping [expIdx, portIdx]
 selected = map(idx,:);
@@ -63,5 +65,7 @@ if iscell(h.figure.UserData)
 else
     set(h.figure, 'UserData', results);
 end
+ set_status(h.figure,"ready","Clusters Validation Complete...");
+
 plot_cluster_callback(h);
 end

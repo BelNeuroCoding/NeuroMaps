@@ -1,4 +1,6 @@
 function export_full_waterfall_page(h)
+    set_status(h.figure,"loading","Exporting Waterfall...");
+
     % Ask user for filename
     [file, path] = uiputfile({'*.png';'*.pdf'}, 'Save Waterfall Page As', 'waterfall_page.png');
     if isequal(file,0), return; end
@@ -69,4 +71,5 @@ function export_full_waterfall_page(h)
     close(fig);
 
     msgbox(['Waterfall page exported to: ' filename],'Success');
+    set_status(h.figure,"ready","Waterfall Export Complete...");
 end

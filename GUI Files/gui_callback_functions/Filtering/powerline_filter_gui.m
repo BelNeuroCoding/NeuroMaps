@@ -1,6 +1,5 @@
 function data_out = powerline_filter_gui(data, fs,linefreq,bandwidth)
 % Applies powerline notch filters at harmonics efficiently
-
 if isempty(linefreq) | isempty(bandwidth)
 linefreq = [50;100; 150; 200;250;300; 350;400; 450;500; 550; 650; 750; 850;950;1150;1250;1450;1750;1850;4000];  % Center frequencies
 bandwidth = 4;  % Bandwidth of ±2 Hz around each frequency
@@ -37,4 +36,5 @@ for j = 1:length(linefreq)
 
 end
 close(hWait);
+
 end

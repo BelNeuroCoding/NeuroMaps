@@ -37,6 +37,7 @@ end
 %% DATA LOADING
 % If the user didn't click "cancel", try to open the file
 if FlagUp
+    set_status(h.figure,"loading","Loading data...");
 
     try
         switch h.selectedSystem
@@ -200,6 +201,7 @@ if FlagUp
     
     %%
     % Setup GUI
+    set_status(h.figure,"loading","Setting up GUI...");
     wb = waitbar(0,'Setting up GUI...','Name','Setting up GUI');
     cleanupObj = onCleanup(@() delete(wb));
     h.expList.Value =1;
@@ -287,5 +289,7 @@ if FlagUp
     h=guidata(h.figure);
     waitbar(1,wb,'Loading Complete');
     close(wb)
+    set_status(h.figure,"ready","Step 1 (Data Loading) Completed Successfully...");
+
 end
 end

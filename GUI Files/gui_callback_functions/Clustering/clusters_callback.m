@@ -1,6 +1,8 @@
 function [clusters] = clusters_callback(h)
 
 h = guidata(h.figure);  
+set_status(h.figure,"loading","Clustering Initiated...");
+
 % Get selected ports
 idx = h.portList.Value;        % listbox indices
 map = h.portList.UserData;     % Nx2 mapping [expIdx, portIdx]
@@ -105,5 +107,7 @@ else
     set(h.figure, 'UserData', results);
 end
 guidata(h.figure);
+set_status(h.figure,"ready","Clustering Complete...");
+
 plot_cluster_callback(h);
 end

@@ -1,5 +1,7 @@
 function run_spike_analysis(h)
 h = guidata(h.figure);  
+set_status(h.figure,"loading","Spike Analysis in Progress...");
+
 % Get selected ports
 idx = h.portList.Value;        % listbox indices
 map = h.portList.UserData;     % Nx2 mapping [expIdx, portIdx]
@@ -96,6 +98,7 @@ end
 if exclude_noisy_chans_toggle
     mask =mask & ~noisy;
 end
+set_status(h.figure,"loading","Detection in progress...");
 
 % Spike detection
 waveforms = detect_spks(filteredObservations(mask,:), fs, cfg.pre_time, cfg.post_time,[STDEVmin, STDEVmax], Channels(mask));
@@ -123,18 +126,24 @@ create_spike_tabs(h)
 end
 h=guidata(h.figure);
 %% Plot Functions
+set_status(h.figure,"loading","Computing Spike Features...");
 spike_feats_callback(h);
 h=guidata(h.figure);
 update_spike_summary_tab(h);
+set_status(h.figure,"loading","Plotting Spike Waveforms...");
+drawnow limitrate
 plot_spikes_callback(h);
-plot_fr_callback(h)
+plot_fr_callback(h);
+plot_raster_callback(h);
+
+set_status(h.figure,"loading","Plotting Spike Features...");
 plot_isi_callback(h)
 plot_ibi_callback(h)
 plot_amplitudes_callback(h)
 plot_fwhm_callback(h)
 plot_dvdt_phase(h)
-plot_raster_callback(h)
 pop_spiking_plot(h)
+set_status(h.figure,"loading","Computing Network Connectivity...");
 
 compute_sttc_latency(h)
 network_conn_callback(h)
@@ -155,4 +164,6 @@ newMsg = sprintf(['Performed Spike Analysis on %s Data - Port %s\n' ...
 currentText{end+1} = newMsg;
 set(h.summary_text,'String',currentText);
 guidata(h.figure,h)
+set_status(h.figure,"ready","Spike Detection Step Complete...");
+
 end

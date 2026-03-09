@@ -1,5 +1,6 @@
 function plot_ibi_callback(h)
     h = guidata(h.figure);  
+    set_status(h.figure,"loading","Plotting IBI...");
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
     isi_threshold = str2double(get(h.burst_param(1),'String'));
@@ -124,6 +125,8 @@ function plot_ibi_callback(h)
     
     if isempty(allibi)
         warndlg('No bursts to display for the selected channels/time window.', 'No Bursts');
+        set_status(h.figure,"ready","IBI Complete...");
+
         return
     end
     
@@ -169,4 +172,6 @@ function plot_ibi_callback(h)
         ylim(ax, globalYLim);
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
     end
+    set_status(h.figure,"ready","IBI Complete...");
+
 end

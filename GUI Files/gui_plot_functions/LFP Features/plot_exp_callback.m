@@ -1,6 +1,8 @@
 function plot_exp_callback(h)
 
 h = guidata(h.figure);
+set_status(h.figure,"loading","Plotting Exponent Heatmap...");
+
 % Get selected port indices
 idx = h.portList.Value;           % positions in the listbox
 map = h.portList.UserData;        % Nx2 mapping array [expIdx, portIdx]
@@ -74,6 +76,7 @@ for i = 1:numTiles
         plot_interp_heatmap(all_aperiodic_params(:,2),chans,'Aperiodic Exponent',x_coords,y_coords)
         axis square
 end
+set_status(h.figure,"ready","Exponent Heatmap Plot Complete...");
 
 axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 

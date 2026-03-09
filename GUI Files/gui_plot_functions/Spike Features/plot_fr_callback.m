@@ -1,6 +1,7 @@
 function plot_fr_callback(h)
 
 h = guidata(h.figure);
+set_status(h.figure,"loading","Mapping Firing rates...");
 
 %  Load probe map 
 probe_maps = get(h.probe_map, 'Data');  
@@ -107,4 +108,6 @@ for i = 1:size(selected,1)
     end
 
 end
+set_status(h.figure,"ready","Firing rate maps complete...");
+
 end

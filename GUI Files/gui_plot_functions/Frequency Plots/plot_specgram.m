@@ -3,6 +3,8 @@ function h= plot_specgram(h,src)
 %  Get selected port and format 
 h = guidata(h.figure);
 
+set_status(h.figure,"loading","Computing/Plotting Spectrogram...");
+
 %%  Get selected port 
 idx = h.portList.Value;              % positions in the listbox
 map = h.portList.UserData;           % Nx2 mapping array [expIdx, portIdx]
@@ -136,5 +138,8 @@ c.FontSize = 12;
 ylim(h.specgram_plots_axes, [frequencyLimits(1) frequencyLimits(2)/2]);
 title(h.specgram_plots_axes, [label ' Signal Spectrogram Ch: ' num2str(current_ch)]);
 axtoolbar({'datacursor','save','zoomin','zoomout','restoreview','pan'});
+
+set_status(h.figure,"ready","Spectrogram Plot Complete...");
+
 guidata(h.figure,h);
 end

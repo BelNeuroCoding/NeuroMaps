@@ -1,5 +1,7 @@
 function plot_osc_callback(h)
 h = guidata(h.figure);
+set_status(h.figure,"loading","Plotting Oscillatory Power Heatmap...");
+
 % Get selected port indices
 idx = h.portList.Value;           % positions in the listbox
 map = h.portList.UserData;        % Nx2 mapping array [expIdx, portIdx]
@@ -103,4 +105,6 @@ for i = 1:size(selected,1)
                                    'Callback', @(src,event) saveFRTable(h));
     end
 end
+set_status(h.figure,"ready","Completed Oscillatory Power Heatmap...");
+
 end

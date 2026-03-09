@@ -1,4 +1,7 @@
+
 function plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels)
+    set_status(h.figure,"loading","Plotting STTC Matrix...");
+
     num_channels = length(unique_channels);
     % STTC heatmap
     h.sttc_axes = subplot(2,2,1,'Parent',h.synchrony_tab);
@@ -9,6 +12,7 @@ function plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels)
     xticks(1:num_channels); yticks(1:num_channels);
     xticklabels(string(unique_channels)); yticklabels(string(unique_channels));
     axtoolbar(h.sttc_axes, {'save','zoomin','zoomout','restoreview','pan'});
+    set_status(h.figure,"loading","Plotting Latency Matrix...");
 
     % Latency heatmap
     h.latency_axes = subplot(2,2,2,'Parent',h.synchrony_tab);
@@ -31,4 +35,6 @@ function plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels)
     histogram(latency_matrix(~eye(num_channels))*1000,20,'FaceColor','r');
     xlabel('Latency (ms)'); ylabel('Count'); title('Latency Distribution');
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    set_status(h.figure,"ready","STTC/Latency Matrices Complete...");
+
 end

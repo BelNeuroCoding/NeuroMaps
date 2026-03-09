@@ -1,5 +1,6 @@
 function PlotFooof_callback(h)
 h = guidata(h.figure);
+set_status(h.figure,"loading","Computing FOOOF...");
 
 %%  Get selected port 
 idx = h.portList.Value;              % positions in the listbox
@@ -62,6 +63,8 @@ colors = lines(nPorts);                    % one color per port
 
 hold(h.fooofed_axes(1), 'on');
 hold(h.fooofed_axes(2), 'on');
+set_status(h.figure,"loading","Plotting FOOOF...");
+
 
 for p = 1:nPorts
     psd = all_psds{p};
@@ -137,7 +140,8 @@ else
     oscillatory_power = all_fooofed_spectrum- all_apfit;
     
     SeriesNumber = round(get(h.series_slider, 'Value')); % First figure, port number
-    
+    set_status(h.figure,"loading","Plotting FOOOF...");
+
     children = allchild(h.foof_tab); % Get all children of h.tab4
     delete(findobj(children, 'Type', 'axes')); % Delete only the axes
     h.fooofed_axes(1) = subplot(2,1,1, 'Parent', h.foof_tab);    
@@ -174,4 +178,6 @@ else
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
     end
 end
+set_status(h.figure,"ready","FOOOF Complete...");
+
 end

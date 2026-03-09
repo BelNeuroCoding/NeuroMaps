@@ -1,5 +1,4 @@
 function Sp = filt_spikes(data,fs,spike_freq,order)
-
 %This function takes in channel data, sampling frequency, spike frequency range for high pass filter, and order
 % Outputs: 
 % Sp: bandpass filtered data ; LFP: low pass filtered data

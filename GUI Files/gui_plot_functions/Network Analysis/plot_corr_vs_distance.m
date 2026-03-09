@@ -1,4 +1,5 @@
 function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channels, highCorrThresh, medCorrThresh)
+    set_status(h.figure,"loading","Plotting Network Correlation/Distance...");
     num_channels = length(unique_channels);
     combins = nchoosek(1:num_channels, 2);
 
@@ -29,6 +30,8 @@ function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channe
     ylabel('Number of Connections');
     axis square; box off; set(gca,'Color','none');
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    set_status(h.figure,"loading","Plotting Network Correlation/Distance...");
+
 end
 
 function plot_hist_by_corr(distVals, col)

@@ -5,6 +5,7 @@ function applyFilters(h)
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
     n=size(selected,1);
+    set_status(h.figure,"loading","Step 2 (Filtering) Initiated...");
 
     % Setup waitbar
     wb = waitbar(0,'Preparing Filters...','Name','Filtering');
@@ -78,6 +79,7 @@ function applyFilters(h)
         if isfield(filters,'ACLineNoise')    
                 waitbar(baseProgress + 0.20*portWeight, wb, ...
                 sprintf('Powerline filtering port %d...', i));
+                set_status(h.figure,"loading","Powerline Filtering...");
                 drawnow limitrate
                 notchHz = filters.ACLineNoise.NotchFreq_Hz__;
                 bandwidth = filters.ACLineNoise.Bandwidth_;    % bandwidth
@@ -109,6 +111,7 @@ function applyFilters(h)
 
         end
         if isfield(filters, 'Low_passFilter_LFP_')
+            set_status(h.figure,"loading","Filtering lowpass data...");
              waitbar(baseProgress + 0.50*portWeight, wb, ...
              sprintf('Computing LFP port %d...', i));
              drawnow limitrate
@@ -129,6 +132,7 @@ function applyFilters(h)
             'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
         end
         if isfield(filters, 'BandpassFilter_Spikes_')
+            set_status(h.figure,"loading","Bandpass filtering...");
             waitbar(baseProgress + 0.50*portWeight, wb, ...
             sprintf('Bandpass filtering spikes port %d...', i));
             drawnow limitrate
@@ -149,6 +153,7 @@ function applyFilters(h)
         end
         waitbar(baseProgress + portWeight, wb, ...
         sprintf('Finalising port %d...', i));
+        set_status(h.figure,"ready","Step 2 (Filtering) complete...");
         drawnow limitrate
         delete(wb);
 
@@ -180,4 +185,6 @@ function applyFilters(h)
         msgbox('Filters applied successfully.','Success');
 
     end
+       set_status(h.figure,"ready","Step 2 (Filtering and plotting) complete...");
+
 end

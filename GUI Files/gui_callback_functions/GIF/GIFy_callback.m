@@ -1,5 +1,7 @@
 function GIFy_callback(h,src)
 h = guidata(h.figure);
+set_status(h.figure,"loading","Generating GIF...");
+
 %%  Get selected port 
 idx = h.portList.Value;              % positions in the listbox
 map = h.portList.UserData;           % Nx2 mapping array [expIdx, portIdx]
@@ -104,6 +106,8 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
         % Exit early if figure closed mid-plot
         if ~isvalid(f) || ~isvalid(ax)
             msgbox('GIF generation stopped: figure was closed by user.');
+            set_status(h.figure,"error","GIF stopped...");
+
             return;
         end
         % Generate heatmap with waveform snippets
@@ -136,5 +140,6 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
 
         %close(gcf);  % Close the figure to save memory
     end
- 
+ set_status(h.figure,"ready","GIF generation complete...");
+
 end

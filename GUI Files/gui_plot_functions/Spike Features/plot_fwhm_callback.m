@@ -1,5 +1,7 @@
 function plot_fwhm_callback(h)
     h = guidata(h.figure);  
+    set_status(h.figure,"loading","Plotting FWHM...");
+
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
 
@@ -173,4 +175,6 @@ function plot_fwhm_callback(h)
         ylim(ax, globalYLim);
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
     end
+    set_status(h.figure,"ready","FWHM Complete...");
+
 end

@@ -1,5 +1,7 @@
 function plot_dvdt_phase(h)
     h = guidata(h.figure);  
+    set_status(h.figure,"loading","Plotting dV/dt...");
+
     backgdcolor = [1 1 1];
     accentcolor = [0.1 0.4 0.6];
 

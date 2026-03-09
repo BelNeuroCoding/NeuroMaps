@@ -1,6 +1,8 @@
 function update_power_spectrum_tab(h)
 h=guidata(h.figure);
 % Get selection
+set_status(h.figure,"loading","Computing Power Spectrum...");
+
 idx = h.portList.Value;
 map = h.portList.UserData;
 selected = map(idx,:);
@@ -46,6 +48,7 @@ if h.pspec_toggle.Value || (size(selected,1) > 1 && h.pspec_toggle.Value)
         f_axis = 0:0.5:fs/2;
         goodMask = any(signals,2);
         PSDm = mPSD(signals(goodMask,:), round(fs), winLen, stepLen, stepLen);
+        set_status(h.figure,"loading","Plotting Power Spectrum...");
         if isfield(h,'psLines') || isvalid(h.psLines)
             set(h.psLines, 'XData', nan, 'YData', nan);
         end
@@ -117,6 +120,7 @@ else
     % use cached PSDs for plotting
     PSDm = h.psdCache.PSDm;
     PSDw = h.psdCache.PSDw;
+    set_status(h.figure,"loading","Plotting Power Spectrum...");
 
     if isfield(h,'psLines') || isvalid(h.psLines)
         set(h.psLines, 'XData', nan, 'YData', nan);
@@ -140,5 +144,7 @@ grid(h.psAxes,'on');
 axtoolbar(h.psAxes,{'save','zoomin','zoomout','restoreview','pan'});
 
 drawnow limitrate;
+set_status(h.figure,"ready","Power Spectra Plot Complete...");
+
 guidata(h.figure,h);
 end

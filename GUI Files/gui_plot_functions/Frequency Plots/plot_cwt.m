@@ -1,5 +1,6 @@
 function plot_cwt(h,src)
     h = guidata(h.figure);
+    set_status(h.figure,"loading","Computing/Plotting CWT...");
 
     %%  Get selected port 
     idx = h.portList.Value;              % positions in the listbox
@@ -81,6 +82,7 @@ function plot_cwt(h,src)
         wt = h.cwtCache.wt;
         f = h.cwtCache.f;
     end
+   
 
     [minf maxf]=cwtfreqbounds(numel(LFPData(SeriesNumber, :)),resampleFs);
    % pick powers of 2 within [minf,maxf]
@@ -103,6 +105,8 @@ function plot_cwt(h,src)
     colormap(jet);
     axtoolbar({'datacursor','save','zoomin','zoomout','restoreview','pan'});
     title(['Port ' num2str(results.ports(port_idx).port_id) ' Ch ' num2str(current_ch)])
+    set_status(h.figure,"ready","CWT Plot Complete...");
+
 
 
 end

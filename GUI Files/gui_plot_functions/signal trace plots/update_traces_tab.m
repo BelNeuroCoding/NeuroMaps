@@ -1,5 +1,6 @@
 function update_traces_tab(h)
 % Update all plots without recreating anything
+set_status(h.figure,"loading","Trace Plot...");
 
 h = guidata(h.figure);
 % Get selected ports from listbox
@@ -77,4 +78,6 @@ end
 
 drawnow limitrate;
 guidata(h.figure,h);
+set_status(h.figure,"ready","Trace Plot Complete...");
+
 end

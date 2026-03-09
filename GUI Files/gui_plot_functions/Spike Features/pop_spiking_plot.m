@@ -1,5 +1,7 @@
 function pop_spiking_plot(h)
 h = guidata(h.figure);
+set_status(h.figure,"loading","Plotting Population Spiking Plot...");
+
 prompt = {'Enter binarisation rate (Hz):'};
 dlgtitle = 'Binarisation Rate';
 dims = [1 35];
@@ -80,5 +82,6 @@ for i = 1:size(selected,1)
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
     hold all;
+set_status(h.figure,"ready","Completed Plotting Population Spiking Plot...");
 
 end

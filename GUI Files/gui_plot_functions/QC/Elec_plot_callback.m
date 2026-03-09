@@ -2,6 +2,7 @@ function Elec_plot_callback(h)
 %% ELEC_PLOT_CALLBACK - Updates impedance and capacitance plots for the selected port(s).
 
 h = guidata(h.figure);  
+set_status(h.figure,"loading","Computing Electrical Properties...");
 
 % Get selected port indices
 idx = h.portList.Value;           % positions in the listbox
@@ -52,6 +53,7 @@ for i = 1:numTiles
     % Create next tiles for impedance and capacitance
     axZ = nexttile(tlo);
     axC = nexttile(tlo);
+    set_status(h.figure,"loading","Plotting Electrical Property Metric...");
 
     switch topo_togg
         case 'Distribution'
@@ -78,4 +80,6 @@ for i = 1:numTiles
             axis(axC,'square');
     end
 end
+set_status(h.figure,"ready","Electrical Properties Plot Complete...");
+
 end

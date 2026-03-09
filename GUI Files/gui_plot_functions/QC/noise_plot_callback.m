@@ -2,6 +2,7 @@ function noise_plot_callback(h)
 %% This Function Computes Noise using the Quiroga et al estimation: median(abs(signal)/0.6745)
 %% Takes in the GUI handle containing data and plots distribution/map depending on toggle.
 h = guidata(h.figure);  
+set_status(h.figure,"loading","Computing Noise Levels...");
 
 % Get selected port indices
 idx = h.portList.Value;           % positions in the listbox
@@ -52,6 +53,7 @@ for i = 1:numTiles
     % Create subplots
     ax =nexttile(tlo, i);
     topo_togg = get(h.bg).SelectedObject.String;
+    set_status(h.figure,"loading","Plotting Noise...");
 
     switch topo_togg
         case 'Distribution'
@@ -79,4 +81,6 @@ for i = 1:numTiles
     currentText{end+1} = newMsg;
     set(h.summary_text,'String',currentText);
 end
+set_status(h.figure,"ready","Noise Plot Complete...");
+
 end

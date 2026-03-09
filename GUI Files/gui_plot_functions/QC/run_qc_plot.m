@@ -1,7 +1,8 @@
 function run_qc_plot(h)
 %% Perform QC on selected ports across experiments, plotting per port in tiled layout
 h = guidata(h.figure);
-
+set_status(h.figure,"loading","Computing QC Metrics...");
+drawnow()
 % Get selected ports from listbox
 idx = h.portList.Value;                  % selected rows in the listbox
 map = h.portList.UserData;               % Nx2 mapping [expIdx, portIdx]
@@ -53,6 +54,7 @@ for i = 1:numTiles
         end
         qc_status{c} = labels;
     end
+    set_status(h.figure,"loading","Plotting QC...");
 
     %  Plot QC in tiled layout 
     ax = nexttile(tlo, i);
@@ -106,6 +108,7 @@ lgd.Layout.Tile = 'south'; % shared legend below all tiles
 lgd.ItemHitFcn = @(src,evt) toggleVisibility(evt,tlo); 
 
 
+set_status(h.figure,"ready","QC Plots Complete...");
 
 guidata(h.figure,h)
 

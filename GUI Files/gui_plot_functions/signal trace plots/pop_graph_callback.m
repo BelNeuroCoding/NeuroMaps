@@ -1,5 +1,6 @@
 function pop_graph_callback(h,src1,src2)
 %% pop_graph_callback - Display channel signals over a selected time window
+set_status(h.figure,"loading","Waterfall Plot...");
 
 h = guidata(h.figure);  
 
@@ -30,5 +31,6 @@ end
 render_waterfall_page(h.figure,src1,src2,lab,...
     exclude_impedance_chans_toggle,...
     exclude_noisy_chans_toggle)
+set_status(h.figure,"ready","Waterfall Plot Complete...");
 
 end

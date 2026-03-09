@@ -1,5 +1,4 @@
 function LFP = filt_lfp(data,fs,lfp_freq,order)
-
 %This function takes in channel data, sampling frequency, LFP detection
 % threshold, and filter order
 % Outputs: 

@@ -1,5 +1,7 @@
 function plot_cluster_callback(h,delta)
     h = guidata(h.figure);  
+    set_status(h.figure,"loading","Plotting Clusters...");
+
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
     if nargin<2
@@ -204,6 +206,8 @@ function plot_cluster_callback(h,delta)
 
     % --- Update cluster list ---
     set(h.clusterListBox,'String',cellstr(num2str(detected_clusters)));
+    set_status(h.figure,"ready","Cluster Plot Complete...");
+
 end
 
 % --- Helper: Publication style ---

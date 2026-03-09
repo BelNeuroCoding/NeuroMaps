@@ -3,6 +3,8 @@ function update_spike_summary_tab(h, analysedset)
 % analysedset: output from spike_feats_callback (optional if results loaded from UserData)
 
 h = guidata(h.figure);  
+set_status(h.figure,"loading","Updating spike summary...");
+
 
 % Get all results from UI
 allResults = get(h.figure,'UserData');
@@ -70,5 +72,6 @@ end
 % Update the GUI text box
 set(h.spike_summary_text, 'String', summaryLines, ...
     'FontSize', 12, 'HorizontalAlignment', 'left');
+set_status(h.figure,"ready","Spike summary up to date...");
 
 end
