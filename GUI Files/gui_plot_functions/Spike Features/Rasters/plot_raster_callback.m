@@ -63,7 +63,7 @@ for i = 1:size(selected,1)
     %  Filter selected clusters 
     selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
     selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
-    if ~isempty(selectedIdx)
+    if ~isempty(selectedStrings)
         % Convert selected strings to numeric values if waveforms_all.clusters is numeric
         selectedClusters = str2double(selectedStrings(selectedIdx));
     
