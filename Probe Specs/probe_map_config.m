@@ -23,8 +23,124 @@ function [x_coords, y_coords] = probe_map_config(image_file)
     img = imread(image_file);
     figure
     hImg = imshow(img);
-    title('Zoom/pan → Enter → Click electrode → Enter. Double Enter to finish.');
+    axis on;           % Show axes
+    axis image;        % Keep aspect ratio correct
+    grid on;           % Show grid
+    grid minor;
     hold on;
+    title('Zoom/pan → Enter → Select point → Enter → Double Enter to finish.');
+    hold on;
+
+     %% CALIBRATION STEP
+    n_cal = 3;
+    um_per_pixel_all = zeros(1,n_cal);
+    
+    msgbox('The first step is calibration. You will select two points three times to calibrate pixel to micron ratio.');
+    
+    for k = 1:n_cal
+    
+        x_cal = zeros(1,2);
+        y_cal = zeros(1,2);
+        cal_points = gobjects(0);
+    
+        title(sprintf('Calibration line %d/%d',k,n_cal));
+        xlabel('Zoom/pan → press Enter → click point 1 → Enter → click point 2');    
+        p = 1;
+        while p <= 2
+    
+            zoom on
+            pause
+    
+            [x,y,button] = ginput(1);
+    
+            if isempty(button) || button == 13
+                return
+            elseif button == 8   % undo
+                if p > 1
+                    delete(cal_points(end))
+                    cal_points(end) = [];
+                    p = p - 1;
+                end
+                continue
+            end
+    
+            % store point
+            x_cal(p) = x;
+            y_cal(p) = y;
+    
+            % plot point
+            cal_points(end+1) = plot(x,y,'ro','MarkerSize',10,'LineWidth',2,'Tag','calibration');
+    
+            p = p + 1;
+    
+        end
+    
+        % draw calibration line
+        cal_line = line(x_cal,y_cal,'Color','g','LineWidth',2,'Tag','calibration');
+    
+        % ask for real distance
+        valid = false;
+    
+        while ~valid
+    
+            prompt = {'Enter the known distance between these points (μm):'};
+            dlgtitle = 'Calibration Distance';
+            dims = [1 35];
+            definput = {'100'};
+            answer = inputdlg(prompt,dlgtitle,dims,definput);
+    
+            if isempty(answer)
+                choice = questdlg('Cancel this calibration line?', ...
+                                  'Calibration', ...
+                                  'Redo points','Abort calibration','Redo points');
+    
+                if strcmp(choice,'Abort calibration')
+                    msgbox('Calibration canceled','Warning','warn');
+                    return
+                else
+                    % redo this calibration pair
+                    delete(cal_points)
+                    delete(cal_line)
+                    k = k - 1;
+                    valid = true;
+                    continue
+                end
+            end
+    
+            known_distance_um = str2double(answer{1});
+    
+            if isnan(known_distance_um) || known_distance_um <= 0
+                uiwait(warndlg('Please enter a valid positive number.'));
+            else
+                % confirm choice
+                choice = questdlg(['Use ',num2str(known_distance_um),' μm for this line?'], ...
+                                   'Confirm Calibration', ...
+                                   'OK','Redo points','OK');
+    
+                if strcmp(choice,'Redo points')
+                    delete(cal_points)
+                    delete(cal_line)
+                    k = k - 1;
+                    valid = true;
+                else
+                    pixel_distance = sqrt((x_cal(2)-x_cal(1))^2 + (y_cal(2)-y_cal(1))^2);
+                    um_per_pixel_all(k) = known_distance_um / pixel_distance;
+                    valid = true;
+                end
+            end
+    
+        end    
+    end
+    
+    um_per_pixel = mean(um_per_pixel_all);
+    
+    msgbox(['Average calibration factor: 1 pixel = ', num2str(um_per_pixel), ' μm']);
+    delete(findobj(gca,'Tag','calibration'))
+
+    title('Select Electrodes from 0 to N.');
+    xlabel('Zoom/pan → press Enter → click point 1 → Enter → Double Enter when all electrodes are complete');    
+
+    hold on
 
     % Initialize arrays to store plot and text objects for undo functionality
     x_coords = [];        % Store x-coordinates
@@ -87,7 +203,7 @@ function [x_coords, y_coords] = probe_map_config(image_file)
     if isequal(filename,0) || isequal(pathname,0)
         msgbox('Save operation canceled by user.', 'Info', 'warn');
     else
-        save(fullfile(pathname, filename), 'x_coords', 'y_coords','maps');
+        save(fullfile(pathname, filename), 'x_coords', 'y_coords','maps','um_per_pixel');
         msgbox(['Coordinates saved to: ', fullfile(pathname, filename)], 'Success', 'help');
     end
 

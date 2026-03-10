@@ -90,6 +90,7 @@ h.stepDone    = false(1,nSteps);
 h.stepCurrent = 1;
 % Initial highlight
 stepperSet(h);
+
 %% Status Indicator
 h.statusPanel = uipanel('Parent',h.figure,...
     'Units','normalized',...
