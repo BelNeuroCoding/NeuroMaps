@@ -1,6 +1,6 @@
 function network_conn_callback(h)
     %  Load probe map (coords etc.)
-    [x_coords, y_coords, maps] = load_probe_map(h);
+    [x_coords, y_coords, maps,um_per_px] = load_probe_map(h);
 
     %  Get thresholds from user
     dtv = str2double(get(h.dt_window,'String'));
@@ -25,5 +25,5 @@ function network_conn_callback(h)
         receiver_nodes, sender_nodes, broker_nodes, node_degrees);
 
     %  Plot distance vs correlation histograms
-    plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channels,highCorrThresh, medCorrThresh);
+    plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channels,highCorrThresh, medCorrThresh,um_per_px);
 end

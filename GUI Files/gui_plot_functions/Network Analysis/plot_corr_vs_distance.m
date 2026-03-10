@@ -1,13 +1,12 @@
-function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channels, highCorrThresh, medCorrThresh)
+function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channels, highCorrThresh, medCorrThresh,um_per_px)
     set_status(h.figure,"loading","Plotting Network Correlation/Distance...");
     num_channels = length(unique_channels);
     combins = nchoosek(1:num_channels, 2);
-
     for k=1:length(combins)
         i = combins(k,1); 
         j = combins(k,2); 
         distance = sqrt((x_coords(unique_channels(i)+1) - x_coords(unique_channels(j)+1))^2 + (y_coords(unique_channels(i)+1) - y_coords(unique_channels(j)+1))^2); 
-        distanceMatrix(i,j) = distance*7.7; distanceMatrix(j,i) = distance*7.7; 
+        distanceMatrix(i,j) = distance*um_per_px; distanceMatrix(j,i) = distance*um_per_px; 
         corrMatrix(i,j) = sttc_matrix(i,j); corrMatrix(j,i) = sttc_matrix(i,j);
     end
 
