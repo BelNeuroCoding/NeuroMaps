@@ -22,7 +22,7 @@ colors = lines(num_channels);  % distinct colors
 hold(ax,'on');
 xrange = diff(xlim(ax));
 labelX = TimeStamps(1) - 0.05*xrange; % 5% to the left of axis
-scalebardist = TimeStamps(1) - xrange;
+scalebardist = TimeStamps(1) - 0.1*xrange;
 pixelHeightPerChannel = 30;
 totalHeight = length(ChosenChannels)*pixelHeightPerChannel;
 
@@ -52,7 +52,8 @@ text(ax, scalebardist, scale_bar_y, sprintf('%d uV',scaleBarAmp), 'HorizontalAli
 % Axis formatting
 title(ax, [title_str]);
 ylim(ax, [-3, num_channels]*2*spacing + spacing);
+xlim(ax,[TimeStamps(1)-0.2*xrange TimeStamps(end)])
+
 set(ax,'Color',[1 1 1],'XColor','k','YColor','none');
 hold(ax,'off');
-
 end
