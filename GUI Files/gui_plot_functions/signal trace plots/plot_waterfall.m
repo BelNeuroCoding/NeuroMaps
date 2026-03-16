@@ -22,7 +22,7 @@ colors = lines(num_channels);  % distinct colors
 hold(ax,'on');
 xrange = diff(xlim(ax));
 labelX = TimeStamps(1) - 0.05*xrange; % 5% to the left of axis
-scalebardist = TimeStamps(1) - 0.2*xrange;
+scalebardist = TimeStamps(1) - xrange;
 pixelHeightPerChannel = 30;
 totalHeight = length(ChosenChannels)*pixelHeightPerChannel;
 

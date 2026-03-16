@@ -1,11 +1,10 @@
-function network_pop_plot(waveforms_all,TimeStamps,fs,recording_time,bin_answer,ax)
+function network_pop_plot(waveforms_all,TimeStamps,fs,recording_time,bin_rate,ax)
 
 unique_channels = unique([waveforms_all.channel]);
 
-if isempty(bin_answer) | nargin<5
+if isempty(bin_rate) | nargin<5
     bin_rate = 1000; % fallback default if user cancels
 else
-    bin_rate = str2double(bin_answer{1});
     if isnan(bin_rate) || bin_rate <= 0
         bin_rate = 1000; % fallback if invalid input
     end

@@ -1,13 +1,7 @@
 function pop_spiking_plot(h)
 h = guidata(h.figure);
 set_status(h.figure,"loading","Plotting Population Spiking Plot...");
-
-prompt = {'Enter binarisation rate (Hz):'};
-dlgtitle = 'Binarisation Rate';
-dims = [1 35];
-definput = {'1000'}; % default = 1000 Hz
-bin_answer = inputdlg(prompt, dlgtitle, dims, definput);
-
+bin_rate = str2double(get(h.burst_param(5),'String'));
 children = allchild(h.nws_tab); 
 delete(findobj(children, 'Type', 'axes'));
 
@@ -77,11 +71,11 @@ for i = 1:size(selected,1)
     ax = nexttile(tlo, i);
     hold(ax,'on');
     
-    network_pop_plot(waveforms_all,TimeStamps,fs,recording_time,bin_answer,ax)
+    network_pop_plot(waveforms_all,TimeStamps,fs,recording_time,bin_rate,ax)
     ylabel('Population Spiking Plot')
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
     hold all;
-set_status(h.figure,"ready","Completed Plotting Population Spiking Plot...");
+    set_status(h.figure,"ready","Completed Plotting Population Spiking Plot...");
 
 end
