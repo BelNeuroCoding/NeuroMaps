@@ -4,12 +4,12 @@ function plot_spikes_callback(h)
     set_status(h.figure,"loading","Spike waveform plot...");
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
-    %% ---------------- DELETE OLD BUTTONS ----------------
+    %% - DELETE OLD BUTTONS -
     if isfield(h,'page_buttons')
         delete(h.page_buttons(ishandle(h.page_buttons)));
     end
 
-    %% ---------------- LOAD CONFIG ----------------
+    %% - LOAD CONFIG -
     if exist('spike_config.mat','file')
         cfg = load('spike_config.mat');
         cfg = cfg.config;
@@ -20,14 +20,14 @@ function plot_spikes_callback(h)
         post_time = 0.8;
     end
 
-    %% ---------------- GET SELECTED PORTS ----------------
+    %% - GET SELECTED PORTS -
     idx = h.portList.Value;           
     map = h.portList.UserData;        
     selected = map(idx,:);
 
     spikeData = [];  % store waveform data, not axes
 
-    %% ---------------- LOOP PORTS ----------------
+    %% - LOOP PORTS -
     for p = 1:size(selected,1)
         expIdx = selected(p,1);
         selected_idx = selected(p,2);
@@ -44,7 +44,7 @@ function plot_spikes_callback(h)
 
         waveforms_all = results.spike_results(selected_idx).waveforms_all;
 
-        %% ----- FILTER (Amp + FWHM only) -----
+        %%  FILTER (Amp + FWHM only) 
         ptp  = [waveforms_all.ptp_amplitude]';
         fwhm = [waveforms_all.fwhm]';
 
@@ -59,7 +59,7 @@ function plot_spikes_callback(h)
             continue;
         end
 
-        %% ----- STORE DATA -----
+        %%  STORE DATA 
         all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
         flip_idx = abs(min(all_waveforms,[],2)) < abs(max(all_waveforms,[],2));
         all_waveforms(flip_idx,:) = -all_waveforms(flip_idx,:);
@@ -94,7 +94,7 @@ function plot_spikes_callback(h)
     h.nPages = ceil(h.totalPlots / h.maxPerPage);
     h.currentPage = 1;
 
-    % create buttons ONCE
+    % create buttons
     btnPrev = uicontrol(h.spikes_tab,'Style','pushbutton','String','<',...
         'Position',[10 2 30 30],...
         'Callback',@(src,evt) changePage(-1));

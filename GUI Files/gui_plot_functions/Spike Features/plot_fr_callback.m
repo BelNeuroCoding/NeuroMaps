@@ -30,9 +30,17 @@ maxCols = 2;
 % Determine rows and cols for tiling
 rows = min(maxRows, ceil(sqrt(numTiles)));
 cols = min(maxCols, ceil(numTiles/rows));
+if isfield(h,'plotPanel') 
+delete(findall(h.FRplotPanel,'Type','axes'))
+delete(findall(h.FRplotPanel,'Type','tiledlayout'))
+end
 
+h.FRplotPanel = uipanel( ...
+    'Parent', h.fr_tab, ...
+    'Units','normalized', ...
+    'Position',[0 0.15 1 0.85],'BackgroundColor',[1 1 1]); 
 % Create tiled layout
-tlo = tiledlayout(h.fr_tab, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+tlo = tiledlayout(h.FRplotPanel, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
 
 for i = 1:size(selected,1)
     expIdx = selected(i,1);
@@ -158,5 +166,5 @@ for i = 1:size(selected,1)
 
 end
 set_status(h.figure,"ready","Firing rate maps complete...");
-
+guidata(h.figure,h);
 end
