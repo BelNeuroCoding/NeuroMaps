@@ -83,6 +83,7 @@ else
 end
 total_time = toc;
 fprintf('Total time for Clustering %.3f s',total_time)
+set(h.fr_clust_toggle,'Visible','on');
 clust = num2cell(clusters);
 [waveforms_all.clusters] = deal(clust{:});
 results.spike_results(selected_idx).waveforms_all = waveforms_all;

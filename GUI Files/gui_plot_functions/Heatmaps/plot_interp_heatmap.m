@@ -1,4 +1,4 @@
-function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords)
+function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveforms)
     % Inputs:
     % - var: Spike rate or other variable to plot in heatmap.
     % - chans: The channel numbers corresponding to the data.
@@ -6,7 +6,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords)
     % x_coords, y_coords
     
     % Define Grid
-     if nargin< 6 || isempty(range)
+     if nargin< 7 || isempty(range)
          min_rate = floor(min(var));
          max_rate = ceil(max(var));
      else
@@ -121,7 +121,33 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords)
     cs.Label.Rotation = 0;    % horizontal orientation
     cs.Label.VerticalAlignment = 'top';   % align vertically along colorbar
     cs.Label.HorizontalAlignment = 'center'; % align horizontally
-
+    % ----- Overlay waveforms -----
+    if nargin >= 6 && ~isempty(mean_waveforms)
+    
+        wf_scale_x = 40;   % horizontal waveform scaling
+        wf_scale_y = 40;   % vertical waveform scaling
+    
+        for i = 1:length(chans)
+    
+            ch = chans(i);
+    
+            x0 = x_coords(ch + 1)*0.95;
+            y0 = y_coords(ch + 1)*1.05;
+    
+            wf = mean_waveforms(i,:);
+    
+            % Normalize waveform for visual consistency
+            wf = wf - mean(wf);
+            wf = wf / max(abs(wf));
+            time_axis = linspace(0,1,length(mean_waveforms(1,:)));
+            % Scale and translate waveform
+            xwf = x0 + time_axis * wf_scale_x;
+            ywf = y0 + wf * wf_scale_y;
+    
+            plot(xwf, ywf, 'w', 'LineWidth', 1);
+    
+        end
+    end
     for t = 1:length(chans)
         chan_id = chans(t);
 

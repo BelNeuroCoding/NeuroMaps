@@ -101,8 +101,57 @@ for i = 1:size(selected,1)
                 plot_heatmap_callback(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords);
     
             case 'Topographic Map'
-                plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords);
-                axis(ax,'square');
+                if h.fr_toggle.Value
+                    all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');                    
+                    channels = cell2mat(arrayfun(@(x) x.channel, waveforms_all, 'UniformOutput', false)');
+                    mean_waveforms = zeros(length(chans), size(all_waveforms,2));
+                    for j = 1:length(chans)
+                        idx_ch = channels == chans(j);
+                        mean_waveforms(j,:) = mean(all_waveforms(idx_ch,:),1);
+                    
+                    end
+                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,mean_waveforms);
+                    axis(ax,'square');
+                elseif h.fr_clust_toggle.Value
+                    selectedStrings = get(h.clusterListBox,'String');
+                    selectedIdx     = get(h.clusterListBox,'Value');
+                    
+                    if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters')
+                    
+                        selectedClusters = str2double(selectedStrings(selectedIdx));
+                        waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+                    
+                        all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
+                        channels      = cell2mat(arrayfun(@(x) x.channel, waveforms_all, 'UniformOutput', false)');
+                        clust         = [waveforms_all.clusters]';
+                    
+                        chans  = unique(channels);
+                        clusts = unique(clust);
+                    
+                        nCh = length(chans);
+                        nCl = length(clusts);
+                        nSamp = size(all_waveforms,2);
+                    
+                        mean_waveforms = zeros(nCh, nCl, nSamp);
+                    
+                        for j = 1:nCh
+                            for k = 1:nCl
+        
+                                idx = find(channels == chans(j) & clust == clusts(k));
+                                if isempty(idx), continue; end
+                                wf = all_waveforms(idx,:);
+                                mean_waveforms(j,k,:)  = mean(wf,1);                    
+                            end
+                        end
+                    
+                    end
+                    plot_interpclust_heatmap(fr,chans,sprintf('FR'),x_coords,y_coords,mean_waveforms)
+                    axis(ax,'square');
+
+                else
+                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords);
+                    axis(ax,'square');
+                end
         end
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
     end
