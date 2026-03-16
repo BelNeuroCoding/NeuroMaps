@@ -1,6 +1,12 @@
-function render_waterfall_page(fig,src1,src2,lab,exclude_impedance_chans_toggle,exclude_noisy_chans_toggle)
+function render_waterfall_page(fig,src1,lab,exclude_impedance_chans_toggle,exclude_noisy_chans_toggle,axprops)
 
 h = guidata(fig);
+if nargin<6
+    axprops = [];
+    excludedChannels = [];
+else
+    excludedChannels = axprops.excludedChannels;
+end
 backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
 accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
 
@@ -14,8 +20,7 @@ allChildren = get(h.waterfall_tab,'Children');
 
 % List of handles NOT to delete
 keepChildren = [h.export_waterfall_button,h.plot_waterfall_button,h.startLabel_waterfall, ...
-                h.timeBox_waterfall, h.excluded_chansLabel_waterfall, ...
-                h.excluded_chans_waterfall];
+                h.timeBox_waterfall, h.waterfall_settings_button];
 
 % Delete everything else
 toDelete = setdiff(allChildren, keepChildren);
@@ -55,7 +60,10 @@ for i = startIdx:endIdx
             mask = mask & ~noisy;
         end
     end
-
+    if ~isempty(excludedChannels)
+         selection_logic = ~ismember(channels, excludedChannels);
+         mask = mask & selection_logic;
+    end
     signals = results.signals(portIdx).(lab)(mask,:);
     channels = results.channels(portIdx).id(mask);
 
@@ -82,13 +90,7 @@ for i = startIdx:endIdx
         endTime = timeplot(2);
     end
 
-    if nargin>3 && ~isempty(src2)
-        excludedChannels = str2num(src2.String);
-    else
-        excludedChannels = [];
-    end
 
-    ChosenChannels = setdiff(channels, excludedChannels);
 
     timeIdx = TimeStamps >= startTime & TimeStamps <= endTime;
     TimeStamps = TimeStamps(timeIdx);
@@ -118,7 +120,7 @@ for i = startIdx:endIdx
     
     % Axes height = total channels height
     pixelHeightPerChannel = 60;
-    totalHeight = max(length(ChosenChannels)*pixelHeightPerChannel, 1);
+    totalHeight = max(length(channels)*pixelHeightPerChannel, 1);
     leftMargin = 40;   % space for channel labels
     % Create axes
     ax = axes('Parent',scrollPanel,...
@@ -135,7 +137,7 @@ for i = startIdx:endIdx
         'SliderStep',[0.02 0.1],...
         'BackgroundColor',[1 1 1],'Callback',@(src,~)scroll_waterfall(src,ax));
 
-    plot_waterfall(ax, signals, ChosenChannels, TimeStamps, title_str);
+    plot_waterfall(ax, signals, channels, TimeStamps, title_str,axprops);
 
     tileCount = tileCount + 1;
 

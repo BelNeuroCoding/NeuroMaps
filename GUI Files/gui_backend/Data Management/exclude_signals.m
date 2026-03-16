@@ -48,10 +48,9 @@ SeriesNumber = 1;
 sertxt = [num2str(port), ':', num2str(channels(SeriesNumber))];
 set(h.series_slider, 'Value', SeriesNumber);
 set(h.series_text,'String',sertxt);
-waitbar(0.5, wb, 'Updating traces...');
+end
 update_traces_tab(h)
-waitbar(0.9, wb, 'Generating plots...');
 pop_graph_callback(h)
 delete(wb);
-end
+
 end

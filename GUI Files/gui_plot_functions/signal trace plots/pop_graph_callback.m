@@ -1,4 +1,4 @@
-function pop_graph_callback(h,src1,src2)
+function pop_graph_callback(h,src1,axprops)
 %% pop_graph_callback - Display channel signals over a selected time window
 set_status(h.figure,"loading","Waterfall Plot...");
 
@@ -25,12 +25,16 @@ end
 guidata(h.figure,h)
 if nargin<2
     src1=[];
-    src2=[];
 end
-
-render_waterfall_page(h.figure,src1,src2,lab,...
+if nargin<3
+    render_waterfall_page(h.figure,src1,lab,...
+        exclude_impedance_chans_toggle,...
+        exclude_noisy_chans_toggle)
+else
+    render_waterfall_page(h.figure,src1,lab,...
     exclude_impedance_chans_toggle,...
-    exclude_noisy_chans_toggle)
+    exclude_noisy_chans_toggle,axprops)
+end
 set_status(h.figure,"ready","Waterfall Plot Complete...");
 
 end

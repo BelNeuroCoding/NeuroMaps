@@ -1,4 +1,4 @@
-function plot_waterfall(ax, signals, ChosenChannels, TimeStamps, title_str, port)
+function plot_waterfall(ax, signals, ChosenChannels, TimeStamps, title_str, axprops)
 %% plot_waterfall - Stacked channel plot with labels and scale bars
 % Inputs:
 %   ax            - axes handle to plot into
@@ -8,13 +8,21 @@ function plot_waterfall(ax, signals, ChosenChannels, TimeStamps, title_str, port
 %   title_str     - plot title
 %   port          - port ID (for title)
 
-spacing = 300;  % vertical offset between channels
-
+if isempty(axprops)
+    spacing = 300;  % vertical offset between channels
+    scaleBarAmp = 200;
+    scale_bar_length = 0.1*(TimeStamps(end)-TimeStamps(1));
+else
+    spacing = axprops.spacing;
+    scale_bar_length = axprops.scaleBarTimeFrac;   % fraction of x-range
+    scaleBarAmp = axprops.scaleBarAmplitude;  % e.g. 200 uV
+end
 num_channels = length(ChosenChannels);
 colors = lines(num_channels);  % distinct colors
 hold(ax,'on');
 xrange = diff(xlim(ax));
 labelX = TimeStamps(1) - 0.05*xrange; % 5% to the left of axis
+scalebardist = TimeStamps(1) - 0.2*xrange;
 pixelHeightPerChannel = 30;
 totalHeight = length(ChosenChannels)*pixelHeightPerChannel;
 
@@ -34,12 +42,12 @@ for i = 1:num_channels
 end
     
 % Add scale bars
-scale_bar_length = 0.1*(TimeStamps(end)-TimeStamps(1));
+
 scale_bar_y = -2*spacing;
 plot(ax, [TimeStamps(1), TimeStamps(1)+scale_bar_length], [scale_bar_y, scale_bar_y], 'k','LineWidth',1);
-plot(ax, [TimeStamps(1), TimeStamps(1)], [scale_bar_y, scale_bar_y+100], 'k','LineWidth',1);
-text(ax, TimeStamps(1)+scale_bar_length/2, scale_bar_y-spacing*0.2, sprintf('%.1f s', scale_bar_length), 'HorizontalAlignment','center','FontSize',5);
-text(ax, TimeStamps(1)-0.01*(TimeStamps(end)-TimeStamps(1)), scale_bar_y, '200 uV', 'HorizontalAlignment','center','Rotation',90,'FontSize',5);
+plot(ax, [TimeStamps(1), TimeStamps(1)], [scale_bar_y, scale_bar_y+scaleBarAmp], 'k','LineWidth',1);
+text(ax, TimeStamps(1)+scale_bar_length/2, scale_bar_y-scalebardist, sprintf('%.1f s', scale_bar_length), 'HorizontalAlignment','center');
+text(ax, scalebardist, scale_bar_y, sprintf('%d uV',scaleBarAmp), 'HorizontalAlignment','center','Rotation',90);
 
 % Axis formatting
 title(ax, [title_str]);
