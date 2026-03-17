@@ -1,8 +1,11 @@
-function plot_fr_callback(h)
+function plot_fr_callback(h,hm_props)
 
 h = guidata(h.figure);
 set_status(h.figure,"loading","Mapping Firing rates...");
 
+if nargin<2
+    hm_props = [];
+end
 %  Load probe map 
 probe_maps = get(h.probe_map, 'Data');  
 if ~isempty(probe_maps)
@@ -118,7 +121,7 @@ for i = 1:size(selected,1)
                 xlabel(ax,'Firing Rate (Hz)'); ylabel(ax,'Counts'); axis(ax,'square');
     
             case 'Simple Map'
-                plot_heatmap_callback(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,imgFile);
+                plot_heatmap_callback(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,imgFile,hm_props);
     
             case 'Topographic Map'
                 if h.fr_toggle.Value
@@ -130,7 +133,7 @@ for i = 1:size(selected,1)
                         mean_waveforms(j,:) = mean(all_waveforms(idx_ch,:),1);
                     
                     end
-                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,mean_waveforms,imgFile);
+                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,mean_waveforms,imgFile,hm_props);
                 elseif h.fr_clust_toggle.Value
                     selectedStrings = get(h.clusterListBox,'String');
                     selectedIdx     = get(h.clusterListBox,'Value');
@@ -164,10 +167,10 @@ for i = 1:size(selected,1)
                         end
                     
                     end
-                    plot_interpclust_heatmap(fr,chans,sprintf('FR'),x_coords,y_coords,mean_waveforms,imgFile)
+                    plot_interpclust_heatmap(fr,chans,sprintf('FR'),x_coords,y_coords,mean_waveforms,imgFile,hm_props)
 
                 else
-                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,[],imgFile);
+                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,[],imgFile,hm_props);
                 end
         end
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});

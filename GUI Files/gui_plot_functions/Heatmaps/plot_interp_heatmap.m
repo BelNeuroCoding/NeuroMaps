@@ -1,4 +1,4 @@
-function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveforms,img,range,col)
+function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveforms,img,hm_props)
     % Inputs:
     % - var: Spike rate or other variable to plot in heatmap.
     % - chans: The channel numbers corresponding to the data.
@@ -6,13 +6,6 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     % x_coords, y_coords
     
     % Define Grid
-     if nargin< 8 || isempty(range)
-         min_rate = floor(min(var));
-         max_rate = ceil(max(var));
-     else
-         min_rate = range(1);
-         max_rate = range(2);
-     end
      if nargin < 4
         x_coords = [115.4919, 155.7933, 216.2454, 230.9005, 269.9807, 293.7951, 350.5835, 391.1902, 294.7111, 351.8048, ...
                      250.4406, 226.3208, 179.6078, 102.3634, 66.6416, 168.3111, 171.3643, 114.2706, 214.4135, ...
@@ -61,11 +54,24 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
             col = 'k';
         end
     end
-
+    min_rate = floor(min(var));
+    max_rate = ceil(max(var));
+    if nargin>7 && ~isempty(hm_props)
+        col = hm_props.label_color;
+        fsize = hm_props.font_size;
+        cm = hm_props.colormap;
+        transp_scale =  hm_props.topo_map_transparency;
+        if isfield(hm_props,'use_clim') && hm_props.use_clim && numel(hm_props.clim)==2
+            [min_rate, max_rate] = deal(hm_props.clim(1), hm_props.clim(2));
+        end
+    else
+        cm = 'turbo';
+        fsize = 5;
+    end
 %    [Y, X] = ndgrid(1:grid_size_y, 1:grid_size_x);
 
     hold on;
-    cmap = turbo(256); % Generate 256 colors
+    cmap = feval(cm,256); % Generate 256 colors
 
     % Heatmap setup
  %   heatmap = zeros(size(X));
@@ -119,7 +125,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         set(gca,'YDir','reverse');
        % shading interp;  % Smooth shading
         cs=colorbar('southoutside');  % Add colorbar
-        colormap(jet);  % Optional: Choose color map
+        colormap(gca,cm);  % Optional: Choose color map
       %  cs.Ticks = 50;
 
         alpha_data = ~isnan(interp_z).* rescale(interp_z, transp_scale, 1);
@@ -167,7 +173,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
             xwf = x0 + time_axis * wf_scale_x;
             ywf = y0 + wf * wf_scale_y;
     
-            plot(xwf, ywf, 'w', 'LineWidth', 1);
+            plot(xwf, ywf, col, 'LineWidth', 1);
     
         end
     end
@@ -178,7 +184,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         y_center = y_coords(chan_id + 1);
         
         text(x_center + 20, y_center, num2str(chan_id), ...
-            'Color', 'w', 'FontSize', 5, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+            'Color', col, 'FontSize', fsize, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     end
     
     

@@ -1,4 +1,4 @@
-function plot_heatmap_callback(var, chans, Zlabel, x_coords, y_coords, img, col, clims)
+function plot_heatmap_callback(var, chans, Zlabel, x_coords, y_coords, img, hm_props, clims)
 
 % 1. Default coordinates 
 if nargin < 4
@@ -23,24 +23,28 @@ if nargin > 5 && ~isempty(img)
     %imshow(imagefile, 'XData', [x_min x_max], 'YData', [y_min y_max]);
     imshow(imagefile)
     hold on
-    alpha_value = 0.9;
     [H,W,~] = size(imagefile);
     [Y,X] = ndgrid(1:H,1:W);
+    col = 'w';
     % Create grid matching image
     %[Y,X] = ndgrid(1:size(imagefile,1),1:size(imagefile,2));
     heatmap = nan(size(X));
-    
-    if nargin < 7 || isempty(col)
-        col = 'w'; % text color for overlay
-    end
 else
     % No image, create plain grid
-    alpha_value = 0.9;
+    col = 'k';
     [Y, X] = ndgrid(y_min:y_max, x_min:x_max);
     heatmap = nan(size(X));
-    if nargin < 7 || isempty(col)
-        col = 'k';
-    end
+end
+
+if nargin>6 && ~isempty(hm_props)
+    col = hm_props.label_color;
+    fsize = hm_props.font_size;
+    cm = hm_props.colormap;
+    alpha_value =  hm_props.topo_map_transparency;
+else
+    cm = 'turbo';
+    alpha_value = 0.9;
+    fsize = 5;
 end
 
 % 4. Build heatmap
@@ -62,7 +66,7 @@ else
     hImg = imagesc([x_min x_max], [y_min y_max], heatmap);
     axis square
 end
-colormap('turbo');
+colormap(cm);
 hold on;
 
 % Set transparency
@@ -86,7 +90,7 @@ set(cs, 'TickDirection', 'out');
 % 7. Electrode labels
 for t = 1:length(chans)
     text(x_centers(chans(t)+1)+10, y_centers(chans(t)+1)+20, num2str(chans(t)), ...
-        'Color', col, 'FontSize', 5, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+        'Color', col, 'FontSize', fsize, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
 end
 
 % 8. Axis adjustments

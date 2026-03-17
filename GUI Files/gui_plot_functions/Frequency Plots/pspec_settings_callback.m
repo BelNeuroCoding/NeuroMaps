@@ -4,12 +4,11 @@ function pspec_settings_callback(h)
     % Defaults (or previous settings)
     if isfield(h,'pspec_props')
         p = h.pspec_props;
-        p.winLen = 2;       % seconds
-        p.stepLen = 0.5;    % seconds
     else
         p.fmin = 1;
-        p.fmax = [];
-        p.scale = 'log';
+        p.fmax = 1000;
+        p.xscale = 'log';
+        p.yscale = 'log';
         p.showWelch = true;
         p.linewidth = 1.5;
         p.winLen = 2;       % seconds
@@ -25,16 +24,19 @@ function pspec_settings_callback(h)
     uilabel(f,'Position',[20 yPos 120 20],'Text','F min (Hz)');
     ef_fmin = uieditfield(f,'numeric','Value',p.fmin,'Position',[150 yPos 120 22]);
     yPos = yPos - deltaY;
-    uilabel(f,'Position',[20 yPos 120 20],'Text','F max (Hz)','Tooltip','Empty = fs/2');
+    uilabel(f,'Position',[20 yPos 120 20],'Text','F max (Hz)');
     ef_fmax = uieditfield(f,'numeric','Value',p.fmax,'Position',[150 yPos 120 22]);
     yPos = yPos - deltaY;
 
-    % Scale
-    uilabel(f,'Position',[20 yPos 120 20],'Text','Scale (log/linear)');
-    dd_scale = uidropdown(f,'Items',{'log','linear'},'Value',p.scale,'Position',[150 yPos 120 22]);
+    % Scale dropdowns
+    uilabel(f,'Position',[20 yPos 120 20],'Text','X Scale (log/linear)');
+    dd_xscale = uidropdown(f,'Items',{'log','linear'},'Value',p.xscale,'Position',[150 yPos 120 22]);
+    yPos = yPos - deltaY;
+    uilabel(f,'Position',[20 yPos 120 20],'Text','Y Scale (log/linear)');
+    dd_yscale = uidropdown(f,'Items',{'log','linear'},'Value',p.yscale,'Position',[150 yPos 120 22]);
     yPos = yPos - deltaY;
 
-    % Welch PSD
+    % Welch PSD checkbox
     cb_welch = uicheckbox(f,'Text','Show Welch PSD','Value',p.showWelch,'Position',[150 yPos 150 22]);
     yPos = yPos - deltaY;
 
@@ -45,12 +47,14 @@ function pspec_settings_callback(h)
 
     % Window length
     uilabel(f,'Position',[20 yPos 120 20],'Text','Window Length (s)');
-    ef_win = uieditfield(f,'numeric','Value',p.winLen,'Limits',[0.1 20],'Position',[150 yPos 120 22],'Tooltip','Length of each segment for PSD calculation. Longer windows = smoother frequency resolution, less temporal resolution.');
+    ef_win = uieditfield(f,'numeric','Value',p.winLen,'Limits',[0.1 20],'Position',[150 yPos 120 22],...
+        'Tooltip','Length of each segment for PSD calculation. Longer windows = smoother frequency resolution, less temporal resolution.');
     yPos = yPos - deltaY;
 
     % Step length
     uilabel(f,'Position',[20 yPos 120 20],'Text','Step Length (s)');
-    ef_step = uieditfield(f,'numeric','Value',p.stepLen,'Limits',[0.01 10],'Position',[150 yPos 120 22],'Tooltip','Step size between segments for PSD calculation. Smaller steps = more overlap, smoother average.');
+    ef_step = uieditfield(f,'numeric','Value',p.stepLen,'Limits',[0.01 10],'Position',[150 yPos 120 22],...
+        'Tooltip','Step size between segments for PSD calculation. Smaller steps = more overlap, smoother average.');
     yPos = yPos - deltaY;
 
     % Apply Button
@@ -59,11 +63,11 @@ function pspec_settings_callback(h)
 
     % Callback
     function apply()
-        % Close Settings window
         % Update settings struct
         p.fmin = ef_fmin.Value;
         p.fmax = ef_fmax.Value;
-        p.scale = dd_scale.Value;
+        p.xscale = dd_xscale.Value;
+        p.yscale = dd_yscale.Value;
         p.showWelch = cb_welch.Value;
         p.linewidth = ef_lw.Value;
         p.winLen = ef_win.Value;
@@ -76,7 +80,5 @@ function pspec_settings_callback(h)
 
         % Re-plot
         update_power_spectrum_tab(h);
-
-
     end
 end

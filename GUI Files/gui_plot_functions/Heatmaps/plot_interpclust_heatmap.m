@@ -1,4 +1,4 @@
-function plot_interpclust_heatmap(var, chans, Zlabel, x_coords, y_coords, mean_waveforms,img)
+function plot_interpclust_heatmap(var, chans, Zlabel, x_coords, y_coords, mean_waveforms,img,hm_props)
 
 
 if nargin < 4 || isempty(x_coords)
@@ -41,21 +41,28 @@ if nargin > 6 && ~isempty(img)
     % Create grid matching image
     %[Y,X] = ndgrid(1:size(imagefile,1),1:size(imagefile,2));
     heatmap = nan(size(X));
-    
-    if nargin < 9 || isempty(col)
-        col = 'w'; % text color for overlay
-    end
+    col = 'w'; % text color for overlay
 else
     % No image, create plain grid
     transp_scale = 1;
     [Y, X] = ndgrid(y_min:y_max, x_min:x_max);
     heatmap = nan(size(X));
-    if nargin < 9 || isempty(col)
-        col = 'k';
+    col = 'k';
+end
+if nargin>7 && ~isempty(hm_props)
+    col = hm_props.label_color;
+    fsize = hm_props.font_size;
+    cm = hm_props.colormap;
+    transp_scale =  hm_props.topo_map_transparency;
+    if isfield(hm_props,'use_clim') && hm_props.use_clim && numel(hm_props.clim)==2
+        [min_rate, max_rate] = deal(hm_props.clim(1), hm_props.clim(2));
     end
+else
+    cm = 'turbo';
+    fsize = 5;
 end
 hold on
-cmap = turbo(256);
+cmap = feval(cm,256);
 
 
 % Interpolation
@@ -101,7 +108,7 @@ hImg = imagesc(linear_grid_x,linear_grid_y,interp_z);
 set(gca,'YDir','reverse')
 
 cs = colorbar('southoutside');
-colormap(jet)
+colormap(gca,cm);
 
 alpha_data = ~isnan(interp_z).*rescale(interp_z,transp_scale,1);
 set(hImg,'AlphaData',alpha_data)
@@ -191,7 +198,7 @@ x_center = x_coords(chan_id+1);
 y_center = y_coords(chan_id+1);
 
 text(x_center+20,y_center,num2str(chan_id),...
-'Color','w','FontSize',10,'FontWeight','bold',...
+'Color',col,'FontSize',fsize,'FontWeight','bold',...
 'HorizontalAlignment','center');
 
 end
