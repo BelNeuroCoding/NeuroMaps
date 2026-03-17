@@ -23,7 +23,4 @@ function network_conn_callback(h)
     %  Plot network connectivity
     plot_network_graph(h, adjacency_matrix, x_coords, y_coords, unique_channels, ...
         receiver_nodes, sender_nodes, broker_nodes, node_degrees);
-
-    %  Plot distance vs correlation histograms
-    plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channels,highCorrThresh, medCorrThresh,um_per_px);
 end

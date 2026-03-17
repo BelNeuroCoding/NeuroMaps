@@ -1,4 +1,4 @@
-function plot_interpclust_heatmap(var, chans, Zlabel, x_coords, y_coords, mean_waveforms)
+function plot_interpclust_heatmap(var, chans, Zlabel, x_coords, y_coords, mean_waveforms,img)
 
 
 if nargin < 4 || isempty(x_coords)
@@ -22,18 +22,38 @@ end
 
 min_rate = floor(min(var));
 max_rate = ceil(max(var));
-
-% Grid setup
-x_min = round(min(x_coords));
-x_max = round(max(x_coords));
-y_min = round(min(y_coords));
-y_max = round(max(y_coords));
-
-grid_size_x = x_max - x_min + 200;
-grid_size_y = y_max - y_min + 200;
-
-[Y,X] = ndgrid(1:grid_size_y,1:grid_size_x);
-
+x_centers = x_coords;
+y_centers = y_coords;
+padding = 100;
+x_min = min(x_centers) - padding;
+x_max = max(x_centers) + padding;
+y_min = min(y_centers) - padding;
+y_max = max(y_centers) + padding;
+    % Precompute centers and grid
+if nargin > 6 && ~isempty(img)
+    imagefile = imread(img);
+    %imshow(imagefile, 'XData', [x_min x_max], 'YData', [y_min y_max]);
+    imshow(imagefile)
+    hold on
+    transp_scale = 0.6;
+    [H,W,~] = size(imagefile);
+    [Y,X] = ndgrid(1:H,1:W);
+    % Create grid matching image
+    %[Y,X] = ndgrid(1:size(imagefile,1),1:size(imagefile,2));
+    heatmap = nan(size(X));
+    
+    if nargin < 9 || isempty(col)
+        col = 'w'; % text color for overlay
+    end
+else
+    % No image, create plain grid
+    transp_scale = 1;
+    [Y, X] = ndgrid(y_min:y_max, x_min:x_max);
+    heatmap = nan(size(X));
+    if nargin < 9 || isempty(col)
+        col = 'k';
+    end
+end
 hold on
 cmap = turbo(256);
 
@@ -83,7 +103,7 @@ set(gca,'YDir','reverse')
 cs = colorbar('southoutside');
 colormap(jet)
 
-alpha_data = ~isnan(interp_z).*rescale(interp_z,1,1);
+alpha_data = ~isnan(interp_z).*rescale(interp_z,transp_scale,1);
 set(hImg,'AlphaData',alpha_data)
 set(hImg,'Interpolation','bilinear')
 
@@ -176,7 +196,7 @@ text(x_center+20,y_center,num2str(chan_id),...
 
 end
 
-axis tight
+axis equal
 axis off
 box off
 

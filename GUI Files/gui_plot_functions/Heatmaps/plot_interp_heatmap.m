@@ -1,4 +1,4 @@
-function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveforms)
+function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveforms,img,range,col)
     % Inputs:
     % - var: Spike rate or other variable to plot in heatmap.
     % - chans: The channel numbers corresponding to the data.
@@ -6,7 +6,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     % x_coords, y_coords
     
     % Define Grid
-     if nargin< 7 || isempty(range)
+     if nargin< 8 || isempty(range)
          min_rate = floor(min(var));
          max_rate = ceil(max(var));
      else
@@ -28,24 +28,47 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
      
     % Initialize the heatmap
     % Determine the grid size
-    x_min = round(min(x_coords));
-    x_max = round(max(x_coords));
-    y_min = round(min(y_coords));
-    y_max = round(max(y_coords));
-    grid_size_x = x_max - x_min + 200;
-    grid_size_y = y_max - y_min + 200;
+    x_centers = x_coords;
+    y_centers = y_coords;
+       
+    padding = 100;
+    x_min = min(x_centers) - padding;
+    x_max = max(x_centers) + padding;
+    y_min = min(y_centers) - padding;
+    y_max = max(y_centers) + padding;
+        % Precompute centers and grid
+    if nargin > 5 && ~isempty(img)
+        imagefile = imread(img);
+        %imshow(imagefile, 'XData', [x_min x_max], 'YData', [y_min y_max]);
+        imshow(imagefile)
+        hold on
+        transp_scale = 0.6;
+        [H,W,~] = size(imagefile);
+        [Y,X] = ndgrid(1:H,1:W);
+        % Create grid matching image
+        %[Y,X] = ndgrid(1:size(imagefile,1),1:size(imagefile,2));
+        heatmap = nan(size(X));
+        
+        if nargin < 9 || isempty(col)
+            col = 'w'; % text color for overlay
+        end
+    else
+        % No image, create plain grid
+        transp_scale = 1;
+        [Y, X] = ndgrid(y_min:y_max, x_min:x_max);
+        heatmap = nan(size(X));
+        if nargin < 9 || isempty(col)
+            col = 'k';
+        end
+    end
 
-    % Precompute centers and grid
-
-    transp_scale = 1;
-
-    [Y, X] = ndgrid(1:grid_size_y, 1:grid_size_x);
+%    [Y, X] = ndgrid(1:grid_size_y, 1:grid_size_x);
 
     hold on;
     cmap = turbo(256); % Generate 256 colors
 
     % Heatmap setup
-    heatmap = zeros(size(X));
+ %   heatmap = zeros(size(X));
     radius = 8; % Adjust circle size
 
         % Assuming your electrode positions (x_coords, y_coords) are provided:
@@ -121,7 +144,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     cs.Label.Rotation = 0;    % horizontal orientation
     cs.Label.VerticalAlignment = 'top';   % align vertically along colorbar
     cs.Label.HorizontalAlignment = 'center'; % align horizontally
-    % ----- Overlay waveforms -----
+    %  Overlay waveforms 
     if nargin >= 6 && ~isempty(mean_waveforms)
     
         wf_scale_x = 40;   % horizontal waveform scaling
@@ -155,10 +178,11 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         y_center = y_coords(chan_id + 1);
         
         text(x_center + 20, y_center, num2str(chan_id), ...
-            'Color', 'w', 'FontSize', 10, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+            'Color', 'w', 'FontSize', 5, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     end
     
     
-    axis tight, axis off; box off;
+    axis off; box off;
+    axis equal
 
 end

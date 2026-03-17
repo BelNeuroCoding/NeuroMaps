@@ -53,6 +53,19 @@ for i = 1:numTiles
     % Create subplots
     ax =nexttile(tlo, i);
     topo_togg = get(h.bg).SelectedObject.String;
+    img_togg = get(h.overlay_img).Value;
+    if img_togg
+        probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
+        if ~isempty(probe_maps)
+            matFile = probe_maps{2};   % second row (.mat file)
+            imgFile = probe_maps{1};
+        else
+            matFile = 'sparse_x_y_coords.mat';
+            imgFile = "sparseimg.tif";
+        end
+    else
+        imgFile = [];
+    end
     set_status(h.figure,"loading","Plotting Noise...");
 
     switch topo_togg
@@ -63,15 +76,15 @@ for i = 1:numTiles
         case 'Simple Map'
             [x_coords, y_coords, maps] = load_probe_map(h);
             plot_heatmap_callback(noiseVals,results.channels(selected_idx).id, ...
-                                 ['Noise Levels ' exptit 'Port ' num2str(selectedport)  ' (\muV)'],x_coords,y_coords);
+                                 ['Noise Levels ' exptit 'Port ' num2str(selectedport)  ' (\muV)'],x_coords,y_coords,imgFile);
         case 'Topographic Map'
             [x_coords, y_coords, maps] = load_probe_map(h);
             plot_interp_heatmap(noiseVals,results.channels(selected_idx).id, ...
-                                ['Noise Levels ' exptit 'Port ' num2str(selectedport)  ' (\muV)'],x_coords,y_coords);
+                                ['Noise Levels ' exptit 'Port ' num2str(selectedport)  ' (\muV)'],x_coords,y_coords,[],imgFile);
+
     end
 
     axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
-    axis(ax,'square')
     
     % --- Update summary text
     currentText = get(h.summary_text,'String');

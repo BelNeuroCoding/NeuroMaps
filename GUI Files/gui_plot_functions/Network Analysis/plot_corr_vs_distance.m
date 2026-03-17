@@ -13,7 +13,7 @@ function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channe
     distanceMatrix(logical(eye(size(distanceMatrix)))) = NaN; 
     corrMatrix(logical(eye(size(corrMatrix)))) = NaN; 
     distAndCorr = [distanceMatrix(:), corrMatrix(:)]; 
-    h.network_connectivity_summary = subplot(1,2,2,'Parent',h.nc_tab);
+    h.network_connectivity_summary = subplot(1,1,1,'Parent',h.nwcorr_tab);
     hold on
     % find high correlation distacne: > 0.8 
     distAndHighCorr = distAndCorr(distAndCorr(:, 2) >= highCorrThresh, 1); 

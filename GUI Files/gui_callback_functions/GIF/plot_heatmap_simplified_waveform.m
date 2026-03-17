@@ -44,9 +44,6 @@ function plot_heatmap_simplified_waveform(var, chans, Zlabel, tit, waveforms, ti
         hold on;
     end
     
-    % Initialise heatmap
-    heatmap = nan(grid_size_y, grid_size_x);
-
     % Plot channel numbers and waveforms
     for t = 1:length(chans)
         text(x_centers(chans(t) + 1)+10, y_centers(chans(t) + 1)+10, num2str(chans(t)), ...
@@ -63,27 +60,6 @@ function plot_heatmap_simplified_waveform(var, chans, Zlabel, tit, waveforms, ti
         end
     end
     hold on;
-    % Create empty heatmap matrix
-    heatmap = zeros(size(X));
-    radius = 3; % Adjust for desired circle size
-
-    for t = 1:length(chans)
-        % Define x and y centers for the current channel
-        x_center = x_centers(chans(t) + 1);
-        y_center = y_centers(chans(t) + 1);
-        
-        % Compute distance from the center
-        dist_squared = (X - x_center).^2 + (Y - y_center).^2;
-        
-        % Create a binary mask for the circle
-        circle_mask = dist_squared <= radius^2;
-        
-        % Scale circle mask by spike rate (var(t))
-        circle_intensity = var(t) * double(circle_mask);
-        
-        % Add this circle mask to the overall heatmap
-        heatmap = heatmap + circle_intensity;
-    end
 
     % Plot the heatmap using imagesc with interpolation
     % Heatmap aligned with image

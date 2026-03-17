@@ -41,7 +41,19 @@ h.FRplotPanel = uipanel( ...
     'Position',[0 0.15 1 0.85],'BackgroundColor',[1 1 1]); 
 % Create tiled layout
 tlo = tiledlayout(h.FRplotPanel, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
-
+img_togg = get(h.overlay_img).Value;
+if img_togg
+    probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
+    if ~isempty(probe_maps)
+        matFile = probe_maps{2};   % second row (.mat file)
+        imgFile = probe_maps{1};
+    else
+        matFile = 'sparse_x_y_coords.mat';
+        imgFile = "sparseimg.tif";
+    end
+else
+    imgFile = [];
+end
 for i = 1:size(selected,1)
     expIdx = selected(i,1);
     if iscell(h.figure.UserData)
@@ -106,7 +118,7 @@ for i = 1:size(selected,1)
                 xlabel(ax,'Firing Rate (Hz)'); ylabel(ax,'Counts'); axis(ax,'square');
     
             case 'Simple Map'
-                plot_heatmap_callback(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords);
+                plot_heatmap_callback(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,imgFile);
     
             case 'Topographic Map'
                 if h.fr_toggle.Value
@@ -118,8 +130,7 @@ for i = 1:size(selected,1)
                         mean_waveforms(j,:) = mean(all_waveforms(idx_ch,:),1);
                     
                     end
-                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,mean_waveforms);
-                    axis(ax,'square');
+                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,mean_waveforms,imgFile);
                 elseif h.fr_clust_toggle.Value
                     selectedStrings = get(h.clusterListBox,'String');
                     selectedIdx     = get(h.clusterListBox,'Value');
@@ -153,12 +164,10 @@ for i = 1:size(selected,1)
                         end
                     
                     end
-                    plot_interpclust_heatmap(fr,chans,sprintf('FR'),x_coords,y_coords,mean_waveforms)
-                    axis(ax,'square');
+                    plot_interpclust_heatmap(fr,chans,sprintf('FR'),x_coords,y_coords,mean_waveforms,imgFile)
 
                 else
-                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords);
-                    axis(ax,'square');
+                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,[],imgFile);
                 end
         end
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
