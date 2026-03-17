@@ -22,9 +22,19 @@ h.adjusted_axes = gobjects(1,nPanels);
 h.trLines = struct(); % store line handles
 
 panelIdx = 1;
-tiled = tiledlayout(h.traces_tab, nPanels, 1, ...
-    'Padding','compact','TileSpacing','compact');
+if ~isfield(h,'traces_panel') || ~isvalid(h.traces_panel)
+    h.traces_panel = uipanel('Parent', h.traces_tab, ...
+                             'Units','normalized', ...
+                             'Position',[0.05 0.06 0.9 0.92], ...
+                             'BackgroundColor',[1 1 1]);
+end
+tiled = tiledlayout(h.traces_panel, nPanels, 1, 'Padding','compact','TileSpacing','compact');
 
+if isfield(h,'traces_props')
+    props = h.traces_props;
+else
+    props = struct();
+end
 % Define publication-ready defaults
 lw.main  = 1.25;
 lw.thresh = 0.75;
@@ -39,6 +49,12 @@ if isfield(sig,'raw')
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
     h.trTitles.raw = title(h.adjusted_axes(panelIdx), '');
+    if isfield(props,'ylim') && ~isempty(props.ylim)
+        ylim(h.adjusted_axes(panelIdx), props.ylim);
+    end
+    if isfield(props,'xlim') && ~isempty(props.xlim)
+        xlim(h.adjusted_axes(panelIdx), props.xlim);
+    end
     panelIdx = panelIdx+1;
 
 end
@@ -62,6 +78,12 @@ if isfield(sig,'ref')
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
     h.trTitles.ref = title(h.adjusted_axes(panelIdx), '');
+    if isfield(props,'ylim') && ~isempty(props.ylim)
+        ylim(h.adjusted_axes(panelIdx), props.ylim);
+    end
+    if isfield(props,'xlim') && ~isempty(props.xlim)
+        xlim(h.adjusted_axes(panelIdx), props.xlim);
+    end
     panelIdx = panelIdx+1;
 
 
@@ -87,6 +109,12 @@ if isfield(sig,'hpf')
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
     h.trTitles.hpf = title(h.adjusted_axes(panelIdx), '');
+    if isfield(props,'ylim') && ~isempty(props.ylim)
+        ylim(h.adjusted_axes(panelIdx), props.ylim);
+    end
+    if isfield(props,'xlim') && ~isempty(props.xlim)
+        xlim(h.adjusted_axes(panelIdx), props.xlim);
+    end
     panelIdx = panelIdx+1;
 
 
@@ -100,6 +128,12 @@ if isfield(sig,'lfp')
     ylabel('Voltage (\muV)','FontSize',fs.labels);
     xlabel('Time (s)','FontSize',fs.labels);
     set_pubstyle(h.adjusted_axes(panelIdx),fs);
+    if isfield(props,'ylim') && ~isempty(props.ylim)
+        ylim(h.adjusted_axes(panelIdx), props.ylim);
+    end
+    if isfield(props,'xlim') && ~isempty(props.xlim)
+        xlim(h.adjusted_axes(panelIdx), props.xlim);
+    end
     h.trTitles.lfp = title(h.adjusted_axes(panelIdx), '');
 
 end
