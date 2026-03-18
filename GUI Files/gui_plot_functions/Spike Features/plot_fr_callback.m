@@ -97,6 +97,7 @@ for i = 1:size(selected,1)
          %  Filter selected clusters 
         selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
         selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+
         if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters')
             selectedClusters = str2double(selectedStrings(selectedIdx));
             waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
@@ -106,9 +107,11 @@ for i = 1:size(selected,1)
                 idx = ismember([waveforms_all.channel], chans(j));
                 fr(j) = sum(idx)/recording_time;
             end
+            clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
         else
             fr = [results.spike_results(selected_idx).set.spike_analysis.spike_rate];
             chans = [results.spike_results(selected_idx).set.spike_analysis.channel];
+            clusterStr = 'All Clusters';
         end
     
         %  Create subplot axes for this experiment 
@@ -167,13 +170,14 @@ for i = 1:size(selected,1)
                         end
                     
                     end
-                    plot_interpclust_heatmap(fr,chans,sprintf('FR'),x_coords,y_coords,mean_waveforms,imgFile,hm_props)
+                    plot_interpclust_heatmap(fr,chans,sprintf('Firing Rate (Hz)'),x_coords,y_coords,mean_waveforms,imgFile,hm_props)
 
                 else
-                    plot_interp_heatmap(fr, chans, sprintf('FR Hz (Expt %d Port %d)',expIdx,current_port), x_coords, y_coords,[],imgFile,hm_props);
+                    plot_interp_heatmap(fr, chans, sprintf('Firing Rate Hz'), x_coords, y_coords,[],imgFile,hm_props);
                 end
         end
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+        title(sprintf('Exp %d Port %d\n%s', expIdx, current_port, clusterStr));
     end
 
 end

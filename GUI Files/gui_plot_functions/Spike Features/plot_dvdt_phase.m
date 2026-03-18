@@ -41,7 +41,8 @@ function plot_dvdt_phase(h)
                     fwhm >= r.fwhm(1) & fwhm <= r.fwhm(2);
             
                 waveforms_all = waveforms_all(idx_keep);
-        end
+        end            
+        clusterStr = 'All Clusters';
 
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
@@ -55,6 +56,7 @@ function plot_dvdt_phase(h)
                 selectedClusters = str2double(selectedStrings(selectedIdx));
                 waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
                 end
+                clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
             end
         end
 
@@ -169,8 +171,9 @@ function plot_dvdt_phase(h)
 
         xlabel(ax, 'V^*', 'FontSize', 12, 'FontWeight', 'bold');
         ylabel(ax, '(dV/dt)^*', 'FontSize', 12, 'FontWeight', 'bold');
-        title(ax, sprintf('Exp %d, Port %d %s', data(i).expIdx, data(i).portIdx));
+        title(ax, sprintf('Exp %d, Port %d %s\n%s\n', data(i).expIdx, data(i).portIdx,clusterStr));
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        set(ax, 'TickDir', 'out');
 
         %  Interactive legend 
         hLeg = gobjects(numel(uniqueIDs),1);

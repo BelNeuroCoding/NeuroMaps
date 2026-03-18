@@ -39,14 +39,19 @@ function plot_ibi_callback(h)
             
                 waveforms_all = waveforms_all(idx_keep);
         end
+        clusterStr = 'All Clusters';
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
-            selectedClusters = get(h.clusterListBox,'Value');
-            if ~isempty(selectedClusters)
+           selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+            selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+            if ~isempty(selectedIdx)
                 if ~isfield(waveforms_all,'clusters')
                     [waveforms_all.clusters] = deal(1);
-                end
+                else
+                selectedClusters = str2double(selectedStrings(selectedIdx));
                 waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+                clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
+                end
             end
         end
         analysed_chans = unique([waveforms_all.channel]);
@@ -134,7 +139,8 @@ function plot_ibi_callback(h)
      if ~isfield(h,'hist_settings') || ~isfield(h.hist_settings,'ibi')
         h.hist_settings.ibi.binWidth = 0.1;
         h.hist_settings.ibi.xmin = min(allibi);
-        h.hist_settings.ibi.xmax = 20;
+        h.hist_settings.ibi.xmax = 100;
+        h.hist_settings.ibi.ymax = [];
     end
     globalXLim = [h.hist_settings.ibi.xmin,h.hist_settings.ibi.xmax];
 
@@ -165,18 +171,18 @@ function plot_ibi_callback(h)
                           'DisplayName', sprintf('Exp %d, Port %d', data(i).expIdx, data(i).portIdx));
 
            % legend(ax,'show','Location','northeast');
-            titleStr = sprintf('Exp %d, Port %d (Global) - %d Bursts', ...
-                               data(i).expIdx, data(i).portIdx, sum(data(i).numBursts));
+            titleStr = sprintf('Exp %d, Port %d (Global) - %d Bursts\n%s\n', ...
+                               data(i).expIdx, data(i).portIdx, sum(data(i).numBursts),clusterStr);
         else  % single channel
             histogram(ax, data(i).IBI_data{1}, 'BinEdges', edges,'FaceColor', 'k');
-            titleStr = sprintf('Exp %d, Port %d, Ch %d - %d Bursts', ...
-                               data(i).expIdx, data(i).portIdx, data(i).channels(1), data(i).numBursts(1));
+            titleStr = sprintf('Exp %d, Port %d, Ch %d - %d Bursts\n%s\n', ...
+                               data(i).expIdx, data(i).portIdx, data(i).channels(1), data(i).numBursts(1),clusterStr);
         end
 
         xlabel(ax, 'Inter-Burst Interval (s)');
         ylabel(ax, 'Count');
         title(ax, titleStr);
-        set(ax, 'Box', 'off', 'Color', 'none');
+        set(ax, 'Box', 'off', 'Color', 'none','TickDir','out');
         xlim(ax, globalXLim);
         ylim(ax, globalYLim);
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});

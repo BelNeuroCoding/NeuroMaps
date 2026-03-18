@@ -42,6 +42,7 @@ function plot_isi_callback(h)
                 waveforms_all = waveforms_all(idx_keep);
         end
 
+        clusterStr = 'All Clusters';
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
                 %  Filter selected clusters 
@@ -53,6 +54,8 @@ function plot_isi_callback(h)
                 else
                 selectedClusters = str2double(selectedStrings(selectedIdx));
                 waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+               clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
+
                 end
             end
         end
@@ -171,19 +174,19 @@ function plot_isi_callback(h)
                 hHist = histogram(ax, allISI, 'BinEdges', edges, ...
                                   'FaceColor', colors(mod(i-1,32)+1,:), ...
                                   'DisplayName', sprintf('Exp %d, Port %d', data(i).expIdx, data(i).portIdx));
-                titleStr = sprintf('Exp %d, Port %d (Global)', data(i).expIdx, data(i).portIdx);
+                titleStr = sprintf('Exp %d, Port %d (Global)\n%s', data(i).expIdx, data(i).portIdx,clusterStr);
         else  % single channel
             hHist = histogram(ax, data(i).ISI_ms{1}, 'BinEdges', edges,'FaceColor', 'k', ...
                 'DisplayName', sprintf('Ch %d', data(i).channels(1)));
             allHandles(end+1) = hHist;
             allLabels{end+1}  = hHist.DisplayName;
-            titleStr = sprintf('Exp %d, Port %d, Ch %d', data(i).expIdx, data(i).portIdx, data(i).channels(1));
+            titleStr = sprintf('Exp %d, Port %d, Ch %d\n%s', data(i).expIdx, data(i).portIdx, data(i).channels(1),clusterStr);
         end
     
         xlabel(ax, 'Inter-spike Interval (ms)');
         ylabel(ax, 'Count');
         title(ax, titleStr);
-        set(ax, 'Box', 'off', 'Color', 'none');
+        set(ax, 'Box', 'off', 'Color', 'none','TickDir','out');
         xlim(ax, globalXLim);
         ylim(ax, globalYLim);
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});

@@ -38,6 +38,7 @@ function plot_amplitudes_callback(h)
             
                 waveforms_all = waveforms_all(idx_keep);
         end
+        clusterStr = 'All Clusters';
 
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
@@ -52,6 +53,7 @@ function plot_amplitudes_callback(h)
                 selectedClusters = str2double(selectedStrings(selectedIdx));
                 waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
                 end
+                clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));                
             end
         end
 
@@ -129,7 +131,7 @@ function plot_amplitudes_callback(h)
         return
     end
        
-    if ~isfield(h,'hist_settings.amp')
+    if ~isfield(h,'hist_settings') || ~isfield(h.hist_settings,'amp')
         h.hist_settings.amp.binWidth = 1;
         h.hist_settings.amp.xmin = min(allAmps);
         h.hist_settings.amp.xmax = max(allAmps);
@@ -161,21 +163,21 @@ function plot_amplitudes_callback(h)
              histogram(ax, allamps, 'BinEdges', edges, ...
                           'FaceColor', colors(mod(i-1,32)+1,:), ...
                           'DisplayName', sprintf('Exp %d, Port %d', data(i).expIdx, data(i).portIdx));
-            titleStr = sprintf('Exp %d, Port %d (Global)', data(i).expIdx, data(i).portIdx);
+            titleStr = sprintf('Exp %d, Port %d (Global)\n%s\n', data(i).expIdx, data(i).portIdx,clusterStr);
 
         else  % single channel
             histogram(ax, data(i).amp_data{1}, 'BinEdges', edges, 'FaceColor', 'k');
-            titleStr = sprintf('Exp %d, Port %d, Ch %d', ...
-                               data(i).expIdx, data(i).portIdx, data(i).channels(1));
+            titleStr = sprintf('Exp %d, Port %d, Ch %d\n%s\n', ...
+                               data(i).expIdx, data(i).portIdx, data(i).channels(1),clusterStr);
         end
 
         xlabel(ax, 'Amplitude (\muV)');
         ylabel(ax, 'Count');
         title(ax, titleStr);
-        set(ax, 'Box', 'off', 'Color', 'none');
+        set(ax, 'Box', 'off', 'Color', 'none','TickDir','out');
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
-        x_lim50 = ceil(globalXLim(2)/50)*50;
-        xlim(ax, [0 x_lim50]);
+    
+        xlim(ax, globalXLim);
         ylim(ax, globalYLim);
     end
     set_status(h.figure,"ready","Amplitude Plot Complete...");

@@ -29,6 +29,7 @@ for i = 1:size(selected,1)
         results = h.figure.UserData;
     end
     selected_idx = selected(i,2);      % single-experiment mode: selected(i,1) is always 1
+    current_port = results.ports(selected_idx).port_id;
     TimeStamps = results.timestamps;
     recording_time = max(TimeStamps)-min(TimeStamps);
     waveforms_all = results.spike_results(selected_idx).waveforms_all;
@@ -48,7 +49,7 @@ for i = 1:size(selected,1)
     if ~isfield(waveforms_all,'clusters')
         [waveforms_all.clusters] = deal(1);
     else
-    
+    clusterStr = 'All Clusters';
    %  Filter selected clusters 
     selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
     selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
@@ -63,6 +64,7 @@ for i = 1:size(selected,1)
             % fallback if clusters are stored as strings
             waveforms_all = waveforms_all(ismember({waveforms_all.clusters}, selectedStrings(selectedIdx)));
         end
+        clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
     end
     end
     fs = results.fs;
@@ -73,6 +75,7 @@ for i = 1:size(selected,1)
     
     network_pop_plot(waveforms_all,TimeStamps,fs,recording_time,bin_rate,ax)
     ylabel('Population Spiking Plot')
+    title(sprintf('Exp %d, Port %d\n%s\n', expIdx, current_port, clusterStr))
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
     hold all;

@@ -43,7 +43,7 @@ function plot_fwhm_callback(h)
             
                 waveforms_all = waveforms_all(idx_keep);
         end
-
+        clusterStr = 'All Clusters';
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
              %  Filter selected clusters 
@@ -56,6 +56,7 @@ function plot_fwhm_callback(h)
                     selectedClusters = str2double(selectedStrings(selectedIdx));
                     waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
                 end
+                clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
             end
         end
         analysed_chans = unique([waveforms_all.channel]);
@@ -167,17 +168,17 @@ function plot_fwhm_callback(h)
                           'FaceColor', colors(mod(i-1,32)+1,:), ...
                           'DisplayName', sprintf('Exp %d, Port %d', data(i).expIdx, data(i).portIdx));
            % legend(ax,'show','Location','northeast');
-            titleStr = sprintf('Exp %d, Port %d (Global)', data(i).expIdx, data(i).portIdx);
+            titleStr = sprintf('Exp %d, Port %d (Global)\n%s\n', data(i).expIdx, data(i).portIdx,clusterStr);
         else  % single channel
             histogram(ax, data(i).fwhm_data{1}, 'BinEdges', edges,'FaceColor', 'k');
-            titleStr = sprintf('Exp %d, Port %d, Ch %d', ...
-                               data(i).expIdx, data(i).portIdx, data(i).channels(1));
+            titleStr = sprintf('Exp %d, Port %d, Ch %d\n%s\n', ...
+                               data(i).expIdx, data(i).portIdx, data(i).channels(1),clusterStr);
         end
 
         xlabel(ax, 'FWHM (ms)');
         ylabel(ax, 'Count');
         title(ax, titleStr);
-        set(ax, 'Box', 'off', 'Color', 'none');
+        set(ax, 'Box', 'off', 'Color', 'none','TickDir','out');
         xlim(ax, [0.1 globalXLim(2)*1.2]);
         ylim(ax, globalYLim);
         axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});

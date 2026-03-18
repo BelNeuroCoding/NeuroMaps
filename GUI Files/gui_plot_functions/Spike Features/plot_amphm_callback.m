@@ -1,6 +1,6 @@
 function plot_amphm_callback(h,hm_props)
 h = guidata(h.figure);
-set_status(h.figure,"loading","Mapping Firing rates...");
+set_status(h.figure,"loading","Mapping Amplitude Map...");
 
 if nargin<2
     hm_props = [];
@@ -103,8 +103,10 @@ for i = 1:size(selected,1)
 
     if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters')
         selectedClusters = str2double(selectedStrings(selectedIdx));
-        waveforms_all = waveforms_all( ...
-            ismember([waveforms_all.clusters], selectedClusters));
+        waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+        clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
+    else
+        clusterStr = 'All Clusters';
     end
 
     % --- Guard against empty ---
@@ -195,7 +197,7 @@ for i = 1:size(selected,1)
                     x_coords, y_coords, [], imgFile, hm_props);
             end
     end
-
+   title(sprintf('Exp %d Port %d\n%s', expIdx, current_port, clusterStr));
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 end
 set_status(h.figure,"ready","Amplitude map complete...");

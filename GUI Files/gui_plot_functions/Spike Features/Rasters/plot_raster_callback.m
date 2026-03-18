@@ -36,7 +36,7 @@ for i = 1:size(selected,1)
         results = h.figure.UserData;
     end
     selected_idx = selected(i,2);      % single-experiment mode: selected(i,1) is always 1
-
+    current_port = results.ports(selected_idx).port_id;
     waveforms_all = results.spike_results(selected_idx).waveforms_all;
     ptp  = [waveforms_all.ptp_amplitude]';
     fwhm = [waveforms_all.fwhm]';
@@ -61,6 +61,7 @@ for i = 1:size(selected,1)
     %  Create subplot axes for this experiment 
     ax = nexttile(tlo, i);
     hold(ax,'on');
+    clusterStr = 'All Clusters';
     if isfield(h,'clusterListBox')
     %  Filter selected clusters 
     selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
@@ -76,6 +77,8 @@ for i = 1:size(selected,1)
             % fallback if clusters are stored as strings
             waveforms_all = waveforms_all(ismember({waveforms_all.clusters}, selectedStrings(selectedIdx)));
         end
+        clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
+
     end
     end
 
@@ -105,7 +108,7 @@ for i = 1:size(selected,1)
         bin_answer = inputdlg({'Enter binarisation rate (Hz):'}, 'Binarisation Rate', [1 35], {'1000'});
         network_pop_plot(waveforms_all, TimeStamps, fs, recording_time, bin_answer, ax);
     end
-
+    title(sprintf('Exp %d Port %d\n%s\n', expIdx, current_port, clusterStr));
     axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
 end
     set_status(h.figure,"loading","Raster Complete...");
