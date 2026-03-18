@@ -134,6 +134,7 @@ set_status(h.figure,"loading","Plotting Spike Waveforms...");
 drawnow limitrate
 plot_spikes_callback(h);
 plot_fr_callback(h);
+plot_amphm_callback(h);
 plot_raster_callback(h);
 
 set_status(h.figure,"loading","Plotting Spike Features...");
@@ -147,6 +148,7 @@ set_status(h.figure,"loading","Computing Network Connectivity...");
 
 compute_sttc_latency(h)
 network_conn_callback(h)
+plot_corr_vs_distance(h)
 
 
 currentText = get(h.summary_text,'String');

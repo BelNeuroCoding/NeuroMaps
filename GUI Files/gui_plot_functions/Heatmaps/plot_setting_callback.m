@@ -1,19 +1,12 @@
-function plot_setting_callback(src)
+function plot_setting_callback(src,mode)
 
     h = guidata(src.figure);
-
-    % Defaults
-    if isfield(h, 'hm_props')
-        defaults = h.hm_props;
-    else
-        defaults.label_color = 'w';
-        defaults.topo_map_transparency = 0.6;
-        defaults.font_size = 5;
-        defaults.colormap = 'turbo';
-        defaults.use_clim = false;
-        defaults.clim = [0 1];
-    end
-
+    defaults.label_color = 'w';
+    defaults.topo_map_transparency = 0.6;
+    defaults.font_size = 5;
+    defaults.colormap = 'turbo';
+    defaults.use_clim = false;
+    defaults.clim = [0 1];
     %  UI 
     f = uifigure('Name','Plot Settings', ...
                  'Position',[100 100 340 320]);
@@ -101,7 +94,11 @@ function plot_setting_callback(src)
         guidata(src.figure, h);
 
         % Apply
-        plot_fr_callback(h, hm_props);
+        if mode == 1
+            plot_fr_callback(h, hm_props);
+        else
+            plot_amphm_callback(h,hm_props);
+        end
 
         close(f)
     end

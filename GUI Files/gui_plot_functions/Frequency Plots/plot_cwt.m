@@ -56,12 +56,35 @@ function plot_cwt(h,src)
     resampled_time = resampled_time(tIdx);
 
     LFPData = results.signals(port_idx).lfp(mask,:);
+
+
     % Get Slider Position
     SeriesNumber = round(get(h.series_slider, 'Value')); % First figure, port number
     current_ch = channels(SeriesNumber); % Finds the corresponding channel name
     resampleFs = results.filt_params(port_idx).ds_freq;
-    cla(h.cwt_plots_axes, 'reset'); 
-    axes(h.cwt_plots_axes);
+
+    %% Initialize spectrogram properties if needed
+    if ~isfield(h,'cwt_props')
+        h.cwt_props.colormap = 'jet';
+        h.cwt_props.fmin = 1;
+        h.cwt_props.fmax = 300;
+    end
+    % Ensure fmax <= Nyquist
+    h.cwt_props.fmax = min(h.cwt_props.fmax, resampleFs);
+
+    if ~isfield(h,'cwt_panel') || ~isvalid(h.cwt_panel)
+        h.cwt_panel = uipanel('Parent', h.cwt_tab, ...
+            'Units','normalized', 'Position',[0.05 0.15 0.9 0.8], ...
+            'BackgroundColor',[1 1 1]);
+    end
+    
+    if ~isfield(h,'cwt_axes') || ~isvalid(h.cwt_axes)
+        h.cwt_axes = axes('Parent', h.cwt_panel);
+    else
+        cla(h.cwt_axes);
+        delete(findall(h.cwt_axes,'Type','colorbar'));
+    end
+
 
     LFPData = LFPData(:,tIdx);
     if ~isfield(h,'cwtCache') || ...
@@ -71,7 +94,7 @@ function plot_cwt(h,src)
        any(h.cwtCache.time_plot ~= time_plot)
         
         [wt,f] = cwt(LFPData(SeriesNumber,:), resampleFs, ...
-                     'FrequencyLimits',[0 300]);
+                     'FrequencyLimits',[h.cwt_props.fmin h.cwt_props.fmax]);
         h.cwtCache.wt = wt;
         h.cwtCache.f = f;
         h.cwtCache.expIdx = expIdx;
@@ -88,21 +111,21 @@ function plot_cwt(h,src)
    % pick powers of 2 within [minf,maxf]
     yticks = 2.^round(log2(minf):log2(maxf));
     yticks = yticks(yticks>=minf & yticks<=maxf);
-    set(h.cwt_plots_axes,'YTick',yticks, 'YScale','log');
+    set(h.cwt_axes,'YTick',yticks, 'YScale','log');
     surface(resampled_time,f,abs(wt));
     shading flat
     axis tight
     % imagesc(T, F, pow2db(P));
-    set(h.cwt_plots_axes,'YDir','normal')
+    set(h.cwt_axes,'YDir','normal')
     c=colorbar;
 %    caxis([0 round(max(power_dB(:))*1.1)])
     c.Label.String='|Wavelet Coefficients|';
     c.FontSize = 12;
-    xlabel(h.cwt_plots_axes, 'Time (s)', 'FontSize', 12);
-    ylabel(h.cwt_plots_axes, 'Frequency (Hz)', 'FontSize', 12);
+    xlabel(h.cwt_axes, 'Time (s)', 'FontSize', 12);
+    ylabel(h.cwt_axes, 'Frequency (Hz)', 'FontSize', 12);
     %spectrogram(LFPData(SeriesNumber, :), spWindow, [], [], resampleFs, 'yaxis'); % compute spectrogram
-    ylim(h.cwt_plots_axes, [1 300]);
-    colormap(jet);
+    ylim(h.cwt_axes, [h.cwt_props.fmin h.cwt_props.fmax]);
+    colormap(h.cwt_props.colormap);
     axtoolbar({'datacursor','save','zoomin','zoomout','restoreview','pan'});
     title(['Port ' num2str(results.ports(port_idx).port_id) ' Ch ' num2str(current_ch)])
     set_status(h.figure,"ready","CWT Plot Complete...");

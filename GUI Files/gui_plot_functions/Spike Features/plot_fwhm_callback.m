@@ -133,13 +133,17 @@ function plot_fwhm_callback(h)
     if isempty(allfwhm)
         return
     end
-    
-    globalXLim = [min(allfwhm), max(allfwhm)];
-    binWidth = 0.01;   % binwidth
 
-    edges = globalXLim(1):binWidth:globalXLim(2);
-    maxCount = 0;
+    if ~isfield(h,'hist_settings') || ~isfield(h.hist_settings,'fwhm')
+        h.hist_settings.fwhm.binWidth = 0.01;
+        h.hist_settings.fwhm.xmin = min(allfwhm);
+        h.hist_settings.fwhm.xmax = max(allfwhm);
+        h.hist_settings.fwhm.ymax = [];
+    end
+    globalXLim = [h.hist_settings.fwhm.xmin,h.hist_settings.fwhm.xmax];
+    edges = globalXLim(1):h.hist_settings.fwhm.binWidth:globalXLim(2);
     
+    maxCount = 0;
     for i = 1:numTiles
         fwhm = horzcat(data(i).fwhm_data{:});
         if ~isempty(fwhm)
@@ -147,8 +151,11 @@ function plot_fwhm_callback(h)
             maxCount = max(maxCount, max(counts));
         end
     end
-    
-    globalYLim = [0 maxCount];
+
+    if isempty(h.hist_settings.fwhm.ymax)
+        h.hist_settings.fwhm.ymax = maxCount;
+    end
+    globalYLim = [0 h.hist_settings.fwhm.ymax];
 
     for i = 1:numTiles
         ax = nexttile(tlo);

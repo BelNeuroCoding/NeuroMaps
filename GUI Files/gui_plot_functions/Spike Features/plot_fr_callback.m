@@ -33,7 +33,7 @@ maxCols = 2;
 % Determine rows and cols for tiling
 rows = min(maxRows, ceil(sqrt(numTiles)));
 cols = min(maxCols, ceil(numTiles/rows));
-if isfield(h,'plotPanel') 
+if isfield(h,'FRplotPanel') 
 delete(findall(h.FRplotPanel,'Type','axes'))
 delete(findall(h.FRplotPanel,'Type','tiledlayout'))
 end

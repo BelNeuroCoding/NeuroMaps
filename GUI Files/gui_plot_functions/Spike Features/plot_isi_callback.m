@@ -134,11 +134,16 @@ function plot_isi_callback(h)
     end
    %
     if min(allisi)<200
-        globalXLim = [0, 200];
     
-    binWidth = 1;   % binwidth
+    if ~isfield(h,'hist_settings') || ~isfield(h.hist_settings,'isi')
+        h.hist_settings.isi.binWidth = 1;
+        h.hist_settings.isi.xmin = 0;
+        h.hist_settings.isi.xmax = 200;
+        h.hist_settings.isi.ymax = [];
+    end
+    globalXLim = [h.hist_settings.isi.xmin,h.hist_settings.isi.xmax];
 
-    edges = globalXLim(1):binWidth:globalXLim(2);
+    edges = globalXLim(1): h.hist_settings.isi.binWidth :globalXLim(2);
     maxCount = 0;
     
     for i = 1:numTiles
@@ -148,8 +153,11 @@ function plot_isi_callback(h)
             maxCount = max(maxCount, max(counts));
         end
     end
-    
-    globalYLim = [0 maxCount];
+    if isempty(h.hist_settings.isi.ymax)
+        h.hist_settings.isi.ymax = maxCount;
+    end
+
+    globalYLim = [0 h.hist_settings.isi.ymax];
     allHandles = [];   % store histogram handles
     allLabels  = {};   % store labels
     

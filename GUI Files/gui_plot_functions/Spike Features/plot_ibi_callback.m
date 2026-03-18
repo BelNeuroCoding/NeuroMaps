@@ -124,16 +124,22 @@ function plot_ibi_callback(h)
     end
     
     if isempty(allibi)
-        warndlg('No bursts to display for the selected channels/time window.', 'No Bursts');
+        warndlg('Number of bursts <= 1 for the selected channels/time window.', 'No Bursts');
         set_status(h.figure,"ready","IBI Complete...");
 
         return
     end
-    
-    globalXLim = [min(allibi),20];
-    binWidth = 0.1;   % binwidth
 
-    edges = globalXLim(1):binWidth:globalXLim(2);
+
+     if ~isfield(h,'hist_settings') || ~isfield(h.hist_settings,'ibi')
+        h.hist_settings.ibi.binWidth = 0.1;
+        h.hist_settings.ibi.xmin = min(allibi);
+        h.hist_settings.ibi.xmax = 20;
+    end
+    globalXLim = [h.hist_settings.ibi.xmin,h.hist_settings.ibi.xmax];
+
+    edges = globalXLim(1):h.hist_settings.ibi.binWidth:globalXLim(2);
+
     maxCount = 0;
     
     for i = 1:numTiles
@@ -143,8 +149,11 @@ function plot_ibi_callback(h)
             maxCount = max(maxCount, max(counts));
         end
     end
-    
-    globalYLim = [0 maxCount];
+       
+    if isempty(h.hist_settings.ibi.ymax)
+        h.hist_settings.ibi.ymax = maxCount;
+    end
+    globalYLim = [0 h.hist_settings.ibi.ymax];
     for i = 1:numTiles
         ax = nexttile(tlo);
         hold(ax,'on');

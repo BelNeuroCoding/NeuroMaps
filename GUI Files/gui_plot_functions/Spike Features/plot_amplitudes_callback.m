@@ -128,11 +128,16 @@ function plot_amplitudes_callback(h)
     if isempty(allAmps)
         return
     end
-    
-    globalXLim = [min(allAmps), max(allAmps)];
-    binWidth = 1;   % binwidth
+       
+    if ~isfield(h,'hist_settings.amp')
+        h.hist_settings.amp.binWidth = 1;
+        h.hist_settings.amp.xmin = min(allAmps);
+        h.hist_settings.amp.xmax = max(allAmps);
+        h.hist_settings.amp.ymax = [];
+    end
+    globalXLim = [h.hist_settings.amp.xmin,h.hist_settings.amp.xmax];
 
-    edges = globalXLim(1):binWidth:globalXLim(2);
+    edges = globalXLim(1): h.hist_settings.amp.binWidth :globalXLim(2);
     maxCount = 0;
     
     for i = 1:numTiles
@@ -142,8 +147,11 @@ function plot_amplitudes_callback(h)
             maxCount = max(maxCount, max(counts));
         end
     end
-    
-    globalYLim = [0 maxCount];
+    if isempty(h.hist_settings.amp.ymax)
+         h.hist_settings.amp.ymax = maxCount;
+    end
+
+    globalYLim = [0 h.hist_settings.amp.ymax];
     for i = 1:numTiles
         ax = nexttile(tlo);
         hold(ax,'on');

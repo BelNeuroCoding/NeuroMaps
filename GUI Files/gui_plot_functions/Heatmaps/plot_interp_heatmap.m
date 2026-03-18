@@ -173,7 +173,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
             xwf = x0 + time_axis * wf_scale_x;
             ywf = y0 + wf * wf_scale_y;
     
-            plot(xwf, ywf, col, 'LineWidth', 1);
+            plot(xwf, ywf, 'Color',fr_color(i,:), 'LineWidth', 1);
     
         end
     end
