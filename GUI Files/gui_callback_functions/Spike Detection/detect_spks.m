@@ -9,8 +9,8 @@ window_size = 60*fs; % 1 minute
 num_windows = ceil(len/window_size);
 
 %Precompute Constants
-pre_samples = round(pre_time) / 1000 * round(fs);
-post_samples = round(post_time) / 1000 * round(fs);
+pre_samples = round(pre_time*fs/1000);
+post_samples = round(post_time*fs/1000);
 recording_time_min = length(data)/(fs*60);
 % Create a structure for waveforms
 waveforms = struct();

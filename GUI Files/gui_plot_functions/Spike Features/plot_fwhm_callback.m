@@ -46,19 +46,19 @@ function plot_fwhm_callback(h)
         clusterStr = 'All Clusters';
         % Filter selected clusters if clusterListBox exists
         if isfield(h,'clusterListBox')
-             %  Filter selected clusters 
-            selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+           selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
             selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
             if ~isempty(selectedIdx)
                 if ~isfield(waveforms_all,'clusters')
                     [waveforms_all.clusters] = deal(1);
                 else
-                    selectedClusters = str2double(selectedStrings(selectedIdx));
-                    waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
-                end
+                selectedClusters = str2double(selectedStrings(selectedIdx));
+                waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
                 clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
+                end
             end
         end
+
         analysed_chans = unique([waveforms_all.channel]);
         % Determine channels to plot
         if h.feats_mode_toggle.Value  % global/cumulative

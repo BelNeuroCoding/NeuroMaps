@@ -45,11 +45,11 @@ for i = 1:size(selected,1)
         
             waveforms_all = waveforms_all(idx_keep);
     end
+    clusterStr = 'All Clusters';
 
     if ~isfield(waveforms_all,'clusters')
         [waveforms_all.clusters] = deal(1);
     else
-    clusterStr = 'All Clusters';
    %  Filter selected clusters 
     selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
     selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
@@ -77,6 +77,7 @@ for i = 1:size(selected,1)
     ylabel('Population Spiking Plot')
     title(sprintf('Exp %d, Port %d\n%s\n', expIdx, current_port, clusterStr))
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    set(ax,'TickDir','out');
 
     hold all;
     set_status(h.figure,"ready","Completed Plotting Population Spiking Plot...");
