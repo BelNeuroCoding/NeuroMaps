@@ -39,15 +39,18 @@ function compute_sttc_latency(h, dtv)
             networkconndata = networkconndata(idx_keep);
     end
 
+    clusterStr = 'All Clusters';
+
     if ~isfield(networkconndata,'clusters')
         [networkconndata.clusters] = deal(1);
     else
         selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
         selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
-    if isfield(networkconndata,'clusters') && ~isempty(selectedIdx)
-        selectedClusters = str2double(selectedStrings(selectedIdx));
-        networkconndata = networkconndata(ismember([networkconndata.clusters], selectedClusters));
-    end
+        if ~isempty(selectedIdx)
+                selectedClusters = str2double(selectedStrings(selectedIdx));
+                networkconndata = networkconndata(ismember([networkconndata.clusters], selectedClusters));
+                clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
+        end
     end
 
     %  Ask for dtv if missing
@@ -78,5 +81,6 @@ function compute_sttc_latency(h, dtv)
         end
 
     %  Plot results
-    plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels);
+    titleStr = sprintf('Exp %d, Port %d\n%s',expIdx,selected_idx,clusterStr);
+    plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels,titleStr);
 end

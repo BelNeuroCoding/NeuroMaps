@@ -148,7 +148,7 @@ set_status(h.figure,"loading","Computing Network Connectivity...");
 
 compute_sttc_latency(h)
 network_conn_callback(h)
-plot_corr_vs_distance(h)
+ nwcorr_callback(h)
 
 
 currentText = get(h.summary_text,'String');

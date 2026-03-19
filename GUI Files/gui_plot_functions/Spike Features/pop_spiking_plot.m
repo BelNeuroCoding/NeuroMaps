@@ -17,9 +17,13 @@ maxCols = 2;
 % Determine rows and cols for tiling
 rows = min(maxRows, ceil(sqrt(numTiles)));
 cols = min(maxCols, ceil(numTiles/rows));
+if isfield(h,'nws_panel') && isvalid(h.nws_pannel)
+    delete(h.nws_panel);
+end
+h.nws_panel = uipanel(h.nws_tab, 'Units','normalized', 'Position',[0 0.1 1 0.9],'BackgroundColor',[1 1 1]); 
 
 % Create tiled layout
-tlo = tiledlayout(h.nws_tab, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+tlo = tiledlayout(h.nws_panel, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
 
 for i = 1:size(selected,1)
     expIdx = selected(i,1);

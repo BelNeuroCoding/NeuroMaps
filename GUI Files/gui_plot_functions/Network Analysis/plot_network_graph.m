@@ -3,11 +3,16 @@ function plot_network_graph(h, adjacency_matrix, x_coords, y_coords, unique_chan
     set_status(h.figure,"loading","Plotting Network Connectivity Graph...");
 
     G = graph(adjacency_matrix, 'upper','omitselfloops');
-
+    if isfield(h,'nc_panel') && isvalid(h.nc_panel)
+        delete(h.nc_panel);
+    end
+    h.nc_panel = uipanel(h.nc_tab, 'Units','normalized', 'Position',[0 0.1 1 0.9],'BackgroundColor',[1 1 1]); 
+ 
     % Clear old axes
     delete(findobj(allchild(h.nc_tab), 'Type','axes'));
+    delete(findobj(allchild(h.nc_panel), 'Type','axes'));
 
-    h.network_connectivity_map = subplot(1,1,1,'Parent',h.nc_tab);
+    h.network_connectivity_map = subplot(1,1,1,'Parent',h.nc_panel);
     p = plot(G, ...
         'XData', x_coords(unique_channels+1), ...
         'YData', y_coords(unique_channels+1), ...
@@ -19,7 +24,8 @@ function plot_network_graph(h, adjacency_matrix, x_coords, y_coords, unique_chan
     % Edge coloring
     p.EdgeCData = G.Edges.Weight;
     colormap('turbo');
-    colorbar('southoutside'); caxis([0 1]);
+    cb=colorbar('southoutside'); caxis([0 1]);
+    cb.Label.String = 'Connection Strength (STTC)';
     hold all
 
     % Node classification colors

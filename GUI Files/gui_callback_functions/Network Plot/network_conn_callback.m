@@ -21,6 +21,5 @@ function network_conn_callback(h)
     [adjacency_matrix, receiver_nodes, sender_nodes, broker_nodes, node_degrees] = build_network(sttc_matrix, latency_matrix, min_corr, sr_thresh);
 
     %  Plot network connectivity
-    plot_network_graph(h, adjacency_matrix, x_coords, y_coords, unique_channels, ...
-        receiver_nodes, sender_nodes, broker_nodes, node_degrees);
+    plot_network_graph(h, adjacency_matrix, x_coords, y_coords, unique_channels,receiver_nodes, sender_nodes, broker_nodes, node_degrees);
 end

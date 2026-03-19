@@ -27,6 +27,8 @@ function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channe
 
     xlabel('Distance (\mum)');
     ylabel('Number of Connections');
+    title('Correlation vs Distance Based on STTC')
+    set(gca,'TickDir','out')
     axis square; box off; set(gca,'Color','none');
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
     set_status(h.figure,"loading","Plotting Network Correlation/Distance...");
@@ -43,5 +45,5 @@ function plot_hist_by_corr(distVals, col)
         hold on
     end
 
-    legend({'Low','Medium','High'}, 'Location','southoutside');
+    legend({'Low','Medium','High'},'Orientation','horizontal', 'Location','southoutside');
 end
