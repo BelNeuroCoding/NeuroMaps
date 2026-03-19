@@ -3,7 +3,7 @@ function fooof_callback(h)
     set_status(h.figure,"loading","LFP Analysis Initiated");
 
     %% Ask user which steps to perform
-    steps = {'Fit FOOOF', 'Plot FOOOF', 'Plot Oscillatory Power', 'Plot Exponent', 'Compute Bandpower'};
+    steps = {'Fit FOOOF', 'Compute Bandpower'};
     [sel, ok] = listdlg('PromptString','Select steps to perform:', ...
                         'SelectionMode','multiple', ...
                         'ListString', steps, ...
@@ -14,10 +14,7 @@ function fooof_callback(h)
     end
 
     doFit        = ismember(1, sel);
-    doPlotFooof  = ismember(2, sel);
-    doPlotOsc    = ismember(3, sel);
-    doPlotExp    = ismember(4, sel);
-    doBandpower  = ismember(5, sel);
+    doBandpower  = ismember(2, sel);
 
     %% Get selected ports
     idx = h.portList.Value;           % positions in the listbox
@@ -29,7 +26,20 @@ function fooof_callback(h)
     cleanupObj = onCleanup(@() delete(wb));
 
     nSelected = size(selected,1);
+    create_lfp_foof_tabs(h)
+    h = guidata(h.figure);
 
+    if ~isfield(h,'lfp_settings')
+        h.lfp_settings = struct( ...
+            'peak_width_limits', [1 8], ...
+            'max_n_peaks', Inf, ...
+            'min_peak_height', 0, ...
+            'peak_threshold', 1, ...
+            'aperiodic_mode', 'fixed', ...
+            'verbose', true, ...
+            'freq_range',[1 35]...
+        );
+    end
     for i = 1:nSelected
         expIdx = selected(i,1);
         selected_idx = selected(i,2);
@@ -40,15 +50,19 @@ function fooof_callback(h)
         else
             results = h.figure.UserData;
         end
-
+        if ~isfield(results.signals(selected_idx),'lfp') || isempty(results.signals(selected_idx).lfp)
+            errordlg('No LFP Signal to Analyse')
+            set_status(h.figure,"error","LFP Analysis Cancelled");
+            return;
+        end
         lfp_filt = results.signals(selected_idx).lfp;           % filtered LFP
-        fs_lfp   = results.filt_params(selected_idx).lfp;       % sampling rate
+        fs_lfp   = results.filt_params(selected_idx).ds_freq;       % sampling rate
 
         %% Fit FOOOF
         if doFit
             set_status(h.figure,"loading",sprintf("Fitting FOOOF: Exp %d Port %d",expIdx,selected_idx));
             tic
-            fooof_results_fitted = fit_lfps(lfp_filt', fs_lfp, results(selected_idx).filt_params);
+            fooof_results_fitted = fit_lfps(lfp_filt', fs_lfp, results(selected_idx).filt_params,h.lfp_settings);
             t_elapsed_fitting_lfp = toc;
             fprintf('Time Elapsed Fitting LFP: %.3f s \n', t_elapsed_fitting_lfp);
             results.foof_lfp(selected_idx).foof_results = fooof_results_fitted;
@@ -63,7 +77,8 @@ function fooof_callback(h)
         else
             set(h.figure, 'UserData', results);
         end
-
+        PlotFooof_callback(h);
+        set_status(h.figure,"ready","FOOOF Plot Complete.");
         %% Update waitbar
         waitbar(i/nSelected, wb);
     end
@@ -76,23 +91,12 @@ function fooof_callback(h)
     h = guidata(h.figure);
 
     %% Call downstream analysis if selected
-    if doPlotFooof
-        set_status(h.figure,"loading","Plotting FOOOF...");
-        PlotFooof_callback(h);
-        set_status(h.figure,"ready","FOOOF Plot Complete.");
-    end
-
-    if doPlotOsc
-        set_status(h.figure,"loading","Plotting Oscillations...");
-        plot_osc_callback(h);
-        set_status(h.figure,"ready","Oscillation Plot Complete.");
-    end
-
-    if doPlotExp
-        set_status(h.figure,"loading","Plotting Experiment...");
-        plot_exp_callback(h);
-        set_status(h.figure,"ready","Experiment Plot Complete.");
-    end
+    set_status(h.figure,"loading","Plotting Oscillations...");
+    plot_osc_callback(h);
+    set_status(h.figure,"ready","Oscillation Plot Complete.");
+    set_status(h.figure,"loading","Plotting Experiment...");
+    plot_exp_callback(h);
+    set_status(h.figure,"ready","Experiment Plot Complete.");
 
     if doBandpower
         set_status(h.figure,"loading","Computing Bandpower...");

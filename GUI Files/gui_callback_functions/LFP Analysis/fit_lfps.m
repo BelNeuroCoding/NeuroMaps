@@ -1,4 +1,4 @@
-function fooof_results_fitted = fit_lfps(lfp_filt,fs_ds,filt_params)
+function fooof_results_fitted = fit_lfps(lfp_filt,fs_ds,filt_params,settings)
 py.importlib.import_module('numpy');
 py.importlib.import_module('scipy');
 py.importlib.import_module('matplotlib');
@@ -44,7 +44,7 @@ end
 end
 close(hWait)
 % FOOOF settings
-settings = struct();  % Use defaults
-f_range = [1,35];
-fooof_results_fitted = fooof_group(freqs_int2, powers_int2', f_range, settings);
+%settings = struct();  % Use defaults
+%f_range = [1,35];
+fooof_results_fitted = fooof_group(freqs_int2, powers_int2', settings);
 end
