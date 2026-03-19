@@ -56,7 +56,15 @@ function spike_snippet_settings(h)
     postEdit = uicontrol(d,'Style','edit','Position',[170 y 100 25],...
         'String',num2str(cfg.post_time));
     y = y - dy;
-
+      % Validate
+    if cfg.pre_time_plot < cfg.pre_time
+        warndlg('Plot Pre time is shorter than Detection Pre time. Adjusting to match detection time.','Spike Settings Warning');
+        cfg.pre_time_plot = cfg.pre_time;
+    end
+    if cfg.post_time_plot < cfg.post_time
+        warndlg('Plot Post time is shorter than Detection Post time. Adjusting to match detection time.','Spike Settings Warning');
+        cfg.post_time_plot = cfg.post_time;
+    end
     %  SPLIT POS/NEG SPIKES
     uicontrol(d,'Style','text','Position',[10 y 150 20],'String','Split pos/neg spikes','BackgroundColor',[1 1 1]);
     splitPolarityCheck = uicontrol(d,'Style','checkbox','Position',[170 y 25 25],...

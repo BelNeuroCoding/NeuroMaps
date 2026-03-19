@@ -55,7 +55,7 @@ function plot_dvdt_phase(h)
                 clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
                 end
             end
-            endc
+        end
 
         data(i).waveforms_all = waveforms_all;
         data(i).results = results;

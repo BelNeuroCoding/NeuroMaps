@@ -104,6 +104,11 @@ h.saveTableBtn = uicontrol('Parent', h.exps_table_fig, ...
                            'String','Save Table', ...
                            'Units','normalized', ...
                            'Position',[0.8 0.02 0.15 0.05], ...
-                           'Callback', @(src,event) saveFRTable(h));
-
+                           'Callback', @(src,event) save_exp_table(h));
+    function save_exp_table(T)
+        [filename, pathname] = uiputfile('*.csv','Save FOOF Analysis Table As');
+        if ischar(filename)
+            writetable(T, fullfile(pathname, filename));
+        end
+    end
 end

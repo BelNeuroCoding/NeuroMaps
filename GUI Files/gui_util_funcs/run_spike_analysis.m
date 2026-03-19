@@ -43,28 +43,35 @@ end
 selectedport = results.ports(selected_idx).port_id;
 Channels = results.channels(selected_idx).id;
 
-if isfield(results.signals,'ref')
-    %  Ask user what to analyse (Filtered or Referenced) 
-    choice = questdlg('Which data do you want to use for spike analysis?', ...
-                      'Spike Analysis Data', ...
-                      'Filtered', 'Referenced', 'Filtered');
-    switch choice
-        case 'Filtered'
-            filteredObservations = results.signals(selected_idx).hpf;
-        case 'Referenced'
-            if isfield(results.signals(selected_idx), 'ref')
-                filteredObservations = results.signals(selected_idx).ref;
-            else
-                errordlg('No referenced signals available for this dataset.');
+try
+    if isfield(results.signals,'ref')
+        %  Ask user what to analyse (Filtered or Referenced) 
+        choice = questdlg('Which data do you want to use for spike analysis?', ...
+                          'Spike Analysis Data', ...
+                          'Filtered', 'Referenced', 'Filtered');
+        switch choice
+            case 'Filtered'
+                filteredObservations = results.signals(selected_idx).hpf;
+            case 'Referenced'
+                if isfield(results.signals(selected_idx), 'ref')
+                    filteredObservations = results.signals(selected_idx).ref;
+                else
+                    errordlg('No referenced signals available for this dataset.');
+                    return;
+                end
+            otherwise
+                disp('User cancelled spike analysis.');
                 return;
-            end
-        otherwise
-            disp('User cancelled spike analysis.');
-            return;
+        end
+    else
+        choice = 'Filtered';
+        filteredObservations = results.signals(selected_idx).hpf;
     end
-else
-    choice = 'Filtered';
-    filteredObservations = results.signals(selected_idx).hpf;
+catch
+    errordlg('No Signal Detected. Filter and Try Again')
+    set_status(h.figure,"error","Spike Analysis Error");
+
+    return;
 end
 
 [num_channels, N] = size(filteredObservations);
@@ -148,7 +155,7 @@ set_status(h.figure,"loading","Computing Network Connectivity...");
 
 compute_sttc_latency(h)
 network_conn_callback(h)
- nwcorr_callback(h)
+nwcorr_callback(h)
 
 
 currentText = get(h.summary_text,'String');

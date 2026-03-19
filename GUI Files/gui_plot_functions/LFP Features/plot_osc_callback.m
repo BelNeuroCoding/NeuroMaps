@@ -72,7 +72,6 @@ for i = 1:size(selected,1)
     elseif strcmp(topo_togg,'Topographic Map')
         [x_coords,y_coords,maps] = load_probe_map(h);
         plot_interp_heatmap(total_osc_power,chans,'Oscillatory Power (\muV^2/Hz)',x_coords,y_coords)
-        axis(ax,'square')
     end
 
     axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
@@ -102,7 +101,13 @@ for i = 1:size(selected,1)
                                    'String','Save Table', ...
                                    'Units','normalized', ...
                                    'Position',[0.8 0.02 0.15 0.05], ...
-                                   'Callback', @(src,event) saveFRTable(h));
+                                   'Callback', @(src,event) saveoscTable(h));
+    end
+end
+function saveoscTable(T)
+    [filename, pathname] = uiputfile('*.csv','Save Oscillatory Table As');
+    if ischar(filename)
+        writetable(T, fullfile(pathname, filename));
     end
 end
 set_status(h.figure,"ready","Completed Oscillatory Power Heatmap...");

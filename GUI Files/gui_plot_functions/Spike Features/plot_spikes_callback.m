@@ -14,12 +14,10 @@ function plot_spikes_callback(h)
     if exist('spike_config.mat','file')
         cfg = load('spike_config.mat'); cfg = cfg.config;
         pre_time = cfg.pre_time_plot; post_time = cfg.post_time_plot;
-    else
-        cfg = struct(); pre_time = 0.8; post_time = 0.8;
     end
 
     % DEFAULTS
-    def = struct('pre_time_plot',0.8,'post_time_plot',0.8,'align_mode','min','central_tendency','mean',...
+    def = struct('pre_time',0.8,'post_time',0.8','pre_time_plot',0.8,'post_time_plot',0.8,'align_mode','min','central_tendency','mean',...
                  'spread','std','line_width',2,'shade_alpha',0.3,'ylim_mode','auto','split_polarity',0);
     fn = fieldnames(def);
     for i = 1:numel(fn)
@@ -197,7 +195,7 @@ function plot_spikes_callback(h)
     h.page_buttons = [btnPrev btnNext btnSave];
     guidata(h.figure,h);
 
-    updateAxes();
+    updateAxes(h);
     set_status(h.figure,"ready","Spike waveform plot complete...");
 
 end
@@ -209,8 +207,8 @@ function changePage(delta)
     updateAxes();
 end
 
-function updateAxes()
-    h = guidata(gcf);
+function updateAxes(h)
+    h = guidata(h.figure);
     cfg = h.cfg;
 
     % Clear old plots but keep buttons

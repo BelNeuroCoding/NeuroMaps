@@ -130,7 +130,6 @@ function bandpower_callback(h)
             end
             axes(h.band_axes(b))
             plot_interp_heatmap(power_in_bands(:,b), channels, [tit band_names{b}], x_coords, y_coords);
-            axis(h.band_axes(b),'square');
         end
     else 
         %  Time-resolved mode 
