@@ -1,10 +1,12 @@
-function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveforms,img,hm_props)
+function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveforms,img,hm_props,ax)
     % Inputs:
     % - var: Spike rate or other variable to plot in heatmap.
     % - chans: The channel numbers corresponding to the data.
     % - Zlabel: Label for the colorbar (e.g., 'Spike Rate (Hz)').
     % x_coords, y_coords
-    
+    if nargin < 9 || isempty(ax)
+        ax = gca;
+    end
     % Define Grid
      if nargin < 4
         x_coords = [115.4919, 155.7933, 216.2454, 230.9005, 269.9807, 293.7951, 350.5835, 391.1902, 294.7111, 351.8048, ...
@@ -34,25 +36,20 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         imagefile = imread(img);
         %imshow(imagefile, 'XData', [x_min x_max], 'YData', [y_min y_max]);
         imshow(imagefile)
-        hold on
+        hold(ax,"on")
         transp_scale = 0.6;
         [H,W,~] = size(imagefile);
         [Y,X] = ndgrid(1:H,1:W);
         % Create grid matching image
         %[Y,X] = ndgrid(1:size(imagefile,1),1:size(imagefile,2));
         heatmap = nan(size(X));
-        
-        if nargin < 9 || isempty(col)
-            col = 'w'; % text color for overlay
-        end
+        col = 'w'; % text color for overlay
     else
         % No image, create plain grid
         transp_scale = 1;
         [Y, X] = ndgrid(y_min:y_max, x_min:x_max);
         heatmap = nan(size(X));
-        if nargin < 9 || isempty(col)
-            col = 'k';
-        end
+        col = 'k';
     end
     min_rate = floor(min(var));
     max_rate = ceil(max(var));
@@ -70,7 +67,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     end
 %    [Y, X] = ndgrid(1:grid_size_y, 1:grid_size_x);
 
-    hold on;
+    hold(ax,"on");
     cmap = feval(cm,256); % Generate 256 colors
 
     % Heatmap setup
@@ -121,25 +118,25 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         
         % Plot the final interpolation
        % h = pcolor(interp_x, interp_y, interp_z);
-        hImg = imagesc(linear_grid_x, linear_grid_y, interp_z);
-        set(gca,'YDir','reverse');
+        hImg = imagesc(linear_grid_x, linear_grid_y, interp_z, 'Parent', ax);
+        set(ax,'YDir','reverse');
        % shading interp;  % Smooth shading
-        cs=colorbar('southoutside');  % Add colorbar
-        colormap(gca,cm);  % Optional: Choose color map
+        cs=colorbar(ax,'southoutside');  % Add colorbar
+        colormap(ax,cm);  % Optional: Choose color map
       %  cs.Ticks = 50;
 
         alpha_data = ~isnan(interp_z).* rescale(interp_z, transp_scale, 1);
         set(hImg, 'AlphaData', alpha_data);
         set(hImg, 'Interpolation','bilinear');
-        hold on;
+        hold(ax,"on");
         var(var>max_rate) = max_rate;
         fr_color = interp1(linspace(min_rate, max_rate, size(cmap, 1)), cmap, var); % Map normalized values to colormap
         for i = 1:length(chans)
-            scatter(x_coords(chans(i)+1), y_coords(chans(i)+1), 25, fr_color(i,:), 'filled'); % Adjust size (100) and color ('w' for white)
+            scatter(ax,x_coords(chans(i)+1), y_coords(chans(i)+1), 25, fr_color(i,:), 'filled'); % Adjust size (100) and color ('w' for white)
         end
         end
 
-    clim([min_rate max_rate])
+    clim(ax,[min_rate max_rate])
     % Colorbar
     %cs = colorbar('south');
     cs.Label.String = Zlabel;
@@ -173,7 +170,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
             xwf = x0 + time_axis * wf_scale_x;
             ywf = y0 + wf * wf_scale_y;
     
-            plot(xwf, ywf, 'Color',fr_color(i,:), 'LineWidth', 1);
+            plot(ax,xwf, ywf, 'Color',fr_color(i,:), 'LineWidth', 1);
     
         end
     end
@@ -183,12 +180,12 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         x_center = x_coords(chan_id + 1);
         y_center = y_coords(chan_id + 1);
         
-        text(x_center + 20, y_center, num2str(chan_id), ...
+        text(ax,x_center + 20, y_center, num2str(chan_id), ...
             'Color', col, 'FontSize', fsize, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     end
     
     
-    axis off; box off;
-    axis equal
+    axis(ax,'off'); box(ax,'off');
+    axis(ax,'equal');
 
 end

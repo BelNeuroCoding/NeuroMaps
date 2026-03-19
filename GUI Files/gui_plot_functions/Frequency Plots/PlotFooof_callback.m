@@ -109,6 +109,7 @@ pbaspect(h.fooofed_axes(2), [2 1 1]);
 
 hold(h.fooofed_axes(1), 'off');
 hold(h.fooofed_axes(2), 'off');
+box off
 
 
 else
@@ -170,6 +171,7 @@ else
     xlabel(h.fooofed_axes(2),'Frequency (Hz)')
     grid on
     grid minor
+    box off
     ylabel(h.fooofed_axes(2),'Log(Power) (dB/Hz)')
     %ylim(h.fooofed_axes(2),[-2 2])
     pbaspect(h.fooofed_axes(2),[2 1 1])

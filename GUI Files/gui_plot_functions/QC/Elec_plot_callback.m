@@ -81,9 +81,9 @@ for i = 1:numPorts
             xlabel(axZ,['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)']);
             ylabel(axZ,'Counts'); axis(axZ,'square');
         case 'Simple Map'
-            plot_heatmap_callback(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,imgFile);
+            plot_heatmap_callback(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,imgFile,[],[],axZ);
         case 'Topographic Map'
-            plot_interp_heatmap(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,[],imgFile);
+            plot_interp_heatmap(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,[],imgFile,[],axZ);
     end
 
     % Capacitance sub-tab
@@ -95,10 +95,10 @@ for i = 1:numPorts
             xlabel(axC,['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)']);
             ylabel(axC,'Counts'); axis(axC,'square');
         case 'Simple Map'
-            plot_heatmap_callback(C, port_chans, ['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)'], x_coords, y_coords,imgFile);
+            plot_heatmap_callback(C, port_chans, ['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)'], x_coords, y_coords,imgFile,[],[],axC);
             
         case 'Topographic Map'
-            plot_interp_heatmap(C, port_chans, ['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)'], x_coords, y_coords,[],imgFile);
+            plot_interp_heatmap(C, port_chans, ['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)'], x_coords, y_coords,[],imgFile,[],axC);
     end
 end
 
