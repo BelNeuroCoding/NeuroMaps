@@ -19,127 +19,134 @@ function [x_coords, y_coords] = probe_map_config(image_file)
         end
         image_file = fullfile(path, file);
     end
-
+    hFig = figure('Name','Probe Mapping','NumberTitle','off');
+    
+    % Create axes explicitly
+    hAx = axes('Parent', hFig);
     img = imread(image_file);
-    figure
-    hImg = imshow(img);
-    axis on;           % Show axes
-    axis image;        % Keep aspect ratio correct
-    grid on;           % Show grid
-    grid minor;
-    hold on;
-    title('Zoom/pan → Enter → Select point → Enter → Double Enter to finish.');
-    hold on;
+    hImg = imshow(img, 'Parent', hAx);
+    axis(hAx,'on');           % Show axes
+    axis(hAx,'image');        % Keep aspect ratio correct
+    grid(hAx,'on');           % Show grid
+    grid(hAx,'minor');
+    hold(hAx,'on');
+    title(hAx,'Zoom/pan → Enter → Select point → Enter → Double Enter to finish.');
+    hold(hAx,'on');
 
      %% CALIBRATION STEP
     n_cal = 3;
     um_per_pixel_all = zeros(1,n_cal);
     
     msgbox('The first step is calibration. You will select two points three times to calibrate pixel to micron ratio.');
+    k = 1;
+    cal_handles = gobjects(0);
+    while k <= n_cal
     
-    for k = 1:n_cal
+        redo_points = true;
     
-        x_cal = zeros(1,2);
-        y_cal = zeros(1,2);
-        cal_points = gobjects(0);
+        while redo_points
     
-        title(sprintf('Calibration line %d/%d',k,n_cal));
-        xlabel('Zoom/pan → press Enter → click point 1 → Enter → click point 2');    
-        p = 1;
-        while p <= 2
+            redo_points = false;
     
-            zoom on
-            pause
+            %  collect points 
+            x_cal = zeros(1,2);
+            y_cal = zeros(1,2);
+            cal_points = gobjects(0);
     
-            [x,y,button] = ginput(1);
+            title(hAx,sprintf('Calibration line %d/%d',k,n_cal));
+            xlabel(hAx,'Zoom/pan → Enter → Select point → Enter → Point 2 → Backspace to Undo');    
+
+            drawnow expose    
     
-            if isempty(button) || button == 13
-                return
-            elseif button == 8   % undo
-                if p > 1
-                    delete(cal_points(end))
-                    cal_points(end) = [];
-                    p = p - 1;
+            p = 1;
+            while p <= 2
+                zoom on
+                pause
+    
+                [x,y,button] = ginput(1);
+    
+                if isempty(button) || button == 13
+                    return
+                elseif button == 8
+                    if p > 1
+                        delete(cal_points(end))
+                        cal_points(end) = [];
+                        p = p - 1;
+                    end
+                    continue
                 end
-                continue
+    
+                x_cal(p) = x;
+                y_cal(p) = y;
+                h1 = plot(hAx,x,y,'ro','MarkerSize',10,'LineWidth',2);
+                cal_points(end+1) = h1;
+                cal_handles(end+1) = h1;    
+                p = p + 1;
+            end
+            h2 = line(hAx,x_cal,y_cal,'Color','g','LineWidth',2);
+            cal_points(end+1) = h2;
+            cal_handles(end+1) = h2;
+    
+            % --- distance input loop ---
+            while true
+    
+                answer = inputdlg({'Enter distance (μm):'},'Calibration',[1 35],{'100'});
+    
+                if isempty(answer)
+                    choice = questdlg('Cancel this calibration line?', ...
+                                     'Calibration', ...
+                                     'Redo points','Abort','Redo points');
+    
+                    if strcmp(choice,'Abort')
+                        return
+                    else
+                        redo_points = true;
+                        break
+                    end
+                end
+    
+                known_distance_um = str2double(answer{1});
+    
+                if isnan(known_distance_um) || known_distance_um <= 0
+                    uiwait(warndlg('Enter a valid number'));
+                    continue
+                end
+    
+                choice = questdlg(['Use ',num2str(known_distance_um),' μm?'], ...
+                                  'Confirm', ...
+                                  'OK','Redo points','OK');
+    
+                if strcmp(choice,'Redo points')
+                    redo_points = true;
+                    break
+                else
+                    pixel_distance = hypot(diff(x_cal), diff(y_cal));
+                    um_per_pixel_all(k) = known_distance_um / pixel_distance;
+                    break
+                end
             end
     
-            % store point
-            x_cal(p) = x;
-            y_cal(p) = y;
-    
-            % plot point
-            cal_points(end+1) = plot(x,y,'ro','MarkerSize',10,'LineWidth',2,'Tag','calibration');
-    
-            p = p + 1;
+            if redo_points
+                delete(cal_points)
+                cal_handles = setdiff(cal_handles, cal_points);
+            end
     
         end
     
-        % draw calibration line
-        cal_line = line(x_cal,y_cal,'Color','g','LineWidth',2,'Tag','calibration');
+        k = k + 1;
     
-        % ask for real distance
-        valid = false;
-    
-        while ~valid
-    
-            prompt = {'Enter the known distance between these points (μm):'};
-            dlgtitle = 'Calibration Distance';
-            dims = [1 35];
-            definput = {'100'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-    
-            if isempty(answer)
-                choice = questdlg('Cancel this calibration line?', ...
-                                  'Calibration', ...
-                                  'Redo points','Abort calibration','Redo points');
-    
-                if strcmp(choice,'Abort calibration')
-                    msgbox('Calibration canceled','Warning','warn');
-                    return
-                else
-                    % redo this calibration pair
-                    delete(cal_points)
-                    delete(cal_line)
-                    k = k - 1;
-                    valid = true;
-                    continue
-                end
-            end
-    
-            known_distance_um = str2double(answer{1});
-    
-            if isnan(known_distance_um) || known_distance_um <= 0
-                uiwait(warndlg('Please enter a valid positive number.'));
-            else
-                % confirm choice
-                choice = questdlg(['Use ',num2str(known_distance_um),' μm for this line?'], ...
-                                   'Confirm Calibration', ...
-                                   'OK','Redo points','OK');
-    
-                if strcmp(choice,'Redo points')
-                    delete(cal_points)
-                    delete(cal_line)
-                    k = k - 1;
-                    valid = true;
-                else
-                    pixel_distance = sqrt((x_cal(2)-x_cal(1))^2 + (y_cal(2)-y_cal(1))^2);
-                    um_per_pixel_all(k) = known_distance_um / pixel_distance;
-                    valid = true;
-                end
-            end
-    
-        end    
     end
     
     um_per_pixel = mean(um_per_pixel_all);
     
     msgbox(['Average calibration factor: 1 pixel = ', num2str(um_per_pixel), ' μm']);
-    delete(findobj(gca,'Tag','calibration'))
+    delete(cal_handles(ishandle(cal_handles)))
 
-    title('Select Electrodes from 0 to N.');
-    xlabel('Zoom/pan → press Enter → click point 1 → Enter → Double Enter when all electrodes are complete');    
-
+    zoom off
+    title(hAx,'Select Electrodes from 0 to N.');
+    xlabel(hAx,'Zoom/pan → press Enter → click point 1 → Enter → Double Enter when all electrodes are complete');    
+    drawnow expose    
+    pause(0.05)
     hold on
 
     % Initialize arrays to store plot and text objects for undo functionality
@@ -159,7 +166,14 @@ function [x_coords, y_coords] = probe_map_config(image_file)
         
         % If Enter (ASCII 13) is pressed, finish collecting points
         if isempty(button) || button == 13
-            break;
+            choice = questdlg('Have you finished selecting all electrodes?', ...
+                      'Confirm Finish', ...
+                      'Yes','No','No');
+            if strcmp(choice,'Yes')
+                break;
+            else
+                continue; % Go back to point selection
+            end
         elseif button == 8  % If Backspace (ASCII 8) is pressed, undo last point
             if ~isempty(points)
                 delete(points(end));     % Remove last point plot
@@ -176,10 +190,9 @@ function [x_coords, y_coords] = probe_map_config(image_file)
             x_coords(point_count) = x;
             y_coords(point_count) = y;
             maps(point_count) = point_count-1;
-
             % Plot the point and label it
-            points(end+1) = plot(x, y, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
-            labels(end+1) = text(x, y, num2str(point_count-1), 'Color', 'k', 'FontSize', 12, ...
+            points(end+1) = plot(hAx,x, y, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
+            labels(end+1) = text(hAx,x, y, num2str(point_count-1), 'Color', 'k', 'FontSize', 12, ...
                                  'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
         end
         
