@@ -56,7 +56,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 3. Launch the GUI: run `NeuroMaps` or open `NeuroMaps.m`
 ![](media/demo_launch.gif)
 
-An exetuble file can also be found on Zenodo: 10.5281/zenodo.19120269
+An executable file can also be found on Zenodo: 10.5281/zenodo.19120269
 
 ---
 
