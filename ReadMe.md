@@ -11,7 +11,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 
 **Key benefits:**
 - Unified analysis pipeline for spikes, LFPs, and network metrics  
-- Interactive GUI for quality control and visualization  
+- Interactive GUI for quality control and visualisation  
 - Supports multi-experiment and batch analysis  
 
 ---
@@ -42,7 +42,7 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 
 ---
 
-## Python Setup (MATLAB Integration)
+## Python Setup (MATLAB Integration, Optional)
 1. Check Python configuration in MATLAB: `pyenv`  
 2. Set Python version using Python 3.11 path (e.g., `C:\Users\User\appdata\local\programs\python\python311\pythonw.exe`) with execution mode `'OutOfProcess'`  
 3. Install required packages: `numpy`, `scipy`, `matplotlib`, `fooof`  
@@ -56,6 +56,8 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 3. Launch the GUI: run `NeuroMaps` or open `NeuroMaps.m`
 ![](media/demo_launch.gif)
 
+An exetuble file can also be found on Zenodo: 10.5281/zenodo.19120269
+
 ---
 
 ## Usage
@@ -63,11 +65,13 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 
 1. Click on **Probe Map Tab → Define Map**  
 2. Upload a photo containing the design or the image of interest  
-3. Use your mouse to zoom/pan to locate each electrode  
-4. Press **Enter** to confirm the selection for an electrode; repeat for all electrodes  
-5. Once all electrodes are selected, **double-press Enter** to confirm the map  
-6. Save the probe at a desired location  
-7. Load the map before proceeding via **Probe Map Tab → Load Map**  
+3. Use your mouse to zoom/pan to locate each electrode
+4. You will first be prompted to calibrate the pixel:\mum ratio for downstream correlation maps.
+💡 **Tip:** Using a scalebar can be helpful for calibration.
+6. Press **Enter** to confirm the selection for an electrode; repeat for all electrodes  
+7. Once all electrodes are selected, **double-press Enter** to confirm the map  
+8. Save the probe at a desired location  
+9. Load the map before proceeding via **Probe Map Tab → Load Map**  
 
 
 💡 **Tip:** Use Backspace to delete any incorrectly selected electrode location  
@@ -100,6 +104,8 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 💡 **Tip:**
 - It may be useful to increase the spike detection range to 6000 Hz to detect fast-spiking events
 - When changing the time range for the waterfall plot or CWT, always press enter
+- Make sure the settings are appropriate for your dataset.
+- Use the toggles 'AC Filtered', 'Spikes', 'LFP' and update the waterfall maps to reflect the current selection.
 
 
 ⚠️ **Warnings:**
@@ -125,7 +131,7 @@ Before applying referencing:
 
 #### Detection and Inspection
 1. Exclude bad channels with toggle at bottom
-2. Set spike threshold using the sliders at the bottom of the screen 
+2. Set spike threshold using the boxes at the bottom of the screen 
 3. Detect spikes  
 4. View firing rates, raster plots, network connectivity, STTC, spike features
 
