@@ -1,5 +1,5 @@
 function plot_spikes_callback(h)
-%% --- Plot Spikes Callback (with Split Polarity) ---
+%%  Plot Spikes Callback (with Split Polarity) 
 
     h = guidata(h.figure);
     set_status(h.figure,"loading","Spike waveform plot...");
