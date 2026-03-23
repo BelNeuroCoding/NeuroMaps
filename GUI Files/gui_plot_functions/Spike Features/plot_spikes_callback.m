@@ -13,7 +13,6 @@ function plot_spikes_callback(h)
     % LOAD CONFIG
     if exist('spike_config.mat','file')
         cfg = load('spike_config.mat'); cfg = cfg.config;
-        pre_time = cfg.pre_time_plot; post_time = cfg.post_time_plot;
     end
 
     % DEFAULTS
@@ -204,7 +203,7 @@ function changePage(delta)
     h = guidata(gcbf);
     h.currentPage = max(1,min(h.nPages,h.currentPage + delta));
     guidata(h.figure,h);
-    updateAxes();
+    updateAxes(h);
 end
 
 function updateAxes(h)
