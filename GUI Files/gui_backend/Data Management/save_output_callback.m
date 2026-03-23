@@ -11,6 +11,7 @@ function save_output_callback(h)
     
     if isempty(results)
         errordlg('No results available to save.');
+       set_status(h.figure,"error","Error Saving..");
         return;
     end
     
@@ -34,6 +35,7 @@ function save_output_callback(h)
                             'PromptString','Choose which Exp/Port combos to save:');
     if ~tf
         disp('User cancelled selection.');
+        set_status(h.figure,"error","Saving Cancelled..");
         return;
     end
         % Define mandatory fields
@@ -82,6 +84,8 @@ function save_output_callback(h)
         [fileName, filePath] = uiputfile(defaultFileName, ['Save as: ' defaultFileName]);
         if isequal(fileName,0) || isequal(filePath,0)
             fprintf('User cancelled save for %s\n', comboList{selIdx(s)});
+            set_status(h.figure,"error","Saving Cancelled..");
+
             continue;
         end
         fullFileName = fullfile(filePath, fileName);
@@ -95,11 +99,14 @@ function save_output_callback(h)
             close(hWait)
             msgbox(sprintf('%s saved to %s', comboList{selIdx(s)}, fullFileName), ...
                    'Save Complete', 'help');
+            set_status(h.figure,"ready","Data Saved Successfully...");
+
         catch ME
             errordlg(sprintf('Error saving %s: %s', comboList{selIdx(s)}, ME.message), 'Save Error');
+            set_status(h.figure,"error","Error Saving..");
+
         end
     end
-        set_status(h.figure,"ready","Data Saved Successfully...");
 
 
 end
