@@ -105,8 +105,8 @@ for i = 1:size(selected,1)
 
     %  Network overlay if requested 
     if h.rast_pop_plot_toggle.Value
-        bin_answer = inputdlg({'Enter binarisation rate (Hz):'}, 'Binarisation Rate', [1 35], {'1000'});
-        network_pop_plot(waveforms_all, TimeStamps, fs, recording_time, bin_answer, ax);
+        bin_rate = str2double(get(h.burst_param(5),'String'));
+        network_pop_plot(waveforms_all, TimeStamps, fs, recording_time, bin_rate, ax);
     end
     title(sprintf('Exp %d Port %d\n%s\n', expIdx, current_port, clusterStr));
     axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});

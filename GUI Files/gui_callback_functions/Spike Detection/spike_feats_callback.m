@@ -100,7 +100,7 @@ for i = 1:size(selected,1)
         ptp_amplitude_all = [ptp_amplitude_all, cluster_ptp_amplitude];
     end
     spike_analysis = analyze_spikes(waveforms_all, isi_threshold, min_spikes_per_burst, min_burst_duration,duration_sec);
-    analysedset.num_activechans = length(unique([waveforms_all.channel]));
+    analysedset.num_activechans = numel(spike_rate_per_channel>0.0833);
     analysedset.synchronicity = Synch;
     analysedset.mean_bursts_rate = nanmean([spike_analysis.Mean_Burst_Freq]); % Mean Number of Bursts per Channels
     analysedset.std_bursts_rate = nanstd([spike_analysis.Mean_Burst_Freq]); % Mean Number of Bursts per Channels
