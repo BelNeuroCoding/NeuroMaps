@@ -1,8 +1,9 @@
 function plot_all_spikes(h)
+    %%  Aggregate spikes 
     aggregate_spikes(h)
     h = guidata(h.figure);
 
-    % Collect all selected ports
+    % Collect selected ports
     idx = h.portList.Value;           
     map = h.portList.UserData;        
     selected = map(idx,:);
@@ -11,7 +12,7 @@ function plot_all_spikes(h)
     spike_origin_p    = h.cumulative_spikes.spike_origin_p;
     spike_origin_e    = h.cumulative_spikes.spike_origin_e;
 
-    % Calculate total tiles
+    % Unique combinations for plotting
     unique_combos = unique([spike_origin_e, spike_origin_p, all_channels], 'rows');
     total_tiles = size(unique_combos,1);
 
@@ -19,29 +20,30 @@ function plot_all_spikes(h)
     if isfield(h,'spikesPanel') && isvalid(h.spikesPanel)
         delete(h.spikesPanel);
     end
+    if exist('spike_config.mat','file')
+        cfg = load('spike_config.mat'); cfg = cfg.config;
+    end
 
-    % Create a new panel inside your GUI tab/container
-    togglePos = get(h.spikes_tab,'Position');  % example parent
-    panelHeight = 0.88;   % 90% of parent height
-    panelBottom = 0.05;  % leave 5% padding
-    if ~isfield(h,'spikesPanel') || ~isvalid(h.spikesPanel)
+    % DEFAULTS
+    def = struct('pre_time',0.8,'post_time',0.8','pre_time_plot',0.8,'post_time_plot',0.8,'align_mode','min','central_tendency','mean',...
+                 'spread','std','line_width',2,'shade_alpha',0.3,'ylim_mode','auto','split_polarity',0);
+    fn = fieldnames(def);
+    for i = 1:numel(fn)
+        if ~isfield(cfg,fn{i}), cfg.(fn{i}) = def.(fn{i}); end
+    end
+    h.cfg = cfg; guidata(h.figure,h);
+
+
+    % Create new panel
+    panelHeight = 0.88; panelBottom = 0.1;
     h.spikesPanel = uipanel('Parent', h.assess_spike_groups, ...
                             'Units','normalized', ...
                             'Position',[0, panelBottom, 1, panelHeight], ...
                             'BackgroundColor',[1 1 1], ...
                             'Title','Spike Waveforms');
-    end
-    % Clear old axes inside the panel
-    existingAxes = findall(h.spikesPanel,'Type','axes');
-    delete(existingAxes);
 
-    % Tiled layout inside the panel
-    nRows = ceil(sqrt(total_tiles));
-    nCols = ceil(total_tiles/nRows);
-    t = tiledlayout(h.spikesPanel, nRows, nCols, 'TileSpacing','compact','Padding','compact');
-
-    h.spikes_axes = gobjects(total_tiles,1);
-
+    %  Store spike data for pagination 
+    spikePlots = struct([]);
     for i = 1:total_tiles
         expIdx  = unique_combos(i,1);
         portIdx = unique_combos(i,2);
@@ -51,26 +53,89 @@ function plot_all_spikes(h)
         mean_wf = mean(all_waveforms(sel_idx,:),1);
         std_wf  = std(all_waveforms(sel_idx,:),1);
 
-        ax = nexttile(t);
-        h.spikes_axes(i) = ax;
+        spikePlots(i).mean = mean_wf;
+        spikePlots(i).std  = std_wf;
+        spikePlots(i).exp  = expIdx;
+        spikePlots(i).port = portIdx;
+        spikePlots(i).chan = chan;
+    end
 
+    h.spikePlots = spikePlots;
+    h.maxPerPage = 12;
+    h.currentPage = 1;
+    h.totalPlots = numel(spikePlots);
+    h.nPages = ceil(h.totalPlots / h.maxPerPage);
+
+    %  Create navigation buttons 
+    btnPrev = uicontrol(h.assess_spike_groups,'Style','pushbutton',...
+        'String','<','Units','normalized','Position',[0.01 0.01 0.05 0.05],...
+        'Callback',@(s,e) changePage_all(-1));
+
+    btnNext = uicontrol(h.assess_spike_groups,'Style','pushbutton',...
+        'String','>','Units','normalized','Position',[0.07 0.01 0.05 0.05],...
+        'Callback',@(s,e) changePage_all(1));
+
+    h.page_buttons = [btnPrev btnNext];
+    guidata(h.figure,h);
+
+    % Initial plot
+    updateAxes_all(h);
+end
+
+%%  Page switcher 
+function changePage_all(delta)
+    h = guidata(gcbf);
+    h.currentPage = max(1, min(h.nPages, h.currentPage + delta));
+    guidata(h.figure,h);
+    updateAxes_all(h);
+end
+
+%%  Render current page 
+function updateAxes_all(h)
+    h = guidata(h.figure);
+    cfg = h.cfg;
+    % Clear old axes
+    delete(findall(h.spikesPanel,'Type','axes'));
+
+    % Fixed 3x4 layout (12 max)
+    t = tiledlayout(h.spikesPanel,3,4,'TileSpacing','compact','Padding','compact');
+
+    startIdx = (h.currentPage-1)*h.maxPerPage + 1;
+    endIdx   = min(h.currentPage*h.maxPerPage, h.totalPlots);
+
+    for i = startIdx:endIdx
+        data = h.spikePlots(i);
+
+        ax = nexttile(t);
         hold(ax,'on');
-        x = linspace(-1,1,200);
-        plot(ax, x, mean_wf,'k','LineWidth',2);
-        fill(ax, [x fliplr(x)], [mean_wf+std_wf fliplr(mean_wf-std_wf)], ...
-             'b','FaceAlpha',0.3,'EdgeColor','none');
+
+        x = linspace(-1,1,length(data.mean)); % waveform x-axis
+
+        plot(ax,x,data.mean,'k','LineWidth',2);
+        fill(ax,[x fliplr(x)],...
+            [data.mean+data.std fliplr(data.mean-data.std)],...
+            'b','FaceAlpha',cfg.shade_alpha,'EdgeColor','none');
+
         hold(ax,'off');
 
-        % Get port ID safely
+        % Safe fetch of port ID
         if iscell(h.figure.UserData)
             results = h.figure.UserData;
         else
             results = {h.figure.UserData};
         end
-        title(ax, sprintf('P %d, C %d, E %d', results{expIdx}.ports(portIdx).port_id, chan, expIdx));
-        axis(ax,'off'); box(ax,'off');
+
+        title(ax,sprintf('P %d | C %d | E %d',...
+            results{data.exp}.ports(data.port).port_id,...
+            data.chan,data.exp));
+        set(ax,'TickDir','out')
+        if strcmp(cfg.ylim_mode,'global')
+            ylim(ax,h.global_ylim);
+        end
+
+        box(ax,'off');
     end
 
-    sgtitle(h.assess_spike_groups,'Port | Channel | Experiment');
-    guidata(h.figure,h);
+    % Optional: page indicator
+    title(t, sprintf('%d / %d', h.currentPage, h.nPages));
 end
