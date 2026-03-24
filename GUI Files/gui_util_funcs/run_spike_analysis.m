@@ -153,11 +153,6 @@ plot_dvdt_phase(h)
 pop_spiking_plot(h)
 set_status(h.figure,"loading","Computing Network Connectivity...");
 
-compute_sttc_latency(h)
-network_conn_callback(h)
-nwcorr_callback(h)
-
-
 currentText = get(h.summary_text,'String');
 if ischar(currentText)
     currentText = cellstr(currentText);

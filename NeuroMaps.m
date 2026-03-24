@@ -73,7 +73,7 @@ uimenu(h.saveMenu, 'Label', 'Save GIF', ...
 %% Step Panel at the Top of the GUI
 h.stepPanel = uipanel('Parent',h.figure,...
    'Units','normalized','Position',[0.05 0.91 0.90 0.06],'BackgroundColor',backgdcolor,'BorderType','none');
-stepNames = {'1. Load Data','2. Filter Data', '3. Reference' , '4. Detect Spikes', '5. Validate Clusters' , '6. Generate Spike GIF','7. Analyse LFP','8. Save Data'};
+stepNames = {'1. Load Data','2. Filter Data', '3. Reference' , '4. Detect Spikes', '5. Validate Clusters' , '6. Generate Spike GIF','7. Network Analysis','8. Analyse LFP','9. Save Data'};
 nSteps = numel(stepNames);
 pad = 0.01; btnW = (1-pad*(nSteps-1))/nSteps;btnH = 0.7;
 h.stepBtns = gobjects(1,nSteps);
@@ -669,17 +669,19 @@ end
 
 function stepperSet(h)
 % Visually highlight the active step, dim the others
-    idx = unique(h.stepCurrent);
+    idx = unique(h.stepCurrent);  % Active step(s)
+    highlightColor = hAccent();
+    dimColor = [0.94 0.94 0.94];
+    fgDim = [0.25 0.25 0.25];
+
     for i = 1:numel(h.stepBtns)
-        if ismember(i,idx)
-            set(h.stepBtns(i), 'BackgroundColor', hAccent(), 'ForegroundColor',[1 1 1], ...
-                'FontWeight','bold');
-        else
-            set(h.stepBtns(i), 'BackgroundColor', [0.94 0.94 0.94], ...
-                'ForegroundColor', [0.25 0.25 0.25], 'FontWeight','normal');
+        if ismember(i, idx)
+            set(h.stepBtns(i), 'BackgroundColor', highlightColor, ...
+                'ForegroundColor', [1 1 1], 'FontWeight', 'bold');
         end
     end
-    guidata(h.figure,h);
+
+    guidata(h.figure, h);
 end
 
 
@@ -706,9 +708,11 @@ function stepperGo(idx)
             try validate_clusters_callback(h); catch,end
         case 6
             try GIFy_callback(h); catch,end
-        case 7   % LFP Analysis
+        case 7
+            try run_network_analysis(h); catch,end
+        case 8   % LFP Analysis
             try fooof_callback(h); catch, end
-        case 8
+        case 9
             try save_output_callback(h);catch,end
     end
     h=guidata(h.figure);
