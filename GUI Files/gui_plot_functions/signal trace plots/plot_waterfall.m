@@ -22,7 +22,6 @@ colors = lines(num_channels);  % distinct colors
 hold(ax,'on');
 xrange = diff(xlim(ax));
 labelX = TimeStamps(1) - 0.05*xrange; % 5% to the left of axis
-scalebardist = TimeStamps(1) - 0.1*xrange;
 pixelHeightPerChannel = 30;
 totalHeight = length(ChosenChannels)*pixelHeightPerChannel;
 
@@ -43,11 +42,26 @@ end
     
 % Add scale bars
 
-scale_bar_y = -2*spacing;
-plot(ax, [TimeStamps(1), TimeStamps(1)+scale_bar_length], [scale_bar_y, scale_bar_y], 'k','LineWidth',1);
-plot(ax, [TimeStamps(1), TimeStamps(1)], [scale_bar_y, scale_bar_y+scaleBarAmp], 'k','LineWidth',1);
-text(ax, TimeStamps(1)+scale_bar_length/2, scale_bar_y-scalebardist, sprintf('%.1f s', scale_bar_length), 'HorizontalAlignment','center');
-text(ax, scalebardist, scale_bar_y, sprintf('%d uV',scaleBarAmp), 'HorizontalAlignment','center','Rotation',90);
+xrange = TimeStamps(end) - TimeStamps(1);
+
+x0 = TimeStamps(1) - 0.1 * xrange;   % left of plot
+y0 = -2 * spacing;                    % below signals
+
+plot(ax, [x0, x0 + scale_bar_length], [y0, y0], 'k', 'LineWidth', 1);
+plot(ax, [x0, x0], [y0, y0 + scaleBarAmp], 'k', 'LineWidth', 1);
+
+text(ax, x0 + scale_bar_length/2, ...
+        y0 - 0.4*spacing, ...   % more clearance
+        sprintf('%.2f s', scale_bar_length), ...
+        'HorizontalAlignment','center', ...
+        'VerticalAlignment','top','FontSize',9);
+
+text(ax, x0 - 0.03*xrange, ...
+        y0- 0.7*spacing, ...
+        sprintf('%d µV', scaleBarAmp), ...
+        'HorizontalAlignment','left', ...
+        'VerticalAlignment','middle', ...
+        'Rotation',90,'FontSize',9);
 
 % Axis formatting
 title(ax, [title_str]);
