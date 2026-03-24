@@ -166,7 +166,6 @@ if FlagUp
         TimeStamps = TimeStamps(idx_amp);
         RawData = RawData(:,idx_amp);
     end
-
     % Extract recording parameters and electrode properties
     Data.fs = round(1/(TimeStamps(2)-TimeStamps(1)));
     Data.timestamps = TimeStamps;
@@ -249,11 +248,11 @@ if FlagUp
     updateSummary(h);
     drawnow limitrate
     waitbar(0.05,wb,'Plotting Signal...');
+    create_signal_tabs(h);
     init_traces_tab(h);
     h=guidata(h.figure);
     init_power_spectrum_tab(h);
     % Create radio button for series      
-    %create_signal_tabs(h);
     h=guidata(h.figure);
     pop_graph_callback(h);
     drawnow limitrate

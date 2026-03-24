@@ -21,16 +21,17 @@ maxCols = 4;
 rows = min(maxRows, ceil(sqrt(numTiles)));
 cols = min(maxCols, ceil(numTiles/rows));
 
+if ~isfield(h,'noise_tab') || ~isvalid(h.noise_tab)
+h.noise_tab  = uitab(h.QCTabs, 'Title', 'Noise Levels','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
+h.noise_button = uicontrol('Style', 'pushbutton','Parent', h.noise_tab,'String', 'Plot Noise Levels', ...
+'Units', 'normalized','Position', [0.80, 0.0, 0.20, 0.05], ... 
+'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6], ...
+'Callback', @(src, event) noise_plot_callback(h));
+end
 % Clear tab axes
 children = allchild(h.noise_tab);         % get all children
-axesToDelete = findobj(children, 'Type', 'axes');  % find only axes
+axesToDelete = setdiff(children,h.noise_button);  % find only axes
 delete(axesToDelete);                      % delete them
-% 
-h.noise_button = uicontrol('Style', 'pushbutton','Parent', h.noise_tab,'String', 'Plot Noise Levels', ...
-'Units', 'normalized','Position', [0.80, 0.0, 0.20, 0.05], ... % Adjust position as needed
-'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6], ...
-'Callback', @(src, event) noise_plot_callback(h));   
-
 % Create tiled layout
 tlo = tiledlayout(h.noise_tab, rows, cols, 'TileSpacing', 'Compact', 'Padding', 'Compact');
 
