@@ -6,7 +6,6 @@ if ~isfield(h,'spike_detection_tab') || ~isvalid(h.spike_detection_tab)
 h.spike_detection_tab = uitab(h.tabgroup1, 'Title', 'Spikes Overview','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
 h.spikes_main_tab     = uitab(h.tabgroup2, 'Title', 'Firing Properties','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
 h.spikes_features_tab    = uitab(h.tabgroup1, 'Title', 'Spike Features','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
-h.network_dynamics_tab = uitab(h.tabgroup2, 'Title', 'Network Dynamics','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
 %% Nested Spike Feature Tabs
 h.spikedetectionTabs = uitabgroup('Parent', h.spike_detection_tab, 'Units', 'normalized', 'Position', [0 0 1 1]);
 h.spike_summary_tab = uitab(h.spikedetectionTabs, 'Title', 'Spikes Summary','BackgroundColor', backgdcolor, 'ForegroundColor', accentcolor);
