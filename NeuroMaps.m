@@ -366,28 +366,7 @@ function ok_button_callback(~, ~, handles)
     run_referencing_pipeline(handles);
 end
 
-function updateSTDFromEdit(src,h)
-    % Read the value typed by the user
-    val = str2double(src.String);
 
-    % Validate & clamp to allowed range
-    minVal = 1;  % minimum STD multiplier
-    maxVal = 100; % maximum STD multiplier
-
-    if isnan(val)
-        % Invalid input → revert to previous value
-        src.String = num2str(h.std_val, '%.1f'); 
-        return
-    end
-
-    val = max(minVal, min(maxVal, val));
-
-    % Update stored value in h
-    h.std_val = val;
-
-    % Optional: round nicely for display
-    src.String = num2str(val,'%.1f');
-end
 
 function updateclusternumValue(src, handles)
     % Callback function to update STD value

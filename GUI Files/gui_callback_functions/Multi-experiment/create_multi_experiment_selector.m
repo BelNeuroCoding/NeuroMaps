@@ -5,6 +5,7 @@ accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
 results = get(h.figure,'UserData'); 
 if ~iscell(results), results = {results}; end
 numExpts = numel(results);
+set_status(h.figure,"loading","Setting up GUI...");
 
 %  Experiment Listbox 
 expNames = cellfun(@(r) r.metadata.filename, results, 'UniformOutput', false);
@@ -62,11 +63,11 @@ guidata(h.figure,h);
 
 % Initial port update
 
-update_port_list(h);
+update_port_list(h,1);
 
 end
 
-function update_port_list(h)
+function update_port_list(h,ind)
 h = guidata(h.figure);
 %% Update port list based on selected experiments
 results = get(h.figure,'UserData'); 
@@ -93,9 +94,16 @@ map = h.portList.UserData;           % Nx2 mapping array [expIdx, portIdx]
 selected = map(idx,:);
 expIdx = selected(1,1);
 portIdx = selected(1,2);  
+if nargin>1
 if isfield(results{expIdx},'signals')
+    set_status(h.figure,"loading","Plotting Signals...");
     create_signal_tabs(h);
     h=guidata(h.figure);
+    init_traces_tab(h);
+    h=guidata(h.figure);
+    init_power_spectrum_tab(h);
+    h=guidata(h.figure);
+
     if isfield(results{expIdx}.signals(portIdx),'raw')
         h.formatsPlot.Raw = uicontrol('Style', 'radiobutton', 'String', 'Raw', ...
         'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
@@ -129,33 +137,54 @@ if isfield(results{expIdx},'signals')
     end
     guidata(h.figure,h);
     pop_graph_callback(h);
+    update_traces_tab(h);
+    plot_specgram(h);
     noise_plot_callback(h);
-    T = size(results{expIdx}.signals(portIdx).raw, 1); %channels in experiments 
 end
 if isfield(results{expIdx},'spike_results')
-     create_spike_tabs(h);
-     h=guidata(h.figure);
-     update_spike_summary_tab(h);
-     h=guidata(h.figure);
+    create_spike_tabs(h);
+    set_status(h.figure,"loading","Plotting Spike Results...");
+    h=guidata(h.figure);
+    update_spike_summary_tab(h);
+    h=guidata(h.figure);
+    set_status(h.figure,"loading","Plotting Spike Waveforms...");
+    drawnow limitrate
+    plot_spikes_callback(h);
+    plot_fr_callback(h);
+    plot_amphm_callback(h);
+    plot_raster_callback(h);
+    
+    set_status(h.figure,"loading","Plotting Spike Features...");
+    plot_isi_callback(h)
+    plot_ibi_callback(h)
+    plot_amplitudes_callback(h)
+    plot_fwhm_callback(h)
+    plot_dvdt_phase(h)
+    pop_spiking_plot(h)
 
 end
 if isfield(results{expIdx},'foof_lfp')
     create_lfp_foof_tabs(h);
+     set_status(h.figure,"loading","Plotting LFP Data...");
+
     h=guidata(h.figure);
 end
 if isfield(results{expIdx},'electrical_properties')
     create_ZC_tabs(h);
+    set_status(h.figure,"loading","Plotting QC metrics...");
    % h=guidata(h.figure);
     Elec_plot_callback(h);
     run_qc_callback(h);
     run_qc_plot(h);
     h=guidata(h.figure);
 end
+end
 create_cumulative_tabs(h);
 h=guidata(h.figure);
 unique_ports = [results{expIdx}.ports.port_id];
 if isfield(results{expIdx},'channels')
 all_channels = [results{expIdx}.channels(portIdx).id];
+T = length(all_channels);
 set(h.series_slider, 'Max', T)
 set(h.series_slider, 'SliderStep', [1/(T-1), 1/(T-1)])
 set(h.series_slider, 'Value', 1)
@@ -185,6 +214,8 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
 ind_pl = find(maps == all_channels(SeriesNumber));
 plot(h.probe_map_axes, x_coords(ind_pl), y_coords(ind_pl), 'bo', 'MarkerSize', 4, 'MarkerFaceColor', 'r');  % Red circles at current ch+1 - current_ch starts at 0.
 hold(h.probe_map_axes, 'off');
+set_status(h.figure,"ready","Ready...");
+
 end
 
 

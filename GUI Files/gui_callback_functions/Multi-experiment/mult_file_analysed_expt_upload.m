@@ -7,6 +7,7 @@ h = guidata(h.figure);
     'Select Experiment Result Files', 'MultiSelect', 'on');
 
 if ~FlagUp
+    set_status(h.figure,"idle","User cancelled selection..");
     disp('User cancelled file selection.');
     return;
 end
@@ -17,6 +18,7 @@ end
 
 allResults = {}; % preallocate cell array
 hWait = waitbar(0, 'Loading files...');  % create waitbar
+set_status(h.figure,"loading","Loading Files...");
 for i = 1:length(FileNames)
     fullFileName = fullfile(FilePath, FileNames{i});
     loaded = load(fullFileName);
@@ -36,6 +38,7 @@ for i = 1:length(FileNames)
             allResults{i}.ports(p).port_id = p;
         end
     else
+        set_status(h.figure,"error","No results found...");
         warning('File %s does not contain ''resultsToSave''. Skipping.', FileNames{i});
     end
     waitbar(i/length(FileNames), hWait, sprintf('Loading file %d of %d...', i, length(FileNames)));
@@ -45,6 +48,7 @@ close(hWait);
 
 % Check if at least one experiment was loaded
 if isempty(allResults)
+    set_status(h.figure,"error","No valid results found...");
     errordlg('No valid experiment results loaded.', 'Load Error');
     return;
 end
@@ -59,10 +63,12 @@ if isfield(h, 'expList') && ~isempty(h.expList)
 end
 
 guidata(h.figure,h);
-create_multi_experiment_selector(h);
 m=msgbox(sprintf('Loaded %d experiments successfully.', length(allResults)), ...
        'Load Complete', 'help');
 t= timer('StartDelay',2,'TimerFcn',@(~,~)delete(m));
 start(t);
+set_status(h.figure,"ready","Experiments loaded...");
 updateSummary(h);
+create_multi_experiment_selector(h);
+
 end

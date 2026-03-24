@@ -119,11 +119,25 @@ h.timeBox_specgram = uicontrol('Parent', h.specgram_tab, ...
 end
 guidata(h.figure,h);
 end
-function updateSTDValue(src, handles,stdval)
-    h = guidata(handles.figure);
-    % Callback function to update STD value
-    new_val = get(src, 'Value');
-    set(stdval, 'String', num2str(new_val, '%.1f'));
-    update_thresholds(h);
-    
+function updateSTDFromEdit(src,h)
+    % Read the value typed by the user
+    val = str2double(src.String);
+
+    % Validate & clamp to allowed range
+    minVal = 1;  % minimum STD multiplier
+    maxVal = 100; % maximum STD multiplier
+
+    if isnan(val)
+        % Invalid input → revert to previous value
+        src.String = num2str(h.std_val, '%.1f'); 
+        return
+    end
+
+    val = max(minVal, min(maxVal, val));
+
+    % Update stored value in h
+    h.std_val = val;
+
+    % Optional: round nicely for display
+    src.String = num2str(val,'%.1f');
 end

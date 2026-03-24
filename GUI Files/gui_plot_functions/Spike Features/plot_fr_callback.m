@@ -98,7 +98,7 @@ for i = 1:size(selected,1)
         selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
         selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
 
-        if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters')
+        if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters') && ~isempty(selectedStrings)
             selectedClusters = str2double(selectedStrings(selectedIdx));
             waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
             chans = unique([waveforms_all.channel]);

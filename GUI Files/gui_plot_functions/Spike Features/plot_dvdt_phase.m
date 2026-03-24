@@ -46,7 +46,7 @@ function plot_dvdt_phase(h)
         if isfield(h,'clusterListBox')
            selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
             selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
-            if ~isempty(selectedIdx)
+            if ~isempty(selectedIdx) && ~isempty(selectedStrings)
                 if ~isfield(waveforms_all,'clusters')
                     [waveforms_all.clusters] = deal(1);
                 else

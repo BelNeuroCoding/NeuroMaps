@@ -48,7 +48,7 @@ function plot_isi_callback(h)
                 %  Filter selected clusters 
             selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
             selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
-            if ~isempty(selectedIdx)
+            if ~isempty(selectedIdx) && ~isempty(selectedStrings)
                 if ~isfield(waveforms_all,'clusters')
                     [waveforms_all.clusters] = deal(1);
                 else

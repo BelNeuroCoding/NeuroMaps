@@ -101,7 +101,7 @@ for i = 1:size(selected,1)
     selectedStrings = get(h.clusterListBox,'String');
     selectedIdx     = get(h.clusterListBox,'Value');
 
-    if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters')
+    if ~isempty(selectedIdx) && isfield(waveforms_all,'clusters') && ~isempty(selectedStrings) 
         selectedClusters = str2double(selectedStrings(selectedIdx));
         waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
         clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));
