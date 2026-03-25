@@ -8,7 +8,7 @@ function plot_cluster_callback(h,delta)
         delta = 0;
     end
 
-    % --- Get selected ports ---
+    %  Get selected ports 
     idx = h.portList.Value;        
     map = h.portList.UserData;     
     selected = map(idx,:);            
@@ -37,7 +37,7 @@ function plot_cluster_callback(h,delta)
         selected_idx = selected(1,2);
     end
 
-    % --- Load results ---
+    %  Load results 
     if iscell(h.figure.UserData)
         results = h.figure.UserData{expIdx};
     else
@@ -58,7 +58,7 @@ function plot_cluster_callback(h,delta)
     all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
     channels     = cell2mat(arrayfun(@(x) x.channel, waveforms_all, 'UniformOutput', false)');
 
-    % --- Timing ---
+    %  Timing 
     if exist('spike_config.mat','file')
         cfg = load('spike_config.mat'); cfg = cfg.config;
         pre_time  = cfg.pre_time; 
@@ -70,7 +70,7 @@ function plot_cluster_callback(h,delta)
     N_samples = size(all_waveforms, 2);
     time_vector = linspace(-pre_time, post_time, N_samples);
 
-    % --- Clear old content ---
+    %  Clear old content 
     delete(findall(h.clusters_tab, 'Type', 'uipanel'));
     if ~isfield(h, 'clustPanel') || ~isvalid(h.clustPanel)
         h.clustPanel = uipanel(h.clusters_tab, ...
@@ -82,16 +82,16 @@ function plot_cluster_callback(h,delta)
     delete(findall(h.clustPanel, 'Tag','pagingButton')); % remove old Prev/Next buttons
 
 
-    % --- Tiledlayout for plots ---
+    %  Tiledlayout for plots 
     tiled = tiledlayout(h.clustPanel, 'flow', ...
         'TileSpacing','compact','Padding','compact');
     tiled.Units = 'normalized';
     tiled.Position = [0.08 0.18 0.84 0.7]; % slightly more margin for labels
 
-    % --- Colors ---
+    %  Colors 
     colors = lines(numel(detected_clusters));
 
-    % --- Layout choice ---
+    %  Layout choice 
     if get(h.clust_plot_toggle, 'Value')
         tileIDs = detected_clusters;
         tile_label = 'Cluster';
@@ -101,7 +101,7 @@ function plot_cluster_callback(h,delta)
     end
 
     %nTiles = numel(tileIDs);
-    % --- Paging setup ---
+    %  Paging setup 
     nTilesPerPage = 12;
     nPages = ceil(numel(tileIDs)/nTilesPerPage);
     
@@ -124,12 +124,12 @@ function plot_cluster_callback(h,delta)
     %nTiles = min(numel(tileIDs),12);
     lineHandles = gobjects(numel(detected_clusters),1);
 
-    % --- Style settings ---
+    %  Style settings 
     lw.main = 1.5;
     fnt.labels = 8;   % bump font size for clarity
     fnt.ticks  = 8;
 
-    % --- Plotting ---
+    %  Plotting 
     for ti = 1:numel(tileIDsPage)
         ax = nexttile(tiled, ti);
         hold(ax,'on')
@@ -173,44 +173,86 @@ function plot_cluster_callback(h,delta)
                               'Units','normalized','Position',[0.7 0.01 0.1 0.05],...
                               'Tag','pagingButton','Callback',@(src,evt) plot_cluster_callback(h,1));
     end
-    % --- Single toolbar ---
+    %  Single toolbar 
     axtoolbar(tiled, {'save','zoomin','zoomout','restoreview','pan'});
-    % Legend in reserved panel bottom (same parent as plots)
-    legendPanel = uipanel('Parent', h.clusters_tab, 'Units','normalized', ...
-                          'Position',[0.05 0.07 0.8 0.07], ...
-                          'BorderType','etchedin','BackgroundColor',backgdcolor);
+    %  Clean old legend panel 
+    delete(findall(h.clusters_tab, 'Tag','legendPanel'));
     
-    axL = axes('Parent', legendPanel, 'Visible','off'); hold(axL,'on');
+    legendPanel = uipanel('Parent', h.clusters_tab, ...
+        'Units','normalized', ...
+        'Position',[0.05 0.02 0.9 0.14], ... 
+        'BorderType','none', ...
+        'BackgroundColor',backgdcolor, ...
+        'Tag','legendPanel');
     
-    % Create proxy lines for legend (one parent, no data)
+    axL = axes('Parent', legendPanel, ...
+        'Position',[0.05 0.15 0.9 0.8], ...
+        'Visible','off'); 
+    hold(axL,'on');
+    
+    %  Create proxy lines 
     proxy = gobjects(numel(detected_clusters),1);
     for k = 1:numel(detected_clusters)
-        proxy(k) = plot(axL, nan, nan, 'LineWidth', lw.main, ...
+        proxy(k) = plot(axL, nan, nan, ...
+            'LineWidth', lw.main, ...
             'Color', colors(k,:), ...
             'DisplayName', sprintf('Cluster %d', detected_clusters(k)));
     end
     
+    %  
+    maxPerRow = 6; 
+    nCols = min(numel(detected_clusters), maxPerRow);
+    
     lgd = legend(axL, proxy, ...
-        'Orientation','horizontal', 'Box','off', ...
-        'FontSize', fnt.ticks, 'Location','southoutside');
+        'Orientation','horizontal', ...
+        'Box','off', ...
+        'FontSize', fnt.ticks, ...
+        'Location','north');
     
-    % Force 2 rows
-    lgd.NumColumns = ceil(numel(detected_clusters)/2);
+    lgd.NumColumns = nCols;
     
-    % Position at bottom center
+    %  Compact spacing (fits more cleanly) 
+    lgd.ItemTokenSize = [12,10];
+    
+    %  Force legend to fill panel properly 
     lgd.Units = 'normalized';
-    lgd.Position = [0.1 0.1 0.8 1];
-    % --- Super title ---
+    lgd.Position = [0 0 1 1];
+
+    % % Legend in reserved panel bottom (same parent as plots)
+    % legendPanel = uipanel('Parent', h.clusters_tab, 'Units','normalized', ...
+    %                       'Position',[0.05 0.07 0.8 0.07], ...
+    %                       'BorderType','etchedin','BackgroundColor',backgdcolor);
+    % 
+    % axL = axes('Parent', legendPanel, 'Visible','off'); hold(axL,'on');
+    % 
+    % % Create proxy lines for legend (one parent, no data)
+    % proxy = gobjects(numel(detected_clusters),1);
+    % for k = 1:numel(detected_clusters)
+    %     proxy(k) = plot(axL, nan, nan, 'LineWidth', lw.main, ...
+    %         'Color', colors(k,:), ...
+    %         'DisplayName', sprintf('Cluster %d', detected_clusters(k)));
+    % end
+    % 
+    % lgd = legend(axL, proxy, ...
+    %     'Orientation','horizontal', 'Box','off', ...
+    %     'FontSize', fnt.ticks, 'Location','southoutside');
+    % % Force 2 rows
+    % lgd.NumColumns = ceil(numel(detected_clusters)/2);
+    % 
+    % % Position at bottom center
+    % lgd.Units = 'normalized';
+    % lgd.Position = [0.1 0.1 0.8 1];
+    %  Super title 
     sgtitle(tiled, sprintf('Port: %d', selectedport), ...
         'FontSize', fnt.labels+2, 'FontWeight','bold');
 
-    % --- Update cluster list ---
+    %  Update cluster list 
 set(h.clusterListBox, 'Value',1:numel(detected_clusters),'String',cellstr(num2str(detected_clusters)));
 set_status(h.figure,"ready","Cluster Plot Complete...");
 
 end
 
-% --- Helper: Publication style ---
+%  Helper: Publication style 
 function set_pubstyle(ax,fnt)
     set(ax,'Box','off','TickDir','out','LineWidth',0.75, ...
         'FontSize',fnt.ticks,'FontName','Arial');

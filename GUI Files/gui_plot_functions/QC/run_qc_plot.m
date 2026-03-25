@@ -16,13 +16,21 @@ end
 
 %  Clear old QC axes 
 delete(findobj(h.qc_tab, 'Type', 'axes'));
+if isfield(h,'qCPanel')
+    delete(h.qcPanel);
+end
+h.qcPanel = uipanel(h.qc_tab, ...
+    'Units','normalized', ...
+    'Position',[0 0.1 1 0.9], ... 
+    'BackgroundColor',[1 1 1], ...
+    'BorderType','none');
 
 %  Determine tiling 
 numTiles = size(selected,1);
 cols = ceil(sqrt(numTiles));
 rows = ceil(numTiles / cols);
 
-tlo = tiledlayout(h.qc_tab, cols, rows, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+tlo = tiledlayout(h.qcPanel, cols, rows, 'TileSpacing', 'Compact', 'Padding', 'Compact');
 
 %  Loop through selected ports 
 for i = 1:numTiles
@@ -90,7 +98,7 @@ for i = 1:numTiles
             'Tag',sprintf('QCcat%d',catIdx));
         text(ax,x_coords(j),y_coords(j)+0.1,string(elec_num), ...
             'HorizontalAlignment','center','FontSize',8);
-        set(gca,'YDir','reverse')
+        set(ax,'YDir','reverse')
     end
 
     axis(ax,'equal'); axis(ax,'off');
