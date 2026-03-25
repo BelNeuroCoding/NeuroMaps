@@ -31,6 +31,8 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     x_max = max(x_centers) + padding;
     y_min = min(y_centers) - padding;
     y_max = max(y_centers) + padding;
+    label_togg = 1;
+
         % Precompute centers and grid
     if nargin > 5 && ~isempty(img)
         imagefile = imread(img);
@@ -61,6 +63,9 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         if isfield(hm_props,'use_clim') && hm_props.use_clim && numel(hm_props.clim)==2
             [min_rate, max_rate] = deal(hm_props.clim(1), hm_props.clim(2));
         end
+        if isfield(hm_props,'hide_labels') && hm_props.hide_labels
+            label_togg = 0;
+        end
     else
         cm = 'turbo';
         fsize = 5;
@@ -69,7 +74,6 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
 
     hold(ax,"on");
     cmap = feval(cm,256); % Generate 256 colors
-
     % Heatmap setup
  %   heatmap = zeros(size(X));
     radius = 8; % Adjust circle size
@@ -122,7 +126,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         set(ax,'YDir','reverse');
        % shading interp;  % Smooth shading
         cs=colorbar(ax,'southoutside');  % Add colorbar
-        colormap(ax,cm);  % Optional: Choose color map
+        colormap(ax,cm);  % Optional: Choose color map        
       %  cs.Ticks = 50;
 
         alpha_data = ~isnan(interp_z).* rescale(interp_z, transp_scale, 1);
@@ -131,8 +135,16 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         hold(ax,"on");
         var(var>max_rate) = max_rate;
         fr_color = interp1(linspace(min_rate, max_rate, size(cmap, 1)), cmap, var); % Map normalized values to colormap
+        % Compute min distance between electrodes (rough estimate for scaling)
+        coord_pairs = nchoosek(1:length(chans), 2);
+        dists = sqrt((x_coords(chans(coord_pairs(:,1))+1) - x_coords(chans(coord_pairs(:,2))+1)).^2 + ...
+                     (y_coords(chans(coord_pairs(:,1))+1) - y_coords(chans(coord_pairs(:,2))+1)).^2);
+        min_dist = min(dists);
+        
+        % Scale scatter size as a fraction of the min distance
+        scatter_size = (min_dist/5)^2;  % adjust denominator to make dots bigger/smaller
         for i = 1:length(chans)
-            scatter(ax,x_coords(chans(i)+1), y_coords(chans(i)+1), 25, fr_color(i,:), 'filled'); % Adjust size (100) and color ('w' for white)
+            scatter(ax,x_coords(chans(i)+1), y_coords(chans(i)+1), scatter_size, fr_color(i,:), 'filled'); % Adjust size (100) and color ('w' for white)
         end
         end
 
@@ -174,6 +186,9 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     
         end
     end
+
+   
+   if label_togg
     for t = 1:length(chans)
         chan_id = chans(t);
 
@@ -183,8 +198,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         text(ax,x_center + 20, y_center, num2str(chan_id), ...
             'Color', col, 'FontSize', fsize, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     end
-    
-    
+   end
     axis(ax,'off'); box(ax,'off');
     axis(ax,'equal');
 

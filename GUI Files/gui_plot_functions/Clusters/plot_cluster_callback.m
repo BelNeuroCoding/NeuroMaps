@@ -14,30 +14,28 @@ function plot_cluster_callback(h,delta)
     selected = map(idx,:);            
 
     % Handle multiple selections
-    if size(selected,1) > 1
-        choicesStr = cell(size(selected,1),1);
-        for i = 1:size(selected,1)
-            expIdxTmp = selected(i,1);
-            portIdxTmp = selected(i,2);
-            if iscell(h.figure.UserData)
-                resultsTmp = h.figure.UserData{expIdxTmp};
-            else
-                resultsTmp = h.figure.UserData;
-            end
-            portID = resultsTmp.ports(portIdxTmp).port_id;
-            choicesStr{i} = sprintf('Exp %d, Port %d', expIdxTmp, portID);
-        end
-        sel = listdlg('PromptString','Multiple experiments/ports selected. Choose one:', ...
-                      'SelectionMode','single', 'ListString', choicesStr);
-        if isempty(sel), return; end
-        expIdx = selected(sel,1);
-        selected_idx = selected(sel,2);
-    else
+    % if size(selected,1) > 1
+    %     choicesStr = cell(size(selected,1),1);
+    %     for i = 1:size(selected,1)
+    %         expIdxTmp = selected(i,1);
+    %         portIdxTmp = selected(i,2);
+    %         if iscell(h.figure.UserData)
+    %             resultsTmp = h.figure.UserData{expIdxTmp};
+    %         else
+    %             resultsTmp = h.figure.UserData;
+    %         end
+    %         portID = resultsTmp.ports(portIdxTmp).port_id;
+    %         choicesStr{i} = sprintf('Exp %d, Port %d', expIdxTmp, portID);
+    %     end
+    %     sel = listdlg('PromptString','Multiple experiments/ports selected. Choose one:', ...
+    %                   'SelectionMode','single', 'ListString', choicesStr);
+    %     if isempty(sel), return; end
+    %     expIdx = selected(sel,1);
+    %     selected_idx = selected(sel,2);
+    % else
         expIdx = selected(1,1);
         selected_idx = selected(1,2);
-    end
-
-    %  Load results 
+    %end    
     if iscell(h.figure.UserData)
         results = h.figure.UserData{expIdx};
     else
@@ -46,15 +44,33 @@ function plot_cluster_callback(h,delta)
     selectedport = results.ports(selected_idx).port_id;
     waveforms_all = results.spike_results(selected_idx).waveforms_all;
 
-    if ~isfield(waveforms_all,'clusters')
-        clusters = clusters_callback(h);
-        detected_clusters = unique(clusters);
-        waveforms_all = results.spike_results(selected_idx).waveforms_all;
-    else
-        clusters = [waveforms_all.clusters]';
-        detected_clusters = unique(clusters);
+    % if ~isfield(waveforms_all,'clusters')
+    %     clusters = clusters_callback(h);
+    %     waveforms_all = results.spike_results(selected_idx).waveforms_all;
+    % else
+    %     clusters = [waveforms_all.clusters]';
+    % end
+    if isfield(h,'clusterListBox')
+            %  Filter selected clusters 
+        selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
+        selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
+        if ~isempty(selectedIdx) && ~isempty(selectedStrings)
+            if ~isfield(waveforms_all,'clusters')
+                clusters_callback(h,1);
+                h = guidata(h.figure);
+                if iscell(h.figure.UserData)
+                    results = h.figure.UserData{expIdx};
+                else
+                    results = h.figure.UserData;
+                end
+                waveforms_all = results.spike_results(selected_idx).waveforms_all;
+            end
+        end
     end
 
+
+    detected_clusters = str2double(selectedStrings(selectedIdx));
+    clusters = [waveforms_all.clusters]';
     all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
     channels     = cell2mat(arrayfun(@(x) x.channel, waveforms_all, 'UniformOutput', false)');
 
@@ -89,7 +105,9 @@ function plot_cluster_callback(h,delta)
     tiled.Position = [0.08 0.18 0.84 0.7]; % slightly more margin for labels
 
     %  Colors 
-    colors = lines(numel(detected_clusters));
+    nC = numel(unique(clusters));
+    colors = jet(nC);
+
 
     %  Layout choice 
     if get(h.clust_plot_toggle, 'Value')
@@ -178,13 +196,14 @@ function plot_cluster_callback(h,delta)
     %  Clean old legend panel 
     delete(findall(h.clusters_tab, 'Tag','legendPanel'));
     
-    legendPanel = uipanel('Parent', h.clusters_tab, ...
-        'Units','normalized', ...
-        'Position',[0.05 0.02 0.9 0.14], ... 
-        'BorderType','none', ...
-        'BackgroundColor',backgdcolor, ...
-        'Tag','legendPanel');
     
+    legendPanel = uipanel('Parent', h.clusters_tab, ...
+            'Units','normalized', ...
+            'Position',[0 0.05 0.8 0.1], ... 
+            'BorderType','none', ...
+            'BackgroundColor',backgdcolor, ...
+            'Tag','legendPanel');
+        
     axL = axes('Parent', legendPanel, ...
         'Position',[0.05 0.15 0.9 0.8], ...
         'Visible','off'); 
@@ -243,12 +262,11 @@ function plot_cluster_callback(h,delta)
     % lgd.Units = 'normalized';
     % lgd.Position = [0.1 0.1 0.8 1];
     %  Super title 
-    sgtitle(tiled, sprintf('Port: %d', selectedport), ...
+    sgtitle(tiled, sprintf('Exp %d Port: %d',expIdx, selectedport), ...
         'FontSize', fnt.labels+2, 'FontWeight','bold');
 
     %  Update cluster list 
-set(h.clusterListBox, 'Value',1:numel(detected_clusters),'String',cellstr(num2str(detected_clusters)));
-set_status(h.figure,"ready","Cluster Plot Complete...");
+    set_status(h.figure,"ready","Cluster Plot Complete...");
 
 end
 

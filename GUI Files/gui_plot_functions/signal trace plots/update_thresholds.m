@@ -49,4 +49,6 @@ function update_thresholds(h)
     end
 
     drawnow limitrate;
+    set_status(h.figure,"ready","Thresholds Updated...");
+
 end

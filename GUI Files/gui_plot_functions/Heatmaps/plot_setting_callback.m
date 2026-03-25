@@ -6,6 +6,7 @@ function plot_setting_callback(src,mode)
     defaults.font_size = 5;
     defaults.colormap = 'turbo';
     defaults.use_clim = false;
+    defaults.hide_labels = false;
     defaults.clim = [0 1];
     %  UI 
     f = uifigure('Name','Plot Settings', ...
@@ -44,6 +45,10 @@ function plot_setting_callback(src,mode)
         'Text','Use manual color limits', ...
         'Value',defaults.use_clim, ...
         'Position',[20 100 200 20]);
+    hide_labels = uicheckbox(f, ...
+        'Text','Hide Electrode Labels', ...
+        'Value',defaults.hide_labels, ...
+        'Position',[200 100 200 20]);
 
     % CLIM min
     uilabel(f,'Position',[20 70 60 20],'Text','Min');
@@ -74,6 +79,7 @@ function plot_setting_callback(src,mode)
 
         % CLIM logic
         hm_props.use_clim = cb_clim.Value;
+        hm_props.hide_labels = hide_labels.Value;
 
         if hm_props.use_clim
             cmin = ef_min.Value;

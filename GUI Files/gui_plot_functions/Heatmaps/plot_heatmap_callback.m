@@ -11,7 +11,8 @@ if nargin < 4 || isempty(x_coords) || isempty(y_coords)
 end
 x_centers = x_coords;
 y_centers = y_coords;
-
+clims = [];
+label_togg = 1;
 % 2. Grid extentsh
 padding = 100;
 x_min = min(x_centers) - padding;
@@ -40,6 +41,14 @@ if nargin>6 && ~isempty(hm_props)
     fsize = hm_props.font_size;
     cm = hm_props.colormap;
     alpha_value =  hm_props.topo_map_transparency;
+    
+    if isfield(hm_props,'hide_labels') && hm_props.hide_labels
+        label_togg = 0;
+    end
+    if isfield(hm_props,'use_clim') && hm_props.use_clim && numel(hm_props.clim)==2
+        [min_rate, max_rate] = deal(hm_props.clim(1), hm_props.clim(2));
+        clims = [min_rate, max_rate];
+    end
 else
     cm = 'turbo';
     alpha_value = 0.9;
@@ -72,10 +81,10 @@ set(hImg, 'AlphaData', alpha_data * alpha_value);
 
 % 7. Colorbar
 cs = colorbar(ax, 'southoutside');
-if nargin < 8 || isempty(clims)
+if nargin < 8 && isempty(clims)
     clims = [min(heatmap(:)), max(heatmap(:))];
 end
-cs.Limits = clims;
+ax.CLim = clims;
 cs.Label.String = Zlabel;
 cs.Label.Rotation = 0;
 cs.Label.VerticalAlignment = 'top';
@@ -84,11 +93,12 @@ cs.AxisLocation = 'out';
 set(cs, 'TickDirection', 'out');
 
 % 8. Electrode labels
+if label_togg
 for t = 1:length(chans)
     text(ax, x_centers(chans(t)+1)+10, y_centers(chans(t)+1)+20, num2str(chans(t)), ...
         'Color', col, 'FontSize', fsize, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
 end
-
+end
 % 9. Axis adjustments
 axis(ax,'off');
 set(ax,'Color','none');

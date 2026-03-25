@@ -37,7 +37,7 @@ h.stepPanel = uipanel('Parent', h.figure, ...
     'BackgroundColor', backgdcolor, ...
     'BorderType', 'none');
 
-stepNames = {'Select Experiments','Detect Spikes', 'Analyse LFPs','Validate Curated Spikes'};
+stepNames = {'Select Experiments','Aggregate Data', 'Analyse LFPs','Validate Curated Spikes'};
 nSteps = numel(stepNames);
 pad = 0.01; 
 btnW = (1 - pad*(nSteps-1))/nSteps; 
@@ -161,6 +161,8 @@ if isfield(results{expIdx},'spike_results')
     plot_fwhm_callback(h)
     plot_dvdt_phase(h)
     pop_spiking_plot(h)
+    compute_sttc_latency(h)
+
 
 end
 if isfield(results{expIdx},'foof_lfp')
@@ -228,11 +230,10 @@ end
             try openSystemSelectionDialog(h); catch, end
             % Focus a relevant tab
             try h.tabgroup1.SelectedTab = h.overview_main_tab; catch, end
-        case 2   % Detect Spikes
-            try run_spike_analysis(h); catch, end
+        case 2   % Aggregate Data
+            try aggregate_spikes(h); catch, end
             h=guidata(h.figure);
-            try h.tabgroup1.SelectedTab = h.spike_detection_tab; catch, end
-            try h.tabgroup2.SelectedTab = h.spikes_main_tab; catch, end
+            try h.tabgroup1.SelectedTab = h.cumulative_analysis_tab; catch, end
         case 3   % LFP Analysis
             try fooof_callback(h); catch, end
             h=guidata(h.figure);

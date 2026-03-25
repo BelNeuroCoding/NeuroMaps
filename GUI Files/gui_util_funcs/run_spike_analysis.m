@@ -151,6 +151,8 @@ plot_amplitudes_callback(h)
 plot_fwhm_callback(h)
 plot_dvdt_phase(h)
 pop_spiking_plot(h)
+compute_sttc_latency(h)
+
 set_status(h.figure,"loading","Computing Network Connectivity...");
 
 currentText = get(h.summary_text,'String');

@@ -44,7 +44,7 @@ end
 
 xrange = TimeStamps(end) - TimeStamps(1);
 
-x0 = TimeStamps(1) - 0.1 * xrange;   % left of plot
+x0 = TimeStamps(1) + 0.01 * xrange;   
 y0 = -2 * spacing;                    % below signals
 
 plot(ax, [x0, x0 + scale_bar_length], [y0, y0], 'k', 'LineWidth', 1);
@@ -66,7 +66,7 @@ text(ax, x0 - 0.03*xrange, ...
 % Axis formatting
 title(ax, [title_str]);
 ylim(ax, [-3, num_channels]*2*spacing + spacing);
-xlim(ax,[TimeStamps(1)-0.2*xrange TimeStamps(end)])
+xlim(ax,[TimeStamps(1)-0.05*xrange TimeStamps(end)+0.05*xrange])
 
 set(ax,'Color',[1 1 1],'XColor','k','YColor','none');
 hold(ax,'off');

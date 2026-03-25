@@ -42,7 +42,18 @@ end
 waveforms_all = results.spike_results(selected_idx).waveforms_all;
 selectedClusters = get(h.clusterListBox,'Value');
 if ~isempty(selectedClusters) && isfield(waveforms_all,'clusters')
-    waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+    choice = questdlg( ...
+    'Filter to selected clusters only? This will remove all others for this session.', ...
+    'Confirm Filtering', ...
+    'Yes','Cancel','Cancel');
+    if strcmp(choice,'Yes')
+        waveforms_all = waveforms_all(ismember([waveforms_all.clusters], selectedClusters));
+        set(h.clusterListBox, 'Value',1:numel(unique(selectedClusters)),'String',cellstr(num2str(unique(selectedClusters))));
+
+    else
+        set_status(h.figure, "ready", "No clusters selected for validation");
+    return
+    end
 end
 results.spike_results(selected_idx).waveforms_all = waveforms_all;
 

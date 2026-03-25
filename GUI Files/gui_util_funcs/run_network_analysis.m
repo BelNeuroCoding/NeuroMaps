@@ -1,8 +1,8 @@
 function run_network_analysis(h)
 h = guidata(h.figure);  
 %% Main Spike Tabs
-if ~isfield(h,'spike_detection_tab') || ~isvalid(h.spike_detection_tab)
-create_spike_tabs(h)
+if ~isfield(h,'network_dynamics_tab') || ~isvalid(h.network_dynamics_tab)
+create_network_tabs(h)
 end
 h=guidata(h.figure);
 

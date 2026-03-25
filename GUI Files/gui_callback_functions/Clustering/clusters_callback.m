@@ -1,4 +1,4 @@
-function [clusters] = clusters_callback(h)
+function [clusters] = clusters_callback(h,chk)
 
 h = guidata(h.figure);  
 set_status(h.figure,"loading","Clustering Initiated...");
@@ -108,7 +108,10 @@ else
     set(h.figure, 'UserData', results);
 end
 guidata(h.figure);
-set_status(h.figure,"ready","Clustering Complete...");
+set(h.clusterListBox, 'Value',1:numel(unique(clusters)),'String',cellstr(num2str(unique(clusters))));
 
+set_status(h.figure,"ready","Clustering Complete...");
+if nargin<1
 plot_cluster_callback(h);
+end
 end

@@ -163,7 +163,7 @@ function plot_spikes_callback(h)
                 if strcmp(cfg.spread,'sem'), std_wf=std(wf,[],1)/sqrt(size(wf,1)); end
                 spikeData(end+1).ts = ts;
                 spikeData(end).mean_wf = mean_wf; spikeData(end).std_wf = std_wf;
-                spikeData(end).title = ['Ch: ' num2str(ch)];
+                spikeData(end).title = ['Exp: ' num2str(expIdx) ' Port: ' num2str(selected_idx)  ' Ch: ' num2str(ch)];
             end
         end
     end
@@ -209,13 +209,12 @@ end
 function updateAxes(h)
     h = guidata(h.figure);
     cfg = h.cfg;
-
     % Clear old plots but keep buttons
     children = get(h.spikes_tab,'Children');
     buttons = h.page_buttons;
     delete(setdiff(children, [buttons,h.spike_plot_button,h.filter_spikes_button,h.plot_settings_spikes_button]));
 
-    tl = tiledlayout(h.spikes_tab,4,4,'TileSpacing','compact','Padding','compact');
+    tl = tiledlayout(h.spikes_tab,4,4,'TileSpacing','loose','Padding','compact');
 
     startIdx = (h.currentPage-1)*h.maxPerPage + 1;
     endIdx   = min(h.currentPage*h.maxPerPage,h.totalPlots);
@@ -233,7 +232,9 @@ function updateAxes(h)
             [h.spikeData(i).mean_wf+h.spikeData(i).std_wf fliplr(h.spikeData(i).mean_wf-h.spikeData(i).std_wf)],...
             'b','FaceAlpha',cfg.shade_alpha,'EdgeColor','none');
         hold(ax,'off');
-        title(ax,h.spikeData(i).title);
+        t= title(ax,h.spikeData(i).title);
+        t.Units = 'normalized';
+        t.Position(2) = 1.04;
         xlabel(ax,'Time (ms)'); ylabel(ax,'Voltage (\muV)'); box(ax,'off');
         if strcmp(cfg.ylim_mode,'global')
             ylim(ax,h.global_ylim);
@@ -241,6 +242,5 @@ function updateAxes(h)
         set(ax,'TickDir','out')
         k = k + 1;
     end
-
 
 end

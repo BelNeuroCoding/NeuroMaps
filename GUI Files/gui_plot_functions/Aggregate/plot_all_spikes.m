@@ -1,6 +1,4 @@
 function plot_all_spikes(h)
-    %%  Aggregate spikes 
-    aggregate_spikes(h)
     h = guidata(h.figure);
 
     % Collect selected ports
@@ -50,8 +48,44 @@ function plot_all_spikes(h)
         chan    = unique_combos(i,3);
 
         sel_idx = find(spike_origin_e==expIdx & spike_origin_p==portIdx & all_channels==chan);
-        mean_wf = mean(all_waveforms(sel_idx,:),1);
-        std_wf  = std(all_waveforms(sel_idx,:),1);
+        wf = all_waveforms(sel_idx,:);
+
+        %  Flip (standardise polarity) 
+        flip_idx = abs(min(wf,[],2)) < abs(max(wf,[],2));
+        wf(flip_idx,:) = -wf(flip_idx,:);
+        
+        %  Alignment 
+        if ~strcmp(cfg.align_mode,'none')
+            switch cfg.align_mode
+                case 'min'
+                    [~,align_idx] = min(wf,[],2);
+                case 'max'
+                    [~,align_idx] = max(wf,[],2);
+            end
+            center = round(size(wf,2)/2);
+            for w = 1:size(wf,1)
+                shift = center - align_idx(w);
+                wf(w,:) = circshift(wf(w,:),shift);
+            end
+        end
+        
+        %  Central tendency 
+        switch cfg.central_tendency
+            case 'median'
+                mean_wf = median(wf,1);
+            otherwise
+                mean_wf = mean(wf,1);
+        end
+        
+        %  Spread 
+        switch cfg.spread
+            case 'sem'
+                std_wf = std(wf,[],1) / sqrt(size(wf,1));
+            otherwise
+                std_wf = std(wf,[],1);
+        end
+        % mean_wf = mean(all_waveforms(sel_idx,:),1);
+        % std_wf  = std(all_waveforms(sel_idx,:),1);
 
         spikePlots(i).mean = mean_wf;
         spikePlots(i).std  = std_wf;
@@ -125,14 +159,14 @@ function updateAxes_all(h)
             results = {h.figure.UserData};
         end
 
-        title(ax,sprintf('P %d | C %d | E %d',...
+        title(ax,sprintf('Port %d | Ch %d | Exp %d',...
             results{data.exp}.ports(data.port).port_id,...
             data.chan,data.exp));
         set(ax,'TickDir','out')
         if strcmp(cfg.ylim_mode,'global')
             ylim(ax,h.global_ylim);
         end
-
+        ylabel(ax,'Voltage (\muV)')
         box(ax,'off');
     end
 

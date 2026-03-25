@@ -17,7 +17,7 @@ x_coords = round(x_coords);
 y_coords = round(y_coords);
 
 end
-
+label_togg = 1;
 % Heatmap limits
 
 min_rate = floor(min(var));
@@ -56,6 +56,9 @@ if nargin>7 && ~isempty(hm_props)
     transp_scale =  hm_props.topo_map_transparency;
     if isfield(hm_props,'use_clim') && hm_props.use_clim && numel(hm_props.clim)==2
         [min_rate, max_rate] = deal(hm_props.clim(1), hm_props.clim(2));
+    end
+    if isfield(hm_props,'hide_labels') && hm_props.hide_labels
+        label_togg = 0;
     end
 else
     cm = 'turbo';
@@ -117,9 +120,15 @@ set(hImg,'Interpolation','bilinear')
 % electrode dots
 var(var>max_rate)=max_rate;
 fr_color = interp1(linspace(min_rate,max_rate,size(cmap,1)),cmap,var);
+coord_pairs = nchoosek(1:length(chans), 2);
+dists = sqrt((x_coords(chans(coord_pairs(:,1))+1) - x_coords(chans(coord_pairs(:,2))+1)).^2 + ...
+             (y_coords(chans(coord_pairs(:,1))+1) - y_coords(chans(coord_pairs(:,2))+1)).^2);
+min_dist = min(dists);
 
+% Scale scatter size as a fraction of the min distance
+scatter_size = (min_dist/5)^2;  % adjust denominator to make dots bigger/smaller
 for i=1:length(chans)
-scatter(x_coords(chans(i)+1),y_coords(chans(i)+1),25,fr_color(i,:),'filled');
+scatter(x_coords(chans(i)+1),y_coords(chans(i)+1),scatter_size,fr_color(i,:),'filled');
 end
 
 end
@@ -189,7 +198,7 @@ end
 
 
 % Channel labels
-
+if label_togg
 for t=1:length(chans)
 
 chan_id = chans(t);
@@ -201,6 +210,7 @@ text(x_center+20,y_center,num2str(chan_id),...
 'Color',col,'FontSize',fsize,'FontWeight','bold',...
 'HorizontalAlignment','center');
 
+end
 end
 
 axis equal

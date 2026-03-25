@@ -141,4 +141,5 @@ function aggregate_spikes(h)
     if ishandle(m)                  % check if the box is still open
         close(m);                   % close it
     end
+    plot_all_spikes(h)
 end
