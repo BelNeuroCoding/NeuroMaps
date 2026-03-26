@@ -21,7 +21,7 @@ if isfield(h,'qCPanel')
 end
 h.qcPanel = uipanel(h.qc_tab, ...
     'Units','normalized', ...
-    'Position',[0 0.1 1 0.8], ... 
+    'Position',[0 0 1 0.9], ... 
     'BackgroundColor',[1 1 1], ...
     'BorderType','none');
 
@@ -30,7 +30,7 @@ numTiles = size(selected,1);
 cols = ceil(sqrt(numTiles));
 rows = ceil(numTiles / cols);
 
-tlo = tiledlayout(h.qcPanel, cols, rows, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+tlo = tiledlayout(h.qcPanel, cols, rows, 'TileSpacing', 'loose', 'Padding', 'loose');
 
 %  Loop through selected ports 
 for i = 1:numTiles
@@ -102,7 +102,9 @@ for i = 1:numTiles
     end
 
     axis(ax,'equal'); axis(ax,'off');
-    title(ax,sprintf('Exp %d, Port %d',expIdx, selectedport));
+    t=title(ax,sprintf('Exp %d, Port %d',expIdx, selectedport));
+    t.Units = 'normalized';
+    t.Position(2) = 1.05; 
 end
 
 legLabels = {'Good','Bad Impedance','High STD/MAD','High PSD','Dead'};

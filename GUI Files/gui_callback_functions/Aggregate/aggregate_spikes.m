@@ -89,10 +89,10 @@ function aggregate_spikes(h)
         
                         else
                             
-                    warndlg(sprintf('Port %d missing "aperiodic_params" field in foof_results.', res.ports(portIdx).port_id));
+                    %warndlg(sprintf('Port %d missing "aperiodic_params" field in foof_results.', res.ports(portIdx).port_id));
                 end
             else
-                warndlg(sprintf('Port %d missing foof_lfp or foof_results.', res.ports(portIdx).port_id));
+                %warndlg(sprintf('Port %d missing foof_lfp or foof_results.', res.ports(portIdx).port_id));
             end
 
         end

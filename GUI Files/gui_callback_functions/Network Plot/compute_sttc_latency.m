@@ -4,7 +4,8 @@ function compute_sttc_latency(h, dtv)
     idx = h.portList.Value;              % positions in the listbox
     map = h.portList.UserData;           % Nx2 mapping array [expIdx, portIdx]
     selected = map(idx,:);
-    
+    set_status(h.figure,"loading","Computing STTC...");
+
     % Only allow one experiment & port
     if size(selected,1) > 1
         uniqueExpts = unique(selected(:,1));
@@ -83,4 +84,6 @@ function compute_sttc_latency(h, dtv)
     %  Plot results
     titleStr = sprintf('Exp %d, Port %d\n%s',expIdx,selected_idx,clusterStr);
     plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels,titleStr);
+    set_status(h.figure,"ready","STTC Complete...");
+
 end

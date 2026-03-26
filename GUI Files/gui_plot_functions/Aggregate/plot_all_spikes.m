@@ -1,15 +1,28 @@
 function plot_all_spikes(h)
     h = guidata(h.figure);
+    set_status(h.figure,"loading","Plotting Aggregated Spikes...");
 
     % Collect selected ports
     idx = h.portList.Value;           
     map = h.portList.UserData;        
     selected = map(idx,:);
+    if ~isfield(h,'cumulative_spikes')
+       errordlg('Please aggregate spikes before proceeding..');
+    end
     all_waveforms     = h.cumulative_spikes.all_waveforms;
     all_channels      = h.cumulative_spikes.channels;
+    ptp_amplitude     = h.cumulative_spikes.ptp_amplitude;
+    fwhm              = h.cumulative_spikes.fwhm;
     spike_origin_p    = h.cumulative_spikes.spike_origin_p;
     spike_origin_e    = h.cumulative_spikes.spike_origin_e;
-
+    if isfield(h,'spike_filter_ranges') && ~isempty(h.spike_filter_ranges)
+        r = h.spike_filter_ranges;
+        keep = ptp_amplitude >= r.amp(1) & ptp_amplitude <= r.amp(2) & fwhm >= r.fwhm(1) & fwhm <= r.fwhm(2);
+        all_waveforms = all_waveforms(keep,:);
+        all_channels = all_channels(keep);
+        spike_origin_p = spike_origin_p(keep);
+        spike_origin_e = spike_origin_e(keep);
+    end
     % Unique combinations for plotting
     unique_combos = unique([spike_origin_e, spike_origin_p, all_channels], 'rows');
     total_tiles = size(unique_combos,1);
@@ -103,22 +116,24 @@ function plot_all_spikes(h)
     %  Create navigation buttons 
     btnPrev = uicontrol(h.assess_spike_groups,'Style','pushbutton',...
         'String','<','Units','normalized','Position',[0.01 0.01 0.05 0.05],...
-        'Callback',@(s,e) changePage_all(-1));
+        'Callback',@(s,e) changePage_all(-1,h));
 
     btnNext = uicontrol(h.assess_spike_groups,'Style','pushbutton',...
         'String','>','Units','normalized','Position',[0.07 0.01 0.05 0.05],...
-        'Callback',@(s,e) changePage_all(1));
+        'Callback',@(s,e) changePage_all(1,h));
 
     h.page_buttons = [btnPrev btnNext];
     guidata(h.figure,h);
 
     % Initial plot
     updateAxes_all(h);
+    set_status(h.figure,"ready","Plotting Aggregated Spikes Complete...");
+
 end
 
 %%  Page switcher 
-function changePage_all(delta)
-    h = guidata(gcbf);
+function changePage_all(delta,h)
+    h = guidata(h.figure);
     h.currentPage = max(1, min(h.nPages, h.currentPage + delta));
     guidata(h.figure,h);
     updateAxes_all(h);

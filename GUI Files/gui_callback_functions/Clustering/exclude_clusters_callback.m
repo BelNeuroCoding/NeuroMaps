@@ -1,6 +1,7 @@
 function exclude_clusters_callback(h)
 %% EXCLUDE_CLUSTERS_CALLBACK - Exclude clusters or channel-cluster combos from selected ports
 h = guidata(h.figure);
+set_status(h.figure,"loading","Cluster Exclusion...");
 
 %% Ask user for clusters or channel-cluster combos
 prompt = {'Enter clusters to exclude (e.g., 3,5) OR channel-cluster pairs (e.g., [1,3],[2,5]):'};
@@ -84,7 +85,11 @@ for s = 1:size(selected,1)
         set(h.figure,'UserData',results);
     end
 end
+clusters = unique([waveforms_all.clusters]);
+guidata(h.figure);
 
+set(h.clusterListBox, 'Value',1:numel(unique(clusters)),'String',cellstr(num2str(unique(clusters)')));
+set_status(h.figure,"ready","Cluster Exclusion Complete...");
 %% Refresh cluster plots
 plot_cluster_callback(h);
 

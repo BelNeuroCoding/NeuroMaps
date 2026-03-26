@@ -1,7 +1,9 @@
-function spike_snippet_settings(h)
+function spike_snippet_settings(h,src)
 
     h = guidata(h.figure);
-
+    if nargin<2
+        src = [];
+    end
     %  LOAD EXISTING CONFIG 
     if exist('spike_config.mat','file')
         S = load('spike_config.mat');
@@ -154,9 +156,16 @@ function spike_snippet_settings(h)
         delete(d);
 
         % Optional: auto refresh plot
+        if isempty(src)
         try
             plot_spikes_callback(h);
         catch
+        end
+        else
+            try
+                plot_all_spikes(h);
+            catch
+            end
         end
     end
 

@@ -1,8 +1,10 @@
-function filter_spikes_callback(h)
+function filter_spikes_callback(h,src)
 
     h = guidata(h.figure);
     set_status(h.figure,"loading","Filtering Spikes in Range...");
-
+    if nargin<2
+        src = [];
+    end
     backgdcolor = [1 1 1];
     accentcolor = [0.1 0.4 0.6];
 
@@ -52,8 +54,6 @@ function filter_spikes_callback(h)
               'BackgroundColor',accentcolor,...
               'Callback',@applyCallback);
 
-    uiwait(d);
-
     % ---- Callback ----
     function applyCallback(~,~)
 
@@ -79,12 +79,14 @@ function filter_spikes_callback(h)
 
         h.spike_filter_ranges = ranges;
         guidata(h.figure,h);
-        spike_feats_callback(h);
-
-        uiresume(d);
         delete(d);
-    end
+    
      set_status(h.figure,"ready","Filtering Spikes Complete...");
-     plot_spikes_callback(h);
-
+     if ~isempty(src)
+        spike_feats_callback(h);
+        plot_spikes_callback(h);
+     else
+         plot_all_spikes(h);
+     end
+    end
 end

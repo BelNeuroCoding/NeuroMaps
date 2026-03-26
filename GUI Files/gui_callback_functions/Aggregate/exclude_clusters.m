@@ -42,7 +42,9 @@ function exclude_clusters(h)
     for f = 1:numel(chanFields)
         if isfield(cs, chanFields{f})
             chan_mask = ismember(cs.spec_chans, remaining_chans);
+            if ~isempty(cs.(chanFields{f}))
             cs.(chanFields{f}) = cs.(chanFields{f})(chan_mask,:);
+            end
         end
     end
 

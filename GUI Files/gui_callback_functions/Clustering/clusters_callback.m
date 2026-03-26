@@ -111,7 +111,7 @@ guidata(h.figure);
 set(h.clusterListBox, 'Value',1:numel(unique(clusters)),'String',cellstr(num2str(unique(clusters))));
 
 set_status(h.figure,"ready","Clustering Complete...");
-if nargin<1
+if nargin<2
 plot_cluster_callback(h);
 end
 end
