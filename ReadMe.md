@@ -238,6 +238,11 @@ To generate comparative box-plots go to Cumulative Analysis Tab  and either comp
 - Stats: When you click on Compute, you can select from the available list what features you would like to compare and if you would like to compare statistics. Stats are only computed if there are more than 2 groups and more than 2 data points per group compared. Please note, when data is not available for a specific metric, a warning dialog box will appear.
 - Evolution: this is appropriate when tracking longitudinal developmental changes in the sample. You will be prompted to enter sample age and start date for each experiment, for instance if I know that my organoids from Exp. 1 and Exp. 2 were DIV 110 and DIV 120 respectively on 2025-10-02;  NeuroMaps can automatically infer the corresponding ‘ages’ and produce boxplots based on the time-resolution required: “Days”, “weeks”, or “months”
 
+Q: Issues with FOOOF analysis not running or oscillatory/exponents plots not showing?
+A: This problem is common if python environment has not been configured correctly on the computer or the appropriate packages for NeuroMaps were not installed. Please review installation guidelines. To troubleshoot, running NeuroMaps.m would help rather than NeuroMaps.exe to output relevant errors that would outline the source of the issue.
+
+Q: In the Multi-Experiment Analyzer, we can only cluster/process one file at a time.
+A: The Spike Overview is intended as a 'single-file' analyzer, to view data properly, make sure to select only one experiment and one port. For multi-experiment analysis, please visit cumulative tabs were spikes, clusters, etc.. can be accesses. Also, make sure to aggregate data every time you make new selections i.e. if you select multiple ports/experiments - aggregate data to view the relevant spikes and multi-experiment clusters. After you've validated the clusters to keep, review them experimentally via Spikes Overview and the relevant tabs.
 ---
 
 ## Citation
