@@ -3,6 +3,7 @@ function aggregate_spikes(h)
     %   Stores waveforms, channels, metrics, and origin info in h.cumulative_spikes
 
     h = guidata(h.figure);
+    set_status(h.figure,"loading","Aggregating Data...");
 
     % Ensure ports are selected
     if ~isfield(h,'portList') || isempty(h.portList.Value)
@@ -141,5 +142,7 @@ function aggregate_spikes(h)
     if ishandle(m)                  % check if the box is still open
         close(m);                   % close it
     end
+    set_status(h.figure,"ready","Aggregating Data Complete...");
+
     plot_all_spikes(h)
 end

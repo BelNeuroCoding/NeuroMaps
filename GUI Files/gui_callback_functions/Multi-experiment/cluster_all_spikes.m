@@ -1,5 +1,6 @@
 function cluster_all_spikes(h)
     h = guidata(h.figure);
+    set_status(h.figure,"loading","Clustering All Spikes...");
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
 
@@ -43,7 +44,26 @@ function cluster_all_spikes(h)
     h.cumulative_spikes.cluster_idx = cluster_idx;
     h.cumulative_spikes.cluster_centers = C;
     h.cumulative_spikes.score = score;
+    h.clustplot_panel = uipanel('Parent', h.cluster_spike_groups, ...
+    'Units','normalized', ...
+    'Position',[0 0.1 1 0.9], ...
+    'BackgroundColor', backgdcolor, ...
+    'BorderType','none');
+    cluster_labels = arrayfun(@(k) sprintf('Cluster %d', k), unique(cluster_idx),'UniformOutput',false);
+    if isfield(h,'cluster_listbox') && ishandle(h.cluster_listbox)
+        delete(h.cluster_listbox)
+    end
+    h.cluster_listbox = uicontrol('Parent', h.clustplot_panel, ...
+                              'Style','listbox', ...
+                              'String', cluster_labels, ...
+                              'Max',10, ...
+                              'Min',1,... % allow multi-select
+                              'Units','normalized', ...
+                              'Position',[0.85 0.2 0.15 0.2], ...
+                              'BackgroundColor',[1 1 1]); 
     guidata(h.figure,h);
+    set_status(h.figure,"ready","Clustering Complete...");
+
     plot_all_clusters(h);
 
 
