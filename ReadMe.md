@@ -242,7 +242,7 @@ Q: Issues with FOOOF analysis not running or oscillatory/exponents plots not sho
 A: This problem is common if python environment has not been configured correctly on the computer or the appropriate packages for NeuroMaps were not installed. Please review installation guidelines. To troubleshoot, running NeuroMaps.m would help rather than NeuroMaps.exe to output relevant errors that would outline the source of the issue.
 
 Q: In the Multi-Experiment Analyzer, we can only cluster/process one file at a time.
-A: The Spike Overview is intended as a 'single-file' analyzer, to view data properly, make sure to select only one experiment and one port. For multi-experiment analysis, please visit cumulative tabs were spikes, clusters, etc.. can be accesses. Also, make sure to aggregate data every time you make new selections i.e. if you select multiple ports/experiments - aggregate data to view the relevant spikes and multi-experiment clusters. After you've validated the clusters to keep, review them experimentally via Spikes Overview and the relevant tabs.
+A: The Spike Overview is intended as a 'single-file' analyzer, to view data properly, make sure to select only one experiment and one port. For multi-experiment analysis, please visit cumulative tabs were spikes, clusters, etc.. can be accesses. Also, make sure to aggregate data every time you make new selections i.e. if you select multiple ports/experiments - aggregate data to view the relevant spikes and multi-experiment clusters. After you've validated the clusters to keep, review them experimentally via Spikes Overview and the relevant tabs. At this time, only topographic maps are available in comparative mode along with the Cumulative Tabs.
 ---
 
 ## Citation
