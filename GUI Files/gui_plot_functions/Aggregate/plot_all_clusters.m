@@ -39,6 +39,7 @@ function plot_all_clusters(h)
     t = tiledlayout(h.clustplot_panel, 2, 2, 'TileSpacing','compact','Padding','compact');
 
     selectedIdx = get(h.cluster_listbox,'Value');
+    selectedStrings = get(h.cluster_listbox,'String');
     selected_clusters = unique_clusters(selectedIdx);
     sel_mask = ismember(cluster_idx, selected_clusters);
     cluster_idx_sel = cluster_idx(sel_mask);
@@ -94,13 +95,13 @@ function plot_all_clusters(h)
         idx_k = cluster_idx_sel == selected_clusters(k);
         mean_wf = mean(wf(idx_k,:),1);
         std_wf  = std(wf(idx_k,:),1);
-        lineHandles(k) =plot(ax2, xaxis, mean_wf, 'Color', colors(selected_clusters(k),:), 'LineWidth', 2);
+        lineHandles(k) =plot(ax2, xaxis, mean_wf, 'Color', colors(k,:), 'LineWidth', 2);
         legend(ax2, arrayfun(@(k) sprintf('Cluster %d', k), 1:numel(selected_clusters),'UniformOutput',false), ...
         'Location','northeastoutside');
         fill(ax2, [xaxis fliplr(xaxis)], [mean_wf+std_wf fliplr(mean_wf-std_wf)], ...
-         colors(selected_clusters(k),:), 'FaceAlpha', 0.3, 'EdgeColor','none');        
+         colors(k,:), 'FaceAlpha', 0.3, 'EdgeColor','none');        
     end
-    legend(ax2,lineHandles, arrayfun(@(k) sprintf('Cluster %d', k), 1:nClusters,'UniformOutput',false),'Location','northeastoutside');
+    legend(ax2,lineHandles, arrayfun(@(k) sprintf('Cluster %d', selected_clusters(k)), 1:numel(selected_clusters),'UniformOutput',false),'Location','northeastoutside');
     title(ax2,'Clustered Waveforms'); xlabel(ax2,'Normalized Time'); ylabel(ax2,'Amplitude');
     h.cluster_axes = [h.cluster_axes ax2];
     if strcmp(cfg.ylim_2_mode,'manual') && ~isempty(cfg.ylim_2_mode)

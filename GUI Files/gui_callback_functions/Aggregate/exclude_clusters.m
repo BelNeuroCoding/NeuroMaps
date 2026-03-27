@@ -50,6 +50,20 @@ function exclude_clusters(h)
 
     % Save back
     h.cumulative_spikes = cs;
+    cluster_idx = cs.cluster_idx;
+
+    cluster_labels = arrayfun(@(k) sprintf('Cluster %d', k), unique(cluster_idx),'UniformOutput',false);
+    if isfield(h,'cluster_listbox') && ishandle(h.cluster_listbox)
+        delete(h.cluster_listbox)
+    end
+    h.cluster_listbox = uicontrol('Parent', h.clustplot_panel, ...
+                              'Style','listbox', ...
+                              'String', cluster_labels, ...
+                              'Max',10, ...
+                              'Min',1,... % allow multi-select
+                              'Units','normalized', ...
+                              'Position',[0.85 0.2 0.15 0.2], ...
+                              'BackgroundColor',[1 1 1]); 
     guidata(h.figure,h);
     plot_all_clusters(h);
 end
