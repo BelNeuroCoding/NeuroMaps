@@ -29,6 +29,7 @@ x_min = min(x_centers) - padding;
 x_max = max(x_centers) + padding;
 y_min = min(y_centers) - padding;
 y_max = max(y_centers) + padding;
+ wf_col = 'auto';
     % Precompute centers and grid
 if nargin > 6 && ~isempty(img)
     imagefile = imread(img);
@@ -51,6 +52,7 @@ else
 end
 if nargin>7 && ~isempty(hm_props)
     col = hm_props.label_color;
+    wf_col = hm_props.waveform_color;
     fsize = hm_props.font_size;
     cm = hm_props.colormap;
     transp_scale =  hm_props.topo_map_transparency;
@@ -147,15 +149,18 @@ cs.Label.HorizontalAlignment='center';
 % WAVEFORM OVERLAY
 if nargin >= 6 && ~isempty(mean_waveforms)
 
-    wf_scale_x = 18;   % waveform width
-    wf_scale_y = 20;   % waveform height
-
+   % wf_scale_x = 18;   % waveform width
+   % wf_scale_y = 20;   % waveform height
+    wf_scale_x = min_dist * 0.6;   % horizontal footprint ~60% of spacing
+    wf_scale_y = min_dist * 0.4; 
     nClusters = size(mean_waveforms,2);
 
     cluster_colors = lines(nClusters);
 
-    cluster_spacing = 25;  % spacing between clusters
-    vertical_offset = 30;  
+    %cluster_spacing = 25;  % spacing between clusters
+    %vertical_offset = 30;  
+    cluster_spacing = min_dist * 0.35;   % horizontal spacing between clusters
+    vertical_offset = min_dist * 0.6;  
     
     for i = 1:length(chans)
 
@@ -187,9 +192,11 @@ if nargin >= 6 && ~isempty(mean_waveforms)
             y0 = y_center - vertical_offset;
 
             xwf = x0 + time_axis*wf_scale_x;
-            ywf = y0 + wf*wf_scale_y;
-
-            plot(xwf,ywf,'Color',cluster_colors(k,:),'LineWidth',1)
+            ywf = y0 - wf*wf_scale_y;
+            if wf_col == 'auto'
+               plot(xwf,ywf,'Color',cluster_colors(k,:),'LineWidth',1)
+            else
+                plot(xwf,ywf,'Color',wf_col,'LineWidth',1)
 
         end
     end

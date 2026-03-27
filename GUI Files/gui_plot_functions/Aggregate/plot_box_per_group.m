@@ -1,4 +1,4 @@
-function plot_box_per_group(ax, group_data, colors, ylab)
+function plot_box_per_group(ax, group_data, colors, ylab,ylims)
     hold(ax,'on');
     nClusters = numel(group_data);
     maxLen = max(cellfun(@numel, group_data));
@@ -26,4 +26,8 @@ function plot_box_per_group(ax, group_data, colors, ylab)
         scatter(ax,x,data_mat(valid_points,k),10,'k','filled','MarkerFaceAlpha',0.5);
     end
     ylabel(ax,ylab); box(ax,'off'); hold(ax,'off');
+    set(ax,'TickDir','out')
+    if nargin>4
+        ylim(ax,ylims)
+    end
 end

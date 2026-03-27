@@ -1,4 +1,4 @@
-function plot_heatmap_simplified_waveform(var, chans, Zlabel, tit, waveforms, time, img,x_coords,y_coords)
+function plot_heatmap_simplified_waveform(var, chans, Zlabel, tit, waveforms, time, img,x_coords,y_coords,wf_col)
     % Inputs:
     % - var: Spike rate or other variable to plot in heatmap.
     % - chans: The channel numbers corresponding to the data.
@@ -44,36 +44,69 @@ function plot_heatmap_simplified_waveform(var, chans, Zlabel, tit, waveforms, ti
         hold on;
     end
     
-    % Plot channel numbers and waveforms
-    for t = 1:length(chans)
-        text(x_centers(chans(t) + 1)+10, y_centers(chans(t) + 1)+10, num2str(chans(t)), ...
-            'Color', 'w', 'FontSize', 8, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
-
-        % Plot the mean spike waveform as a small snippet
-        if size(waveforms, 1) > 0
-            % Normalize and scale the waveform
-            wf = waveforms(t,:) ./ max(abs(waveforms(t,:))); % normalize
-            scale = 10; % vertical scaling of waveform
-            wfX = (time - mean(time))*10000 + x_coords(chans(t)+1); % spread waveform around channel x
-            wfY = wf*scale + y_coords(chans(t)+1)-20;                % scale + shift vertically
-            plot(wfX, wfY, 'w','LineWidth',1);
-        end
-    end
-    hold on;
-
-    % Plot the heatmap using imagesc with interpolation
-    % Heatmap aligned with image
-
     [Y, X] = ndgrid(1:imgHeight, 1:imgWidth);
     heatmap = zeros(imgHeight, imgWidth);
     
-    radius = 10; % in pixels
+    %radius = 10; % in pixels
+    all_pairs = nchoosek(1:length(x_coords), 2);
+
+    all_dists = sqrt((x_coords(all_pairs(:,1)) - x_coords(all_pairs(:,2))).^2 + ...
+                     (y_coords(all_pairs(:,1)) - y_coords(all_pairs(:,2))).^2);
+
+    min_dist = min(all_dists);
+    radius = min_dist*0.25;
+    % Plot channel numbers and waveforms
+    % for t = 1:length(chans)
+    %     text(x_centers(chans(t) + 1)+10, y_centers(chans(t) + 1)+10, num2str(chans(t)), ...
+    %         'Color', 'w', 'FontSize', 8, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
+    % 
+    %     % Plot the mean spike waveform as a small snippet
+    %     if size(waveforms, 1) > 0
+    %         % Normalize and scale the waveform
+    %         wf = waveforms(t,:) ./ max(abs(waveforms(t,:))); % normalize
+    %         scale = 10; % vertical scaling of waveform
+    %         wfX = (time - mean(time))*10000 + x_coords(chans(t)+1); % spread waveform around channel x
+    %         wfY = wf*scale + y_coords(chans(t)+1)-20;                % scale + shift vertically
+    %         plot(wfX, wfY, wf_col,'LineWidth',1);
+    %     end
+    % end
+    wf_scale_x = min_dist * 0.5;
+    wf_scale_y = min_dist * 0.3;
+    
+      
     for t = 1:length(chans)
         dist2 = (X - x_coords(chans(t)+1)).^2 + (Y - y_coords(chans(t)+1)).^2;
         circle_mask = dist2 <= radius^2;
         heatmap = heatmap + var(t)*double(circle_mask);
     end
+    hold on
+     for t = 1:length(chans)
     
+        x_center = x_coords(chans(t)+1);
+        y_center = y_coords(chans(t)+1);
+    
+        % normalize waveform safely
+        wf = waveforms(t,:);
+        wf = wf - mean(wf);
+        amp = max(abs(wf));
+        if amp > 0
+            wf = wf / amp;
+        end
+    
+        % normalize time to [0,1]
+        t_norm = (time - min(time)) / (max(time) - min(time) + eps);
+    
+        % offset from electrode (simple, consistent)
+        x0 = x_center + min_dist * 0.2;
+        y0 = y_center + min_dist * 0.2;
+    
+        % build waveform
+        wfX = x0 + t_norm * wf_scale_x;
+        wfY = y0 + wf * wf_scale_y;
+    
+        plot(wfX, wfY, wf_col, 'LineWidth', 1);
+    
+    end
     hImg = imagesc(heatmap);
     set(hImg,'AlphaData',heatmap>0); 
     colormap(turbo);

@@ -7,6 +7,7 @@ function plot_setting_callback(src,mode)
     defaults.colormap = 'turbo';
     defaults.use_clim = false;
     defaults.hide_labels = false;
+    defaults.waveform_color = 'w';
     defaults.clim = [0 1];
     %  UI 
     f = uifigure('Name','Plot Settings', ...
@@ -26,19 +27,25 @@ function plot_setting_callback(src,mode)
         'Value',defaults.label_color, ...
         'Position',[150 220 150 22]);
 
+    uilabel(f,'Position',[20 185 120 20],'Text','Waveform Color');
+    wf_color = uidropdown(f, ...
+        'Items',{'auto','w','k','r','g','b','y','c','m'}, ...
+        'Value',defaults.waveform_color, ...
+        'Position',[150 185 150 22]);
+    
     % Transparency
-    uilabel(f,'Position',[20 180 120 20],'Text','Transparency');
+    uilabel(f,'Position',[20 160 120 20],'Text','Transparency');
     ef_alpha = uieditfield(f,'numeric', ...
         'Limits',[0 1], ...
         'Value',defaults.topo_map_transparency, ...
-        'Position',[150 180 150 22]);
+        'Position',[150 160 150 22]);
 
     % Font size
-    uilabel(f,'Position',[20 140 120 20],'Text','Font Size');
+    uilabel(f,'Position',[20 130 120 20],'Text','Font Size');
     ef_font = uieditfield(f,'numeric', ...
         'Limits',[1 30], ...
         'Value',defaults.font_size, ...
-        'Position',[150 140 150 22]);
+        'Position',[150 130 150 22]);
 
     %  CLIM toggle 
     cb_clim = uicheckbox(f, ...
@@ -74,6 +81,7 @@ function plot_setting_callback(src,mode)
 
         hm_props.colormap = dd_cmap.Value;
         hm_props.label_color = dd_color.Value;
+        hm_props.waveform_color = wf_color.Value;
         hm_props.topo_map_transparency = ef_alpha.Value;
         hm_props.font_size = ef_font.Value;
 

@@ -28,17 +28,19 @@ else
 end
 data = results.spike_results(selected_idx).waveforms_all;
 fs = results.fs;
+try
 duration_sec = max(results.timestamps)-min(results.timestamps);
 prompt = {'Visualise spikes every (s) (e.g. 1):',...
-    'Time delay between produced frames (s)'};
+    'Time delay between produced frames (s)',...
+    'Waveform Color (k for black)'};
 dlg_title = 'Gif Time';
 num_lines = 1;
-default_ans = {'1','1'};
+default_ans = {'1','1','w'};
 answer = inputdlg(prompt, dlg_title, num_lines, default_ans);
     if isempty(answer), return; end % user cancelled
 time_window_sec = str2double(answer{1});
 frame_delay = str2double(answer{2});
-
+wf_col = answer{3};
 cluster_num = get(h.clusterListBox,'Value');
 isFirstFrame = true; 
 % Ask user where to save the GIF
@@ -114,10 +116,10 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
        % figure(1)
        if time_window_sec<1
            ptp_amp = max(mean_waveforms,[],2)-min(mean_waveforms,[],2);
-           plot_heatmap_simplified_waveform(ptp_amp, uniquech, 'Peak-to-peak Amplitude (\mu V)', ['Heatmap with Waveforms T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,imgFile,x_coords,y_coords);
+           plot_heatmap_simplified_waveform(ptp_amp, uniquech, 'Peak-to-peak Amplitude (\mu V)', ['Heatmap with Waveforms T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,imgFile,x_coords,y_coords,wf_col);
            caxis([0 1000]);
        else
-            plot_heatmap_simplified_waveform(spike_rate, uniquech, 'Spike Rate (Hz)', ['Heatmap with Waveforms  T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,imgFile,x_coords,y_coords);
+            plot_heatmap_simplified_waveform(spike_rate, uniquech, 'Spike Rate (Hz)', ['Heatmap with Waveforms  T ' num2str((t-1) * time_window_sec)], mean_waveforms, time_axis,imgFile,x_coords,y_coords,wf_col);
              % Set color limits for heatmap (adjust if necessary)
              caxis([0 3]);
        end
@@ -140,6 +142,10 @@ load(matFile, 'x_coords', 'y_coords', 'maps');
 
         %close(gcf);  % Close the figure to save memory
     end
+catch
+         set_status(h.figure,"error","GIF generation cancelled...");
+         return
+end
  set_status(h.figure,"ready","GIF generation complete...");
 
 end

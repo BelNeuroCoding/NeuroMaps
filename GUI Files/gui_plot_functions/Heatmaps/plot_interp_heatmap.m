@@ -32,7 +32,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     y_min = min(y_centers) - padding;
     y_max = max(y_centers) + padding;
     label_togg = 1;
-
+     wf_col = 'auto';
         % Precompute centers and grid
     if nargin > 5 && ~isempty(img)
         imagefile = imread(img);
@@ -57,6 +57,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     max_rate = ceil(max(var));
     if nargin>7 && ~isempty(hm_props)
         col = hm_props.label_color;
+        wf_col = hm_props.waveform_color;
         fsize = hm_props.font_size;
         cm = hm_props.colormap;
         transp_scale =  hm_props.topo_map_transparency;
@@ -66,6 +67,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         if isfield(hm_props,'hide_labels') && hm_props.hide_labels
             label_togg = 0;
         end
+        
     else
         cm = 'turbo';
         fsize = 5;
@@ -162,15 +164,21 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
     %  Overlay waveforms 
     if nargin >= 6 && ~isempty(mean_waveforms)
     
-        wf_scale_x = 40;   % horizontal waveform scaling
-        wf_scale_y = 40;   % vertical waveform scaling
-    
+        %wf_scale_x = 40;   % horizontal waveform scaling
+        %wf_scale_y = 40;   % vertical waveform scaling
+        wf_scale_x = min_dist * 0.6;   % horizontal footprint ~60% of spacing
+        wf_scale_y = min_dist * 0.4; 
         for i = 1:length(chans)
     
             ch = chans(i);
     
-            x0 = x_coords(ch + 1)*0.95;
-            y0 = y_coords(ch + 1)*1.05;
+            % x0 = x_coords(ch + 1)*0.95;
+            % y0 = y_coords(ch + 1)*1.05;
+            x_offset = min_dist * 0.2;
+            y_offset = min_dist * 0.2;
+            
+            x0 = x_coords(ch + 1) + x_offset;
+            y0 = y_coords(ch + 1) + y_offset;
     
             wf = mean_waveforms(i,:);
     
@@ -180,9 +188,14 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
             time_axis = linspace(0,1,length(mean_waveforms(1,:)));
             % Scale and translate waveform
             xwf = x0 + time_axis * wf_scale_x;
-            ywf = y0 + wf * wf_scale_y;
-    
-            plot(ax,xwf, ywf, 'Color',fr_color(i,:), 'LineWidth', 1);
+            ywf = y0 - wf * wf_scale_y;
+            if wf_col == 'auto'
+                wfcol = fr_color(i,:);
+                plot(ax,xwf, ywf, 'Color',wfcol, 'LineWidth', 1);
+            else
+              plot(ax,xwf,ywf, 'Color',wf_col, 'LineWidth', 1);
+            end
+
     
         end
     end
