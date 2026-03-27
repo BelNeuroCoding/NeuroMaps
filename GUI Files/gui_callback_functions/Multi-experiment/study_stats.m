@@ -14,7 +14,19 @@ function study_stats(h)
     combos = unique([cs.spike_origin_e, cs.spike_origin_p], 'rows');
     nGroups = size(combos,1);
     group_ids = combos;
-    labels = arrayfun(@(k) sprintf('E%d-P%d', combos(k,1), h.figure.UserData{combos(k,1)}.ports(combos(k,2)).port_id), 1:nGroups, 'UniformOutput', false);
+    defaultLabels = arrayfun(@(k) ...
+    sprintf('E%d-P%d', combos(k,1), ...
+    h.figure.UserData{combos(k,1)}.ports(combos(k,2)).port_id), ...
+    1:nGroups, 'UniformOutput', false);
+    
+    answer = inputdlg(defaultLabels, 'Edit group labels:', 1, defaultLabels);
+    
+    if isempty(answer)
+        return;
+    end
+    
+    labels = answer;
+
 
     % Clear previous axes/panel
     if isfield(h,'stats_axes') && ~isempty(h.stats_axes)
@@ -84,7 +96,7 @@ function study_stats(h)
                             'Position',[0, panelBottom, 1, panelHeight], ...
                             'BackgroundColor',[1 1 1]);
     t = tiledlayout(h.statsPanel,nRows,nCols,'TileSpacing','compact','Padding','compact');
-
+   % t = tiledlayout(figure,nRows,nCols,'TileSpacing','compact','Padding','compact');
     % Loop over metrics
     for m = 1:nMetrics
         metric_name = metric_names{m};
@@ -172,6 +184,9 @@ function study_stats(h)
         else
             ymin = min(all_vals); ymax = max(all_vals); yspan = max(ymax-ymin, eps);
             ylims_base = [ymin-0.1*yspan, ymax+0.2*yspan];
+        end
+        if ylims_base(1)<=ylims_base(2)
+            ylims_base(1)=0;
         end
         if strcmp(metric_name,'Synchrony'), ylims_base = [0 1]; end
         if strcmp(metric_name,'Impedance'), ylims_base(2) = min(ylims_base(2), 1000); end
