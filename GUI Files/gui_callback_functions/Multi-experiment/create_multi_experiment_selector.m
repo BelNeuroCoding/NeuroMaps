@@ -37,7 +37,7 @@ h.stepPanel = uipanel('Parent', h.figure, ...
     'BackgroundColor', backgdcolor, ...
     'BorderType', 'none');
 
-stepNames = {'Select Experiments','Aggregate Data', 'Analyse LFPs','Validate Curated Spikes'};
+stepNames = {'Select Experiments','Aggregate Data', 'Validate Curated Spikes','Analyse Network','Analyse LFPs'};
 nSteps = numel(stepNames);
 pad = 0.01; 
 btnW = (1 - pad*(nSteps-1))/nSteps; 
@@ -234,11 +234,14 @@ end
             try aggregate_spikes(h); catch, end
             h=guidata(h.figure);
             try h.tabgroup1.SelectedTab = h.cumulative_analysis_tab; catch, end
-        case 3   % LFP Analysis
-            try fooof_callback(h); catch, end
-            h=guidata(h.figure);
-        case 4 % Validate Curated Spikes
+        case 3 % Validate Curated Spikes
             try save_curated_spikes(h); catch,end
+            h=guidata(h.figure);
+        case 4 % Network Analysis
+            try run_network_analysis(h); catch,end
+            h=guidata(h.figure);
+        case 5   % LFP Analysis
+            try fooof_callback(h); catch, end
             h=guidata(h.figure);
 
     end

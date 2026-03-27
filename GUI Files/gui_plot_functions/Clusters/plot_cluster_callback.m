@@ -65,11 +65,15 @@ function plot_cluster_callback(h,delta)
                 end
                 waveforms_all = results.spike_results(selected_idx).waveforms_all;
             end
+            detected_clusters = str2double(selectedStrings(selectedIdx));
+
+        else
+            set(h.clusterListBox, 'Value',1:numel(unique([waveforms_all.clusters]')),'String',cellstr(num2str(unique([waveforms_all.clusters]'))));
+            detected_clusters = unique([waveforms_all.clusters]);
         end
     end
 
 
-    detected_clusters = str2double(selectedStrings(selectedIdx));
     clusters = [waveforms_all.clusters]';
     all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
     channels     = cell2mat(arrayfun(@(x) x.channel, waveforms_all, 'UniformOutput', false)');

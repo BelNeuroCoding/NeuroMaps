@@ -3,6 +3,7 @@ function save_curated_spikes(h)
     % back into res.spike_results(portIdx).waveforms_all for each experiment/port
 
     h = guidata(h.figure);
+    set_status(h.figure,'loading','Validating Spikes')
     cs = h.cumulative_spikes;
     results = h.figure.UserData;
     if ~isfield(cs,'all_waveforms') || isempty(cs.all_waveforms)
@@ -65,11 +66,15 @@ function save_curated_spikes(h)
             guidata(h.figure,h);
             h=guidata(h.figure);    
 end
+    set_status(h.figure,'loading','Computing Spike Features.')  
     spike_feats_callback(h);
     h=guidata(h.figure);
     update_spike_summary_tab(h);
 
     m = msgbox('Curated spikes saved back into experiment structures.','Success');
     pause(2);
+   
     if ishandle(m), close(m); end
+        set_status(h.figure,'ready','Curated spikes saved back into experiment structures.')
+
 end
