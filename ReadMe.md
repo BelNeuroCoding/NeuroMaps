@@ -66,12 +66,14 @@ An executable file can also be found on Zenodo: 10.5281/zenodo.19120269
 1. Click on **Probe Map Tab → Define Map**  
 2. Upload a photo containing the design or the image of interest  
 3. Use your mouse to zoom/pan to locate each electrode
-4. You will first be prompted to calibrate the pixel:\mum ratio for downstream correlation maps.
+4. You will first be prompted to calibrate the pixel:um ratio for downstream correlation maps.
+
 💡 **Tip:** Using a scalebar can be helpful for calibration.
-6. Press **Enter** to confirm the selection for an electrode; repeat for all electrodes  
-7. Once all electrodes are selected, **double-press Enter** to confirm the map  
-8. Save the probe at a desired location  
-9. Load the map before proceeding via **Probe Map Tab → Load Map**  
+
+5. Press **Enter** to confirm the selection for an electrode; repeat for all electrodes  
+6. Once all electrodes are selected, **double-press Enter** to confirm the map  
+7. Save the probe at a desired location  
+8. Load the map before proceeding via **Probe Map Tab → Load Map**  
 
 
 💡 **Tip:** Use Backspace to delete any incorrectly selected electrode location  
