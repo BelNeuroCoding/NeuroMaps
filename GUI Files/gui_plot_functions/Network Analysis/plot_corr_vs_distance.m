@@ -17,33 +17,56 @@ function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channe
     hold on
     % find high correlation distacne: > 0.8 
     distAndHighCorr = distAndCorr(distAndCorr(:, 2) >= highCorrThresh, 1); 
-    plot_hist_by_corr(distAndHighCorr, [31, 120, 180] / 255);
     % find medium correlation distances: 0.4 - 0.8 
     distAndMedCorr = distAndCorr(distAndCorr(:, 2) >= medCorrThresh & distAndCorr(:, 2) < highCorrThresh, 1); 
-    plot_hist_by_corr(distAndMedCorr, [178, 223, 138] / 255);
     % find low correlation distances: < 0.4 
     distAndLowCorr = distAndCorr(distAndCorr(:, 2) < medCorrThresh, 1);
-    plot_hist_by_corr(distAndLowCorr, [166, 206, 227] / 255);
-
+    hHigh = plot_hist_by_corr(distAndHighCorr, [31, 120, 180] / 255);
+    hMed  = plot_hist_by_corr(distAndMedCorr,  [178, 223, 138] / 255);
+    hLow  = plot_hist_by_corr(distAndLowCorr,  [166, 206, 227] / 255);
+    
+    handles = [];
+    labels  = {};
+    
+    if ~isempty(hLow)
+        handles(end+1) = hLow;
+        labels{end+1} = 'Low';
+    end
+    if ~isempty(hMed)
+        handles(end+1) = hMed;
+        labels{end+1} = 'Medium';
+    end
+    if ~isempty(hHigh)
+        handles(end+1) = hHigh;
+        labels{end+1} = 'High';
+    end
+    
+    if ~isempty(handles)
+        legend(handles, labels, ...
+            'Orientation','horizontal', ...
+            'Location','southoutside');
+    end
     xlabel('Distance (\mum)');
     ylabel('Number of Connections');
     title('Correlation vs Distance Based on STTC')
     set(gca,'TickDir','out')
     axis square; box off; set(gca,'Color','none');
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
-    set_status(h.figure,"loading","Plotting Network Correlation/Distance...");
+    set_status(h.figure,"ready","Plotting Network Correlation/Distance...");
 
 end
 
-function plot_hist_by_corr(distVals, col)
-    numbins = 15; fitmethod = 'gamma';
+function hfit = plot_hist_by_corr(distVals, col)
+    numbins = 15; 
+    fitmethod = 'gamma';
+
+    hfit = [];
 
     if any(distVals)
-        h = histfit(distVals,numbins,fitmethod,'Color',col); 
-        set(h(2),'Color',col)
-        delete(h(1))
+        h = histfit(distVals, numbins, fitmethod, 'Color', col);
+        set(h(2),'Color',col)   % fitted curve
+        delete(h(1))            % remove histogram bars
         hold on
+        hfit = h(2);            % return line handle
     end
-
-    legend({'Low','Medium','High'},'Orientation','horizontal', 'Location','southoutside');
 end

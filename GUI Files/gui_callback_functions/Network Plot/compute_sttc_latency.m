@@ -47,7 +47,7 @@ function compute_sttc_latency(h, dtv)
     else
         selectedStrings = get(h.clusterListBox,'String');  % all strings in listbox
         selectedIdx     = get(h.clusterListBox,'Value');   % indices of selected strings
-        if ~isempty(selectedIdx)
+        if ~isempty(selectedStrings)
                 selectedClusters = str2double(selectedStrings(selectedIdx));
                 networkconndata = networkconndata(ismember([networkconndata.clusters], selectedClusters));
                 clusterStr = sprintf('Clusters: [%s]', strjoin(selectedStrings(selectedIdx), ','));

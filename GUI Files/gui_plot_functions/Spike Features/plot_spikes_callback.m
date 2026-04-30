@@ -183,8 +183,8 @@ function plot_spikes_callback(h)
     h.currentPage = 1;
 
     % buttons
-    btnPrev = uicontrol(h.spikes_tab,'Style','pushbutton','String','<','Position',[10 2 30 30],'Callback',@(s,e) changePage(-1));
-    btnNext = uicontrol(h.spikes_tab,'Style','pushbutton','String','>','Position',[50 2 30 30],'Callback',@(s,e) changePage(1));
+    btnPrev = uicontrol(h.spikes_tab,'Style','pushbutton','String','<','Position',[10 2 30 30],'Callback',@(s,e) changePage(-1,h));
+    btnNext = uicontrol(h.spikes_tab,'Style','pushbutton','String','>','Position',[50 2 30 30],'Callback',@(s,e) changePage(1,h));
     btnSave = uicontrol(h.spikes_tab,'Style','pushbutton','String','Save','Position',[90 2 50 30],...
                         'BackgroundColor',backgdcolor,'ForegroundColor',accentcolor,'Callback',@(s,e) saveSpikePlots());
     h.spike_plot_button = uicontrol('Style','pushbutton','Parent',h.spikes_tab,'String','Plot Spikes','Units','normalized','Position',[0.8,0.0,0.18,0.05],'BackgroundColor',backgdcolor,'ForegroundColor',accentcolor,'Callback',@(s,e) plot_spikes_callback(h));
@@ -199,8 +199,8 @@ function plot_spikes_callback(h)
 
 end
  
-function changePage(delta)
-    h = guidata(gcbf);
+function changePage(delta,h)
+    h = guidata(h.figure);
     h.currentPage = max(1,min(h.nPages,h.currentPage + delta));
     guidata(h.figure,h);
     updateAxes(h);
@@ -212,7 +212,7 @@ function updateAxes(h)
     % Clear old plots but keep buttons
     children = get(h.spikes_tab,'Children');
     buttons = h.page_buttons;
-    delete(setdiff(children, [buttons,h.spike_plot_button,h.filter_spikes_button,h.plot_settings_spikes_button]));
+    delete(setdiff(children, [buttons(1:3),h.spike_plot_button,h.filter_spikes_button,h.plot_settings_spikes_button]));
 
     tl = tiledlayout(h.spikes_tab,4,4,'TileSpacing','loose','Padding','compact');
 

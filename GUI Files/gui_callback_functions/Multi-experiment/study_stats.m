@@ -123,7 +123,10 @@ function study_stats(h)
 
             chans = cs.channels(mask); tstamp = cs.rec_time(mask); fwhm = cs.fwhm(mask);
             ptp = cs.ptp_amplitude(mask); spike_times = cs.spike_times(mask); unique_chans = unique(chans);
-            duration_sec = unique(tstamp); impedance = cs.impedance(mask_spec);
+            duration_sec = unique(tstamp); 
+            if ~isempty(cs.impedance)
+                impedance = cs.impedance(mask_spec);
+            end
             chans_spec = cs.spec_chans(mask_spec);
 
             switch metric_name

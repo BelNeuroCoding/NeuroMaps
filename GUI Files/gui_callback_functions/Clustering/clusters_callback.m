@@ -53,14 +53,14 @@ mode_choice = questdlg('Choose clustering mode:', ...
                        'Clustering Method', ...
                        'PCA/KMEANS','PCA/GM', 'GMM (Souza et al)',...
                        'PCA/KMEANS');
-tic
+
 all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
 X_scaled = zscore(double(all_waveforms),0,2);
 if isempty(mode_choice)
     detected_clusters = [];
     return;
 elseif strcmp(mode_choice,'PCA/KMEANS')
-    [coeff,score,latent,tsquared,explained] = pca(X_scaled); % PCA Feature Extraction
+    [coeff,score,latent,tsquared,explained] = pca(all_waveforms); % PCA Feature Extraction
     reduced_data = score(:,1:2);
     [clusters, centroid] = kmeans(reduced_data,clusternum);
     clust = num2cell(clusters);
@@ -68,7 +68,7 @@ elseif strcmp(mode_choice,'PCA/KMEANS')
 elseif strcmp(mode_choice,'GMM (Souza et al)')
     clusters = ClusterDataGMM_MNG([all_waveforms]);
 else
-    [coeff,score,latent,tsquared,explained] = pca(X_scaled); % PCA Feature Extraction
+    [coeff,score,latent,tsquared,explained] = pca(all_waveforms); % PCA Feature Extraction
     % Use enough components to explain a significant portion of variance
     explained_variance = 95; % in percentage
     num_components = find(cumsum(explained) >= explained_variance, 1);
@@ -81,8 +81,6 @@ else
     clusters = cluster(gm, principal_components);
     end
 end
-total_time = toc;
-fprintf('Total time for Clustering %.3f s',total_time)
 set(h.fr_clust_toggle,'Visible','on');
 clust = num2cell(clusters);
 [waveforms_all.clusters] = deal(clust{:});

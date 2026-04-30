@@ -57,12 +57,15 @@ delete(findobj(children, 'Type', 'axes'));  % clear previous axes
 
 h.fooofed_axes(1) = subplot(2,1,1, 'Parent', h.foof_tab); hold on;
 h.fooofed_axes(2) = subplot(2,1,2, 'Parent', h.foof_tab); hold on;
+cla(h.fooofed_axes(2), 'reset');
+
+ax = h.fooofed_axes(2);
 
 nPorts = numel(all_psds);                 % number of selected ports
 colors = lines(nPorts);                    % one color per port
 
 hold(h.fooofed_axes(1), 'on');
-hold(h.fooofed_axes(2), 'on');
+hold(ax, 'on');
 set_status(h.figure,"loading","Plotting FOOOF...");
 
 
@@ -85,9 +88,9 @@ for p = 1:nPorts
          'LineWidth', 1.5, 'DisplayName', port_labels{p});
 
     % Bottom plot: PSD + fits
-    hLinePSD(p) = plot(h.fooofed_axes(2), freqs(1,:), avg_psd, 'Color', colors(p,:), 'LineWidth', 1.5);
-    plot(h.fooofed_axes(2), freqs(1,:), avg_fooofed, '--', 'Color', colors(p,:), 'LineWidth', 1.5);
-    plot(h.fooofed_axes(2), freqs(1,:), avg_apfit, ':', 'Color', colors(p,:), 'LineWidth', 1.5);
+    hLinePSD(p) = plot(ax, freqs(1,:), avg_psd, 'Color', colors(p,:), 'LineWidth', 1.5);
+    plot(ax, freqs(1,:), avg_fooofed, '--', 'Color', colors(p,:), 'LineWidth', 1.5);
+    plot(ax, freqs(1,:), avg_apfit, ':', 'Color', colors(p,:), 'LineWidth', 1.5);
 end
 
 % Top plot finalization
@@ -99,16 +102,16 @@ grid(h.fooofed_axes(1), 'on');
 pbaspect(h.fooofed_axes(1), [2 1 1]);
 
 % Bottom plot finalization
-xlabel(h.fooofed_axes(2), 'Frequency (Hz)');
-ylabel(h.fooofed_axes(2), 'Power (\muV^2/Hz)');
-title(h.fooofed_axes(2), 'PSD and FOOOF Fits by Port');
-legend(h.fooofed_axes(2), hLinePSD, port_labels, 'Location', 'northeast'); % only PSD lines
-set(h.fooofed_axes(2), 'XScale', 'linear', 'YScale', 'linear', 'TickDir','out');
-grid(h.fooofed_axes(2), 'on');
-pbaspect(h.fooofed_axes(2), [2 1 1]);
+xlabel(ax, 'Frequency (Hz)');
+ylabel(ax, 'Power (\muV^2/Hz)');
+title(ax, 'PSD and FOOOF Fits by Port');
+legend(ax, hLinePSD, port_labels, 'Location', 'northeast'); % only PSD lines
+set(ax, 'XScale', 'linear', 'YScale', 'linear', 'TickDir','out');
+grid(ax, 'on');
+pbaspect(ax, [2 1 1]);
 
 hold(h.fooofed_axes(1), 'off');
-hold(h.fooofed_axes(2), 'off');
+hold(ax, 'off');
 box off
 
 
@@ -156,27 +159,26 @@ else
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
     
     h.fooofed_axes(2) = subplot(2,1,2, 'Parent', h.foof_tab);
-    plot(h.fooofed_axes(2),all_freqs(SeriesNumber,:), all_psds(SeriesNumber,:), 'k','LineWidth',1.5);
-    hold on
+    cla(h.fooofed_axes(2), 'reset');
+    ax = h.fooofed_axes(2);
+    hold(ax, 'on');
+    plot(ax,all_freqs(SeriesNumber,:), all_psds(SeriesNumber,:), 'k','LineWidth',1.5);
     % Plot the full model fit
-    plot(h.fooofed_axes(2),all_freqs(SeriesNumber,:),all_fooofed_spectrum(SeriesNumber,:),'r--','LineWidth',1.5);
-    hold on
+    plot(ax,all_freqs(SeriesNumber,:),all_fooofed_spectrum(SeriesNumber,:),'r--','LineWidth',1.5);
     % Plot the aperiodic fit
-    plot(h.fooofed_axes(2),all_freqs(SeriesNumber,:), all_apfit(SeriesNumber,:), 'b--','LineWidth',1.5);
-    hold on
+    plot(ax,all_freqs(SeriesNumber,:), all_apfit(SeriesNumber,:), 'b--','LineWidth',1.5);
     %xlim(h.fooofed_axes(2),[1, 200]); % Keep x-axis consistent
     %ylim([0, 1]); % Ensure valid range for linear scale
-    set(h.fooofed_axes(2), 'XScale', 'linear', 'YScale', 'linear'); 
-    set(h.fooofed_axes(2), 'TickDir', 'out')
-    xlabel(h.fooofed_axes(2),'Frequency (Hz)')
-    grid on
-    grid minor
-    box off
-    ylabel(h.fooofed_axes(2),'Log(Power) (dB/Hz)')
+    set(ax, 'XScale', 'linear', 'YScale', 'linear','TickDir', 'out'); 
+    xlabel(ax,'Frequency (Hz)')
+    grid(ax,'on')
+    grid(ax,'minor')
+    box(ax,'off')
+    ylabel(ax,'Log(Power) (dB/Hz)')
     %ylim(h.fooofed_axes(2),[-2 2])
-    pbaspect(h.fooofed_axes(2),[2 1 1])
-    legend('Original Spectrum', 'Full Model Fit', 'Aperiodic Fit','Location','northeast')
-    hold off;
+    pbaspect(ax,[2 1 1])
+    legend(ax,{'Original PSD', 'Full Fit', 'Aperiodic Fit'},'Location','northeast')
+    hold(ax,'off');
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
     end
 end
