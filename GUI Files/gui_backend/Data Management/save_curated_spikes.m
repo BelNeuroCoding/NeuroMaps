@@ -70,6 +70,10 @@ end
     spike_feats_callback(h);
     h=guidata(h.figure);
     update_spike_summary_tab(h);
+    if isfield(h,'clusterListBox')
+        clusters = cs.cluster_idx;
+        set(h.clusterListBox, 'Value',1:numel(unique(clusters)),'String',cellstr(num2str(unique(clusters))));
+    end
 
     m = msgbox('Curated spikes saved back into experiment structures.','Success');
     pause(2);

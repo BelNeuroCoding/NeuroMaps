@@ -72,10 +72,10 @@ function plot_all_clusters(h)
         for k = 1:numel(selected_clusters)
             c = selected_clusters(k);
             scatter(ax1, score(cluster_idx_sel==c,1), score(cluster_idx_sel==c,2), ...
-                    20, colors(c,:), 'filled', 'MarkerFaceAlpha',0.6, 'MarkerEdgeAlpha',0.6);
+                    20, colors(k,:), 'filled', 'MarkerFaceAlpha',0.6, 'MarkerEdgeAlpha',0.6);
         end
         xlabel(ax1,'PC1'); ylabel(ax1,'PC2'); title(ax1,'PCA by Cluster');
-        legend(ax1, arrayfun(@(k) sprintf('Cluster %d', k), 1:numel(selected_clusters),'UniformOutput',false), ...
+        legend(ax1, arrayfun(@(k) sprintf('Cluster %d', selected_clusters(k)), 1:numel(selected_clusters),'UniformOutput',false), ...
                'Location','northeastoutside');
     end
     grid(ax1,'on'); axis(ax1,'tight'); hold(ax1,'off');

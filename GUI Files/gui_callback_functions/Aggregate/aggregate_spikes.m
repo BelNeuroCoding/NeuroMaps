@@ -45,10 +45,11 @@ function aggregate_spikes(h)
 
         if ~isempty(wf_all)
             % Interpolate all waveforms to 200 points
-            wf_mat = cell2mat(arrayfun(@(x) x.spike_shape(:)', wf_all,'UniformOutput',false)');
-            x = 1:size(wf_mat,2);
-            xq = linspace(1, size(wf_mat,2), 200);
-            wf_interp = interp1(x, wf_mat.', xq, 'spline').';
+            wf_interp = cell2mat(arrayfun(@(x) x.spike_shape(:)', wf_all,'UniformOutput',false)');
+            
+            %x = 1:size(wf_mat,2);
+            %xq = linspace(1, size(wf_mat,2), 200);
+            %wf_interp = interp1(x, wf_mat.', xq, 'spline').';
 
             % Flip spikes so peak is positive
             max_vals = abs(wf_interp(:,round(size(wf_interp,2)/2)));
