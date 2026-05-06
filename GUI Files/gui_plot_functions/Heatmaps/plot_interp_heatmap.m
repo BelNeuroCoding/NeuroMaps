@@ -144,7 +144,7 @@ function plot_interp_heatmap(var, chans, Zlabel,x_coords,y_coords, mean_waveform
         min_dist = min(dists);
         
         % Scale scatter size as a fraction of the min distance
-        scatter_size = (min_dist/5)^2;  % adjust denominator to make dots bigger/smaller
+        scatter_size = (min_dist/8)^2;  % adjust denominator to make dots bigger/smaller
         for i = 1:length(chans)
             scatter(ax,x_coords(chans(i)+1), y_coords(chans(i)+1), scatter_size, fr_color(i,:), 'filled'); % Adjust size (100) and color ('w' for white)
         end
