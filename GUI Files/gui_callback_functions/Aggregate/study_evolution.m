@@ -520,6 +520,7 @@ end
 ylabel(ax, ylab);
 box(ax, 'off');
 hold(ax,'off');
+axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
 
 end
 

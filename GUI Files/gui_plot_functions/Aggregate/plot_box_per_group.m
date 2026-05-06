@@ -27,6 +27,8 @@ function plot_box_per_group(ax, group_data, colors, ylab,ylims)
     end
     ylabel(ax,ylab); box(ax,'off'); hold(ax,'off');
     set(ax,'TickDir','out')
+    axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
+
     if nargin>4
         ylim(ax,ylims)
     end
