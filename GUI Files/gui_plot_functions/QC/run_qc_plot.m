@@ -125,10 +125,11 @@ end
 function toggleVisibility(evt, ax) 
 tag = evt.Peer.Tag; 
 objs = findobj(ax.Parent,'Tag',tag); % find across all subplots 
-if strcmp(objs(1).Visible,'on') 
-    set(objs,'Visible','off'); 
-else set(objs,'Visible','on'); 
-end 
+set(objs,'Visible','on'); 
+%if strcmp(objs(1).Visible,'on') 
+ %   set(objs,'Visible','off'); 
+%else set(objs,'Visible','on'); 
+%end 
 end
 
 

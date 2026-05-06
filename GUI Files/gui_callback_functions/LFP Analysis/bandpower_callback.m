@@ -1,5 +1,7 @@
 function bandpower_callback(h)
     h = guidata(h.figure);
+    set_status(h.figure,"loading","Plotting Bandpower Heatmap...");
+
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
     %%  Get selected port 
@@ -130,6 +132,8 @@ function bandpower_callback(h)
             end
             axes(h.band_axes(b))
             plot_interp_heatmap(power_in_bands(:,b), channels, [tit band_names{b}], x_coords, y_coords);
+            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+
         end
     else 
         %  Time-resolved mode 
@@ -162,44 +166,67 @@ function bandpower_callback(h)
             cla(h.band_axes(b), 'reset');         % clear old content
             M = squeeze(bp(:,b,:));                  % [channels x time]
             upper = prctile(M(:), 99);  % cap at 99th percentile
-            imagesc(t, 1:num_channels, M);          % X=time, Y=channel
+            imagesc(h.band_axes(b),t, 1:num_channels, M);          % X=time, Y=channel
             axis xy                                 % channel 1 at bottom
             xlabel('Time (s)');
             ylabel('Channel');
-            title([tit band_names{b}]);
+            title(h.band_axes(b),[tit band_names{b}]);
             yticks(1:num_channels);          % row positions
             yticklabels(channels);            % show actual channel IDs
-            clim([0 ceil(upper)]);
-            colorbar;
+            clim(h.band_axes(b),[0 ceil(upper)]);
+            colorbar(h.band_axes(b));
+            axtoolbar(h.band_axes(b),{'save','zoomin','zoomout','restoreview','pan'});
+
         end
     end
     guidata(h.figure,h)
     %  Display table + save button 
     if exist('power_in_bands','var')
-    T = array2table([channels' power_in_bands], 'VariableNames', [{'Channels'} band_names]);
+    %T = array2table([channels' power_in_bands], 'VariableNames', [{'Channels'} band_names]);
     if isfield(h,'bandpower_table_fig') && isvalid(h.bandpower_table_fig)
         delete(h.bandpower_table_fig)
     end
-    h.bandpower_table_fig = figure('Name','Bandpower Table','NumberTitle','off',...
-                                   'MenuBar','figure','ToolBar','figure',...
-                                   'Position',[100 100 400 600]);
-    h.bandpower_table = uitable('Parent', h.bandpower_table_fig, ...
-        'Data', T{:,:}, ...
-        'ColumnName', T.Properties.VariableNames, ...
-        'Units','normalized', ...
-        'Position',[0.05 0.55 0.9 0.4]);
-    h.save_table_btn = uicontrol('Style','pushbutton', ...
-        'Parent', h.bandpower_table_fig, ...
-        'String','Save Table', ...
-        'Units','normalized', ...
-        'Position',[0.4 0.5 0.2 0.05], ...
-        'Callback', @(src,event) saveBandPowerTable(T));
+        % Create new figure
+    h.bandpower_table_fig = uifigure('Name','Bandpower'); 
+    gl = uigridlayout(h.bandpower_table_fig, [2 1]);
+    gl.RowHeight = {'1x', 40};  % table gets all space, button fixed height
+    tableData = array2table(power_in_bands, ...
+    'VariableNames', band_names);
+
+    tableData = addvars(tableData, channels', ...
+    'Before', 1, 'NewVariableNames', 'Channel');
+    
+    % Table in row 1
+    h.bandpower_table = uitable(gl, ...
+        'Data', tableData, ...
+        'ColumnName', tableData.Properties.VariableNames);
+    
+    % Button in row 2
+    if ~isfield(h,'saveBPTableBtn') || ~isvalid(h.saveBPTableBtn)
+    h.saveBPTableBtn = uibutton(gl, ...
+        'Text','Save Table', ...
+        'ButtonPushedFcn', @(src,event) save_csv_table(h.bandpower_table.Data,'Bandpower Output'));
     end
-    %  Callback to save table 
-    function saveBandPowerTable(T)
-        [filename, pathname] = uiputfile('*.csv','Save Band Power Table As');
-        if ischar(filename)
-            writetable(T, fullfile(pathname, filename));
-        end
+    set_status(h.figure,"ready","Plotting Bandpower Heatmap...");
+
+
+    % h.bandpower_table = uitable('Parent', h.bandpower_table_fig, ...
+    %     'Data', T{:,:}, ...
+    %     'ColumnName', T.Properties.VariableNames, ...
+    %     'Units','normalized', ...
+    %     'Position',[0.05 0.55 0.9 0.4]);
+    % h.save_table_btn = uicontrol('Style','pushbutton', ...
+    %     'Parent', h.bandpower_table_fig, ...
+    %     'String','Save Table', ...
+    %     'Units','normalized', ...
+    %     'Position',[0.4 0.5 0.2 0.05], ...
+    %     'Callback', @(src,event) saveBandPowerTable(T));
+    
+    % %  Callback to save table 
+    % function saveBandPowerTable(T)
+    %     [filename, pathname] = uiputfile('*.csv','Save Band Power Table As');
+    %     if ischar(filename)
+    %         writetable(T, fullfile(pathname, filename));
+    %     end
     end
 end

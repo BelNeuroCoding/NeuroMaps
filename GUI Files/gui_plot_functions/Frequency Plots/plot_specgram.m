@@ -18,7 +18,7 @@ if iscell(h.figure.UserData)
 else
     results = h.figure.UserData;
 end
-
+current_port = results.ports(port_idx).port_id;
 %% Get signal type
 labelObj = get(h.formatToggleGroup, 'SelectedObject');
 label = '';
@@ -143,7 +143,7 @@ c.Label.String = 'Power (dB)';
 ylim(h.specgram_axes, [h.specgram_props.fmin,h.specgram_props.fmax]);
 xlabel(h.specgram_axes,'Time (s)');
 ylabel(h.specgram_axes,'Frequency (Hz)');
-title(h.specgram_axes,[label ' Spectrogram Ch: ' num2str(current_ch)]);
+title(h.specgram_axes,[label ' Spectrogram Ch: ' num2str(current_ch) ' Port: ' num2str(current_port)]);
 axtoolbar(h.specgram_axes,{'datacursor','save','zoomin','zoomout','restoreview','pan'});
 
 set_status(h.figure,"ready","Spectrogram Plot Complete...");

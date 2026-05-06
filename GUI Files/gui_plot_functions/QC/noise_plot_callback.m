@@ -96,5 +96,6 @@ for i = 1:numTiles
     set(h.summary_text,'String',currentText);
 end
 set_status(h.figure,"ready","Noise Plot Complete...");
+guidata(h.figure,h);
 
 end

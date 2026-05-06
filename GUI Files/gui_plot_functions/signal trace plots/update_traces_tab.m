@@ -14,6 +14,7 @@ SeriesNumber = round(get(h.series_slider, 'Value'));
 results = h.figure.UserData;
 if ~iscell(results), results = {results}; end
 results = results{expIdx};
+current_port = results.ports(port_idx).port_id;
 % Mask channels based on toggles
 channels = [results.channels(port_idx).id];
 mask = true(1,numel(channels));
@@ -34,7 +35,7 @@ prange = 1:size(Observations,2);
 if isfield(results.signals(port_idx),'raw')
     set(h.trLines.raw, 'XData', Timestamps(prange), ...
                        'YData', Observations(SeriesNumber,prange));
-    set(h.trTitles.raw, 'String', ['Broadband Signal Ch: ' num2str(channels(SeriesNumber))]);
+    set(h.trTitles.raw, 'String', ['Broadband Signal Ch: ' num2str(channels(SeriesNumber)) ' Port: ' num2str(current_port)]);
     
 end
 
@@ -52,7 +53,7 @@ if isfield(results.signals(port_idx),'ref')
     set(h.trLines.ref_thresh(2),'YData', -STDEVMIN*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.ref_thresh(3),'YData', STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.ref_thresh(4),'YData', -STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
-    set(h.trTitles.ref, 'String', ['Reference Signal Ch: ' num2str(channels(SeriesNumber))]);
+    set(h.trTitles.ref, 'String', ['Reference Signal Ch: ' num2str(channels(SeriesNumber)) ' Port: ' num2str(current_port)]);
 end
 
 % - HPF -
@@ -68,14 +69,14 @@ if isfield(results.signals(port_idx),'hpf')
     set(h.trLines.hpf_thresh(2),'YData', -STDEVMIN*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.hpf_thresh(3),'YData', STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
     set(h.trLines.hpf_thresh(4),'YData', -STDEVMAX*med_abs*ones(size(prange)), 'XData', Timestamps(prange));
-    set(h.trTitles.hpf, 'String', ['High Freq Signal Ch: ' num2str(channels(SeriesNumber))]);
+    set(h.trTitles.hpf, 'String', ['High Freq Signal Ch: ' num2str(channels(SeriesNumber)) ' Port: ' num2str(current_port)]);
 end
 
 % - LFP -
 if isfield(results.signals(port_idx),'lfp')
     LFPData = results.signals(port_idx).lfp(mask,:);
     set(h.trLines.lfp,'XData', results.resampled_time, 'YData', LFPData(SeriesNumber,:));
-    set(h.trTitles.lfp, 'String', ['LFP Signal Ch: ' num2str(channels(SeriesNumber))]);
+    set(h.trTitles.lfp, 'String', ['LFP Signal Ch: ' num2str(channels(SeriesNumber)) ' Port: ' num2str(current_port)]);
 end
 
 drawnow limitrate;

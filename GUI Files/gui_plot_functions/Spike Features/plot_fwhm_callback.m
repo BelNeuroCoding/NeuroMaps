@@ -29,6 +29,8 @@ function plot_fwhm_callback(h)
         else
             results = h.figure.UserData;
         end
+        current_port = results.ports(port_idx).port_id;
+
 
         waveforms_all = results.spike_results(port_idx).waveforms_all;
         ptp  = [waveforms_all.ptp_amplitude]';
@@ -93,11 +95,12 @@ function plot_fwhm_callback(h)
                 fwhm_data{c} = [waveforms_all(idxCh).fwhm];
             else
                 fwhm_data{c} = [];
+                msgbox(['No FWHM Data in Ch ' num2str(ch)])
             end
         end
 
         data(i).expIdx = expIdx;
-        data(i).portIdx = port_idx;
+        data(i).portIdx = current_port;
         data(i).channels = chansToPlot;
         data(i).fwhm_data = fwhm_data;
     end

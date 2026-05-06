@@ -161,7 +161,7 @@ function [good_channels, bad_chs] = evaluate_chans(channels, impedance,data, fs,
     bad_chs.bad_channels_std = bad_channels_std;
     bad_chs.bad_channels_mad = bad_channels_mad;
     bad_chs.bad_channels_psd = bad_channels_psd;
-    bad_chs.channels_dead = good_channels(dead_channels_idx);
+    bad_chs.channels_dead = channels(dead_channels_idx);
     % Display results
     fprintf('Filtering complete: %d good channels found.\n', numel(good_channels));
 end

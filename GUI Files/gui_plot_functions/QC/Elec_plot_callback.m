@@ -23,9 +23,6 @@ for k = 1:length(children)
     end
 end
 
-% Create top-level uitabgroup for ports
-tg_ports = uitabgroup(h.ZC_tab,'Units','normalized', ...
-        'Position',[0 0.06 1 0.94]);
 
 % Get topography overlay options
 topo_togg = get(h.bg.SelectedObject,'String');
@@ -45,9 +42,12 @@ else
 end
 
 numPorts = size(selected,1);
-
+tg_ports = uitabgroup(h.ZC_tab,'Units','normalized', ...
+        'Position',[0 0.06 1 0.94]);
 for i = 1:numPorts
     expIdx = selected(i,1);
+    % Create top-level uitabgroup for ports
+
 
     % Extract results for this experiment
     if iscell(h.figure.UserData)
@@ -80,10 +80,16 @@ for i = 1:numPorts
             histogram(axZ,Z,10,'FaceColor',[0 0.5 0.5],'EdgeColor','k');
             xlabel(axZ,['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)']);
             ylabel(axZ,'Counts'); axis(axZ,'square');
+            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
+
         case 'Simple Map'
             plot_heatmap_callback(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,imgFile,[],[],axZ);
+            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
+
         case 'Topographic Map'
             plot_interp_heatmap(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,[],imgFile,[],axZ);
+            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
+
     end
 
     % Capacitance sub-tab
@@ -94,11 +100,16 @@ for i = 1:numPorts
             histogram(axC,C,10,'FaceColor',[1 0.5 0.31],'EdgeColor','k');
             xlabel(axC,['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)']);
             ylabel(axC,'Counts'); axis(axC,'square');
+            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
+
         case 'Simple Map'
             plot_heatmap_callback(C, port_chans, ['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)'], x_coords, y_coords,imgFile,[],[],axC);
-            
+            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
+
         case 'Topographic Map'
             plot_interp_heatmap(C, port_chans, ['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)'], x_coords, y_coords,[],imgFile,[],axC);
+            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
+
     end
 end
 

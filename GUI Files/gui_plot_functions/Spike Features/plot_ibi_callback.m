@@ -26,6 +26,8 @@ function plot_ibi_callback(h)
         else
             results = h.figure.UserData;
         end
+        current_port = results.ports(port_idx).port_id;
+
         waveforms_all = results.spike_results(port_idx).waveforms_all;
         ptp  = [waveforms_all.ptp_amplitude]';
         fwhm = [waveforms_all.fwhm]';
@@ -93,11 +95,13 @@ function plot_ibi_callback(h)
             else
                 IBI_data{c} = [];
                 numBursts(c) = 0;
+                msgbox(['No Bursting Data in Ch ' num2str(ch)])
+
             end
         end
 
         data(i).expIdx = expIdx;
-        data(i).portIdx = port_idx;
+        data(i).portIdx = current_port;
         data(i).channels = chansToPlot;
         data(i).IBI_data = IBI_data;
         data(i).numBursts = numBursts;

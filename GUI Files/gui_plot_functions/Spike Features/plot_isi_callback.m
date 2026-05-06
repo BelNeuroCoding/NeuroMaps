@@ -27,6 +27,7 @@ function plot_isi_callback(h)
         else
             results = h.figure.UserData;
         end
+        current_port = results.ports(port_idx).port_id;
 
         waveforms_all = results.spike_results(port_idx).waveforms_all;
         ptp  = [waveforms_all.ptp_amplitude]';
@@ -97,11 +98,13 @@ function plot_isi_callback(h)
                 ISI_ms{c} = [ISI_vals]*1000;  
             else
                 ISI_ms{c} = [];
+                msgbox(['No ISI Data in Ch ' num2str(ch)])
+
             end
         end
 
         data(i).expIdx = expIdx;
-        data(i).portIdx = port_idx;
+        data(i).portIdx = current_port;
         data(i).channels = chansToPlot;
         data(i).ISI_ms = ISI_ms;
     end

@@ -82,7 +82,8 @@ function compute_sttc_latency(h, dtv)
         end
 
     %  Plot results
-    titleStr = sprintf('Exp %d, Port %d\n%s',expIdx,selected_idx,clusterStr);
+    current_port = results.ports(selected_idx).port_id;
+    titleStr = sprintf('Exp %d, Port %d\n%s',expIdx,current_port,clusterStr);
     plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels,titleStr);
     set_status(h.figure,"ready","STTC Complete...");
 

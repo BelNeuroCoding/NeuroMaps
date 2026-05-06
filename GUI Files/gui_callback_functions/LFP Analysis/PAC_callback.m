@@ -1,5 +1,6 @@
 function PAC_callback(h)
     h = guidata(h.figure);
+    set_status(h.figure,"loading","PAC...");
 
     backgdcolor = [1, 1, 1]; % Background Colours RGB - default white
     accentcolor = [0.1, 0.4, 0.6]; % Accent Colours RGB
@@ -133,7 +134,7 @@ function PAC_callback(h)
                     binCenters = MI_results.([ph_name '_' amp_name '_binCenters']);
                     amplP = MI_results.([ph_name '_' amp_name '_amplP']);
                     bar(ax, [rad2deg(binCenters)+200 rad2deg(binCenters+2*pi)+200], [amplP amplP]);
-
+                    axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
                     title(ax, sprintf('Ch %d : Ch %d', ch1, ch2));
                     ylabel(ax, 'MI');
                     xlabel(ax,'Phase (Degrees)')
@@ -143,5 +144,5 @@ function PAC_callback(h)
         end
     end
     toc
-    disp('PAC/MI computation complete.');
+    set_status(h.figure,"ready","PAC...");
 end

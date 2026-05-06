@@ -55,30 +55,37 @@ for i = 1:numTiles
         ylabel('Counts')
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
         axis square
+        
     elseif strcmp(topo_togg,'Simple Map')    
         [x_coords,y_coords,maps] = load_probe_map(h);
         axes(axApoff)
         hold(ax,'on')
         plot_heatmap_callback(all_aperiodic_params(:,1),chans,'Aperiodic Offset',x_coords,y_coords)
         axis square
+        axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+
     
         axes(axApexp)
         hold(ax,'on')
         plot_heatmap_callback(all_aperiodic_params(:,2),chans,'Aperiodic Exponent',x_coords,y_coords)
         axis square
+        axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+
     elseif strcmp(topo_togg,'Topographic Map')
         [x_coords,y_coords,maps] = load_probe_map(h);
         axes(axApoff)
         plot_interp_heatmap(all_aperiodic_params(:,1),chans,'Aperiodic Offset',x_coords,y_coords)
         axis square
-    
+        axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+
         axes(axApexp)
         plot_interp_heatmap(all_aperiodic_params(:,2),chans,'Aperiodic Exponent',x_coords,y_coords)
         axis square
+        axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+
 end
 set_status(h.figure,"ready","Exponent Heatmap Plot Complete...");
 
-axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
 end
 %  Create table figure 
@@ -88,27 +95,26 @@ if isfield(h,'exps_table_fig') && isvalid(h.exps_table_fig)
     set(h.exps_table, 'Data', [ chans' all_aperiodic_params(:,1) all_aperiodic_params(:,2)]);
 else
     % Create new figure
-    h.exps_table_fig = figure('Name','Aperiodic Params','NumberTitle','off',...
-                            'MenuBar','figure','ToolBar','figure',...
-                            'Position',[100 100 400 600]); % adjust size
+    h.exps_table_fig = uifigure('Name','Aperiodic Params'); 
+    gl = uigridlayout(h.exps_table_fig, [2 1]);
+    gl.RowHeight = {'1x', 40};  % table gets all space, button fixed height
+    
     tableData = table(chans', all_aperiodic_params(:,1),all_aperiodic_params(:,2), ...
-                      'VariableNames', {'Channel','Offset','Exponent'});
-    h.exps_table = uitable('Parent',h.exps_table_fig,...
-                         'Data', tableData{:,:},...
-                         'ColumnName', tableData.Properties.VariableNames,...
-                         'Units','normalized','Position',[0 0 1 1]);
+        'VariableNames', {'Channel','Offset','Exponent'});
+    
+    % Table in row 1
+    h.exps_table = uitable(gl, ...
+        'Data', tableData, ...
+        'ColumnName', tableData.Properties.VariableNames);
+    
+    % Button in row 2
+    if ~isfield(h,'saveexpTableBtn') || ~isvalid(h.saveexpTableBtn)
+    h.saveexpTableBtn = uibutton(gl, ...
+        'Text','Save Table', ...
+        'ButtonPushedFcn', @(src,event) save_csv_table(h.exps_table.Data,'FOOF Output'));
+    end
+
 end
 
-h.saveTableBtn = uicontrol('Parent', h.exps_table_fig, ...
-                           'Style','pushbutton', ...
-                           'String','Save Table', ...
-                           'Units','normalized', ...
-                           'Position',[0.8 0.02 0.15 0.05], ...
-                           'Callback', @(src,event) save_exp_table(h));
-    function save_exp_table(T)
-        [filename, pathname] = uiputfile('*.csv','Save FOOF Analysis Table As');
-        if ischar(filename)
-            writetable(T, fullfile(pathname, filename));
-        end
-    end
+
 end

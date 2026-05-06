@@ -100,6 +100,7 @@ title(h.fooofed_axes(1), 'Oscillatory Power by Port');
 legend(h.fooofed_axes(1), 'show', 'Location', 'northeast');
 grid(h.fooofed_axes(1), 'on');
 pbaspect(h.fooofed_axes(1), [2 1 1]);
+axtoolbar(h.fooofed_axes(1),{'save','zoomin','zoomout','restoreview','pan'});
 
 % Bottom plot finalization
 xlabel(ax, 'Frequency (Hz)');
@@ -109,10 +110,12 @@ legend(ax, hLinePSD, port_labels, 'Location', 'northeast'); % only PSD lines
 set(ax, 'XScale', 'linear', 'YScale', 'linear', 'TickDir','out');
 grid(ax, 'on');
 pbaspect(ax, [2 1 1]);
+axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
 
 hold(h.fooofed_axes(1), 'off');
 hold(ax, 'off');
 box off
+
 
 
 else

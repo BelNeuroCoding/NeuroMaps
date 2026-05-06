@@ -112,12 +112,12 @@ function plot_cwt(h,src)
     yticks = 2.^round(log2(minf):log2(maxf));
     yticks = yticks(yticks>=minf & yticks<=maxf);
     set(h.cwt_axes,'YTick',yticks, 'YScale','log');
-    surface(resampled_time,f,abs(wt));
+    surface(h.cwt_axes,resampled_time,f,abs(wt));
     shading flat
     axis tight
     % imagesc(T, F, pow2db(P));
     set(h.cwt_axes,'YDir','normal')
-    c=colorbar;
+    c=colorbar(h.cwt_axes);
 %    caxis([0 round(max(power_dB(:))*1.1)])
     c.Label.String='|Wavelet Coefficients|';
     c.FontSize = 12;
@@ -126,7 +126,7 @@ function plot_cwt(h,src)
     %spectrogram(LFPData(SeriesNumber, :), spWindow, [], [], resampleFs, 'yaxis'); % compute spectrogram
     ylim(h.cwt_axes, [h.cwt_props.fmin h.cwt_props.fmax]);
     colormap(h.cwt_props.colormap);
-    axtoolbar({'datacursor','save','zoomin','zoomout','restoreview','pan'});
+    axtoolbar(h.cwt_axes,{'datacursor','save','zoomin','zoomout','restoreview','pan'});
     title(['Port ' num2str(results.ports(port_idx).port_id) ' Ch ' num2str(current_ch)])
     set_status(h.figure,"ready","CWT Plot Complete...");
 

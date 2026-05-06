@@ -28,6 +28,7 @@ function plot_dvdt_phase(h)
         else
             results = h.figure.UserData;
         end
+        current_port = results.ports(port_idx).port_id;
 
         waveforms_all = results.spike_results(port_idx).waveforms_all;
         ptp  = [waveforms_all.ptp_amplitude]';
@@ -60,7 +61,7 @@ function plot_dvdt_phase(h)
         data(i).waveforms_all = waveforms_all;
         data(i).results = results;
         data(i).expIdx = expIdx;
-        data(i).portIdx = port_idx;
+        data(i).portIdx = current_port;
     end
 
     %  Create/adjust plot panel 

@@ -1,7 +1,7 @@
 function plot_network_graph(h, adjacency_matrix, x_coords, y_coords, unique_channels, ...
     receiver_nodes, sender_nodes, broker_nodes, node_degrees)
     set_status(h.figure,"loading","Plotting Network Connectivity Graph...");
-
+    adjacency_matrix(isnan(adjacency_matrix)) = 0;
     G = graph(adjacency_matrix, 'upper','omitselfloops');
     if isfield(h,'nc_panel') && isvalid(h.nc_panel)
         delete(h.nc_panel);
@@ -76,6 +76,6 @@ function plot_network_graph(h, adjacency_matrix, x_coords, y_coords, unique_chan
 
     title('Network Graph Based on STTC');
     axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
-    set_status(h.figure,"loading","Plotting Network Connectivity Graph...");
+    set_status(h.figure,"ready","Plotting Network Connectivity Graph...");
 
 end

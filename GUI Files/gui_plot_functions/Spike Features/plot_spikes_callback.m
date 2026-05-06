@@ -36,6 +36,7 @@ function plot_spikes_callback(h)
         else
             results = h.figure.UserData;
         end
+        current_port = results.ports(selected_idx).port_id;
         
         if numel(results.spike_results) < selected_idx, continue; end
 
@@ -163,7 +164,8 @@ function plot_spikes_callback(h)
                 if strcmp(cfg.spread,'sem'), std_wf=std(wf,[],1)/sqrt(size(wf,1)); end
                 spikeData(end+1).ts = ts;
                 spikeData(end).mean_wf = mean_wf; spikeData(end).std_wf = std_wf;
-                spikeData(end).title = ['Exp: ' num2str(expIdx) ' Port: ' num2str(selected_idx)  ' Ch: ' num2str(ch)];
+                
+                spikeData(end).title = ['Exp: ' num2str(expIdx) ' Port: ' num2str(current_port)  ' Ch: ' num2str(ch)];
             end
         end
     end
