@@ -81,7 +81,7 @@ set(hImg, 'AlphaData', alpha_data * alpha_value);
 
 % 7. Colorbar
 cs = colorbar(ax, 'southoutside');
-if nargin < 8 && isempty(clims)
+if nargin < 8 || isempty(clims)
     clims = [min(heatmap(:)), max(heatmap(:))];
 end
 ax.CLim = clims;

@@ -49,7 +49,7 @@ function bandpower_callback(h)
     %  User input for frequency bands 
     prompt = strcat(labels,' (Hz):');
     dlgtitle = 'Set Frequency Bands';
-    dims = [1 20];
+    dims = [1 80];
     answer = inputdlg(prompt, dlgtitle, dims, default_bands);
     if isempty(answer), return; end
     
@@ -65,13 +65,21 @@ function bandpower_callback(h)
     end
 
     %  Load probe coordinates for interpolation 
-    probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
-    if ~isempty(probe_maps)
-        matFile = probe_maps{2};   % second row (.mat file)
+    topo_togg = get(h.bg).SelectedObject.String;
+    img_togg = get(h.overlay_img).Value;
+    if img_togg
+        probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
+        if ~isempty(probe_maps)
+            matFile = probe_maps{2};   % second row (.mat file)
+            imgFile = probe_maps{1};
+        else
+            matFile = 'sparse_x_y_coords.mat';
+            imgFile = "sparseimg.tif";
+        end
     else
-        matFile = 'sparse_x_y_coords.mat';
+        imgFile = [];
     end
-    load(matFile, 'x_coords', 'y_coords', 'maps');
+
     band_names = [{'Total'}, labels];
 
     if ~isfield(h,'band_tabgroup') || ~isvalid(h.band_tabgroup)
@@ -131,9 +139,25 @@ function bandpower_callback(h)
                 tit = '';
             end
             axes(h.band_axes(b))
-            plot_interp_heatmap(power_in_bands(:,b), channels, [tit band_names{b}], x_coords, y_coords);
-            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
-
+            switch topo_togg
+                case 'Distribution'
+                    histogram(power_in_bands(:,b),10,'FaceColor',[0.5 0 0.5],'EdgeColor','k')
+                    xlabel(h.band_axes(b),[tit band_names{b}])
+                    ylabel(h.band_axes(b),'Counts')
+                case 'Simple Map'
+                    [x_coords, y_coords, maps] = load_probe_map(h);
+                    plot_heatmap_callback(power_in_bands(:,b), channels, ...
+                                         [tit band_names{b}],x_coords,y_coords,imgFile);
+                case 'Topographic Map'
+                    [x_coords, y_coords, maps] = load_probe_map(h);
+                    plot_interp_heatmap(power_in_bands(:,b), channels, [tit band_names{b}], x_coords, y_coords,[],imgFile);
+        
+            end
+            tb_bp = axtoolbar(h.band_axes(b),{'save','zoomin','zoomout','restoreview','pan'});
+            axtoolbarbtn(tb_bp, 'push', ...
+            'Icon','export_data_icon.png',...
+            'Tooltip',         'Export to CSV', ...
+            'ButtonPushedFcn', @(~,~) export_axes_to_csv(h.band_axes(b), 'bandpower'));
         end
     else 
         %  Time-resolved mode 

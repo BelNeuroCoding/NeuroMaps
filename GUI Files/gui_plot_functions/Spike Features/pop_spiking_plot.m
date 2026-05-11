@@ -78,9 +78,13 @@ for i = 1:size(selected,1)
     hold(ax,'on');
     
     network_pop_plot(waveforms_all,TimeStamps,fs,recording_time,bin_rate,ax)
-    ylabel('Population Spiking Plot')
-    title(sprintf('Exp %d, Port %d\n%s\n', expIdx, current_port, clusterStr))
-    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    ylabel(ax,'Population Spiking Plot')
+    title(ax,sprintf('Exp %d, Port %d\n%s\n', expIdx, current_port, clusterStr))
+    tb_pop = axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tb_pop, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'Population Spiking'));
     set(ax,'TickDir','out');
 
     hold all;

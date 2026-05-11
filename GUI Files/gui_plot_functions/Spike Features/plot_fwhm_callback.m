@@ -184,7 +184,11 @@ function plot_fwhm_callback(h)
         set(ax, 'Box', 'off', 'Color', 'none','TickDir','out');
         xlim(ax, [0.1 globalXLim(2)*1.2]);
         ylim(ax, globalYLim);
-        axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        tb_fwhm = axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        axtoolbarbtn(tb_fwhm, 'push', ...
+        'Icon','export_data_icon.png',...
+        'Tooltip',         'Export to CSV', ...
+        'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'fwhm'));
     end
     set_status(h.figure,"ready","FWHM Complete...");
 

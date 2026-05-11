@@ -30,6 +30,8 @@ for i = 1:size(selected,1)
     bad_impedance = results.channels(port_idx).bad_impedance;
     noisy = results.channels(port_idx).high_psd & results.channels(port_idx).high_std;
     channels = results.channels(port_idx).id;
+    selectedport = results.ports(port_idx).port_id;
+
     mask = true(1,numel(channels));
     if h.excl_imp_toggle.Value
         mask = mask & ~bad_impedance;
@@ -60,18 +62,31 @@ for i = 1:size(selected,1)
     ax = nexttile(tlo,i);
     hold(ax,'on');
     topo_togg = get(h.bg).SelectedObject.String;
+    img_togg = get(h.overlay_img).Value;
+    if img_togg
+        probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
+        if ~isempty(probe_maps)
+            matFile = probe_maps{2};   % second row (.mat file)
+            imgFile = probe_maps{1};
+        else
+            matFile = 'sparse_x_y_coords.mat';
+            imgFile = "sparseimg.tif";
+        end
+    else
+        imgFile = [];
+    end
 
     if strcmp(topo_togg,'Distribution')
         histogram(ax,total_osc_power,10,'FaceColor',[0 0.5 0.5],'EdgeColor','k')
-        xlabel(ax,'Oscillatory Power (\muV^2/Hz)')
+        xlabel(ax,['Oscillatory Power (\muV^2/Hz) Port ' num2str(selectedport)])
         ylabel(ax,'Counts')
         axis(ax,'square')
     elseif strcmp(topo_togg,'Simple Map')
         [x_coords,y_coords,maps] = load_probe_map(h);
-        plot_heatmap_callback(total_osc_power,0:chans,'Oscillatory Power (\muV^2/Hz)',x_coords,y_coords)
+        plot_heatmap_callback(total_osc_power,chans,['Oscillatory Power (\muV^2/Hz) Port ' num2str(selectedport)],x_coords,y_coords,imgFile)
     elseif strcmp(topo_togg,'Topographic Map')
         [x_coords,y_coords,maps] = load_probe_map(h);
-        plot_interp_heatmap(total_osc_power,chans,'Oscillatory Power (\muV^2/Hz)',x_coords,y_coords)
+        plot_interp_heatmap(total_osc_power,chans,['Oscillatory Power (\muV^2/Hz) Port ' num2str(selectedport)],x_coords,y_coords,[],imgFile)
     end
 
     axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});

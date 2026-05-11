@@ -176,7 +176,11 @@ for i = 1:size(selected,1)
                     plot_interp_heatmap(fr, chans, sprintf('Firing Rate Hz'), x_coords, y_coords,[],imgFile,hm_props);
                 end
         end
-        axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+        tb_fr = axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
+        axtoolbarbtn(tb_fr, 'push', ...
+        'Icon','export_data_icon.png',...
+        'Tooltip',         'Export to CSV', ...
+        'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'Firing Rate'));
         title(sprintf('Exp %d Port %d\n%s', expIdx, current_port, clusterStr));
     end
 

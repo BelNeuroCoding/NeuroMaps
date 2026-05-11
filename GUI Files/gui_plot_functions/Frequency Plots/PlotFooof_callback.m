@@ -100,7 +100,11 @@ title(h.fooofed_axes(1), 'Oscillatory Power by Port');
 legend(h.fooofed_axes(1), 'show', 'Location', 'northeast');
 grid(h.fooofed_axes(1), 'on');
 pbaspect(h.fooofed_axes(1), [2 1 1]);
-axtoolbar(h.fooofed_axes(1),{'save','zoomin','zoomout','restoreview','pan'});
+tbfoofosc = axtoolbar(h.fooofed_axes(1),{'save','zoomin','zoomout','restoreview','pan'});
+axtoolbarbtn(tbfoofosc, 'push', ...
+'Icon','export_data_icon.png',...
+'Tooltip',         'Export to CSV', ...
+'ButtonPushedFcn', @(~,~) export_axes_to_csv(h.fooofed_axes(1), 'FOOOF Oscillatory Power'));
 
 % Bottom plot finalization
 xlabel(ax, 'Frequency (Hz)');
@@ -110,8 +114,11 @@ legend(ax, hLinePSD, port_labels, 'Location', 'northeast'); % only PSD lines
 set(ax, 'XScale', 'linear', 'YScale', 'linear', 'TickDir','out');
 grid(ax, 'on');
 pbaspect(ax, [2 1 1]);
-axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
-
+tbfooffit = axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
+axtoolbarbtn(tbfooffit, 'push', ...
+'Icon','export_data_icon.png',...
+'Tooltip',         'Export to CSV', ...
+'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'FOOOF Spectral Fit'));
 hold(h.fooofed_axes(1), 'off');
 hold(ax, 'off');
 box off
@@ -159,8 +166,11 @@ else
     title(h.fooofed_axes(1),['Ch: ' num2str(channels(SeriesNumber)) ' Total Oscillatory Power: ' num2str(round(total_oscillatory_power,2))]);
     xlabel('Frequency (Hz)');
     ylabel('Osc. Power (\muV^2/Hz)');
-    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
-    
+    tbfoofosc = axtoolbar(h.fooofed_axes(1),{'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tbfoofosc, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(h.fooofed_axes(1), 'FOOOF Oscillatory Power'));    
     h.fooofed_axes(2) = subplot(2,1,2, 'Parent', h.foof_tab);
     cla(h.fooofed_axes(2), 'reset');
     ax = h.fooofed_axes(2);
@@ -182,7 +192,11 @@ else
     pbaspect(ax,[2 1 1])
     legend(ax,{'Original PSD', 'Full Fit', 'Aperiodic Fit'},'Location','northeast')
     hold(ax,'off');
-    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    tbfooffit = axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tbfooffit, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'FOOOF Spectral Fit'));
     end
 end
 set_status(h.figure,"ready","FOOOF Complete...");

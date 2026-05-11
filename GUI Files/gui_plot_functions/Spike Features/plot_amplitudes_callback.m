@@ -174,8 +174,11 @@ function plot_amplitudes_callback(h)
         ylabel(ax, 'Count');
         title(ax, titleStr);
         set(ax, 'Box', 'off', 'Color', 'none','TickDir','out');
-        axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
-    
+        tb_amp=axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        axtoolbarbtn(tb_amp, 'push', ...
+        'Icon','export_data_icon.png',...
+        'Tooltip',         'Export to CSV', ...
+        'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'amplitude'));
         xlim(ax, globalXLim);
         ylim(ax, globalYLim);
     end

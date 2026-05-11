@@ -85,8 +85,12 @@ for i = 1:numTiles
 
     end
 
-    axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
-    
+    tb_noise = axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tb_noise, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'noise'));
+    box(ax,'off')
     % --- Update summary text
     currentText = get(h.summary_text,'String');
     if ischar(currentText), currentText = cellstr(currentText); end

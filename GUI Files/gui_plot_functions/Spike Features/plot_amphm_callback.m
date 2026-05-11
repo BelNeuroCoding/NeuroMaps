@@ -198,7 +198,11 @@ for i = 1:size(selected,1)
             end
     end
    title(sprintf('Exp %d Port %d\n%s', expIdx, current_port, clusterStr));
-    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    tb_amp=axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tb_amp, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'amplitude'));
 end
 set_status(h.figure,"ready","Amplitude map complete...");
 guidata(h.figure,h)

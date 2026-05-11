@@ -242,6 +242,11 @@ function updateAxes(h)
             ylim(ax,h.global_ylim);
         end
         set(ax,'TickDir','out')
+        tb_spikes = axtoolbar(ax,{'save','zoomin','zoomout','restoreview','pan'});
+        axtoolbarbtn(tb_spikes, 'push', ...
+        'Icon','export_data_icon.png',...
+        'Tooltip',         'Export to CSV', ...
+        'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'spikes'));
         k = k + 1;
     end
 

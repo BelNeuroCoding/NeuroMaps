@@ -170,7 +170,11 @@ function plot_dvdt_phase(h)
         xlabel(ax, 'V^*', 'FontSize', 12, 'FontWeight', 'bold');
         ylabel(ax, '(dV/dt)^*', 'FontSize', 12, 'FontWeight', 'bold');
         title(ax, sprintf('Exp %d, Port %d %s\n%s\n', data(i).expIdx, data(i).portIdx,clusterStr));
-        axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        tb_dvdt = axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        axtoolbarbtn(tb_dvdt, 'push', ...
+        'Icon','export_data_icon.png',...
+        'Tooltip',         'Export to CSV', ...
+        'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'dvdt'));
         set(ax, 'TickDir', 'out');
 
         %  Interactive legend 

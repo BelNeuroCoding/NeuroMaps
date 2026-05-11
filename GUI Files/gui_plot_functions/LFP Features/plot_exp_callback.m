@@ -40,6 +40,19 @@ for i = 1:numTiles
     chans = results.channels(port_idx).id(mask);
 
     topo_togg =get(h.bg).SelectedObject.String;
+    img_togg = get(h.overlay_img).Value;
+    if img_togg
+        probe_maps = get(h.probe_map, 'Data');   % cell array of file paths
+        if ~isempty(probe_maps)
+            matFile = probe_maps{2};   % second row (.mat file)
+            imgFile = probe_maps{1};
+        else
+            matFile = 'sparse_x_y_coords.mat';
+            imgFile = "sparseimg.tif";
+        end
+    else
+        imgFile = [];
+    end
     axApoff = nexttile(tlo);
     axApexp = nexttile(tlo);
     if strcmp(topo_togg,'Distribution')
@@ -59,27 +72,27 @@ for i = 1:numTiles
     elseif strcmp(topo_togg,'Simple Map')    
         [x_coords,y_coords,maps] = load_probe_map(h);
         axes(axApoff)
-        hold(ax,'on')
-        plot_heatmap_callback(all_aperiodic_params(:,1),chans,'Aperiodic Offset',x_coords,y_coords)
+        hold(axApoff,'on')
+        plot_heatmap_callback(all_aperiodic_params(:,1),chans,'Aperiodic Offset',x_coords,y_coords,imgFile)
         axis square
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
     
         axes(axApexp)
-        hold(ax,'on')
-        plot_heatmap_callback(all_aperiodic_params(:,2),chans,'Aperiodic Exponent',x_coords,y_coords)
+        hold(axApexp,'on')
+        plot_heatmap_callback(all_aperiodic_params(:,2),chans,'Aperiodic Exponent',x_coords,y_coords,imgFile)
         axis square
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
     elseif strcmp(topo_togg,'Topographic Map')
         [x_coords,y_coords,maps] = load_probe_map(h);
         axes(axApoff)
-        plot_interp_heatmap(all_aperiodic_params(:,1),chans,'Aperiodic Offset',x_coords,y_coords)
+        plot_interp_heatmap(all_aperiodic_params(:,1),chans,'Aperiodic Offset',x_coords,y_coords,[],imgFile)
         axis square
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
         axes(axApexp)
-        plot_interp_heatmap(all_aperiodic_params(:,2),chans,'Aperiodic Exponent',x_coords,y_coords)
+        plot_interp_heatmap(all_aperiodic_params(:,2),chans,'Aperiodic Exponent',x_coords,y_coords,[],imgFile)
         axis square
         axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 

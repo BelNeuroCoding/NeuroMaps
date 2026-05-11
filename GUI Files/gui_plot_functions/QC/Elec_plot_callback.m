@@ -80,17 +80,19 @@ for i = 1:numPorts
             histogram(axZ,Z,10,'FaceColor',[0 0.5 0.5],'EdgeColor','k');
             xlabel(axZ,['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)']);
             ylabel(axZ,'Counts'); axis(axZ,'square');
-            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
-
         case 'Simple Map'
             plot_heatmap_callback(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,imgFile,[],[],axZ);
-            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
 
         case 'Topographic Map'
             plot_interp_heatmap(Z, port_chans, ['Impedance ' exptit 'Port ' num2str(selectedport) ' (k\Omega)'], x_coords, y_coords,[],imgFile,[],axZ);
-            axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
+            
 
     end
+    tb_impedance = axtoolbar(axZ,{'save','zoomin','zoomout','restoreview','pan'});box off;
+    axtoolbarbtn(tb_impedance, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(axZ, 'impedance'));
 
     % Capacitance sub-tab
     tabC = uitab(tg_sub,'Title','Capacitance','BackgroundColor',[1 1 1],'ForegroundColor', accentcolor);
@@ -109,8 +111,12 @@ for i = 1:numPorts
         case 'Topographic Map'
             plot_interp_heatmap(C, port_chans, ['Capacitance ' exptit 'Port ' num2str(selectedport) ' (nF)'], x_coords, y_coords,[],imgFile,[],axC);
             axtoolbar({'save','zoomin','zoomout','restoreview','pan'});box off;
-
     end
+    tb_capacitance = axtoolbar(axC,{'save','zoomin','zoomout','restoreview','pan'});box off;
+    axtoolbarbtn(tb_capacitance, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(axC, 'capacitance'));
 end
 
 set_status(h.figure,"ready","Electrical Properties Plot Complete...");

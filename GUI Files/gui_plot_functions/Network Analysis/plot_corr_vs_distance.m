@@ -46,12 +46,17 @@ function plot_corr_vs_distance(h, sttc_matrix, x_coords, y_coords, unique_channe
             'Orientation','horizontal', ...
             'Location','southoutside');
     end
-    xlabel('Distance (\mum)');
-    ylabel('Number of Connections');
-    title('Correlation vs Distance Based on STTC')
-    set(gca,'TickDir','out')
-    axis square; box off; set(gca,'Color','none');
-    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    xlabel(h.network_connectivity_summary,'Distance (\mum)');
+    ylabel(h.network_connectivity_summary,'Number of Connections');
+    title(h.network_connectivity_summary,'Correlation vs Distance Based on STTC')
+    set(h.network_connectivity_summary,'TickDir','out')
+    axis square; box off; set(h.network_connectivity_summary,'Color','none');
+    tb_corr = axtoolbar(h.network_connectivity_summary,{'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tb_corr, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(h.network_connectivity_summary, 'correlation'));
+    
     set_status(h.figure,"ready","Plotting Network Correlation/Distance...");
 
 end

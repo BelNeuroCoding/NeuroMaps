@@ -192,7 +192,12 @@ function plot_isi_callback(h)
         set(ax, 'Box', 'off', 'Color', 'none','TickDir','out');
         xlim(ax, globalXLim);
         ylim(ax, globalYLim);
-        axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        tb_isi = axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
+        axtoolbarbtn(tb_isi, 'push', ...
+        'Icon','export_data_icon.png',...
+        'Tooltip',         'Export to CSV', ...
+        'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'ISI'));
+        
     end
     else
         warndlg('No ISI below 100 ms detected.')

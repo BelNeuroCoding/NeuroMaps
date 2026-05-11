@@ -34,16 +34,23 @@ function plot_sttc_latency(h, sttc_matrix, latency_matrix, unique_channels,title
     axtoolbar(h.latency_axes, {'save','zoomin','zoomout','restoreview','pan'});
 
     % STTC histogram
-    subplot(2,2,3,'Parent',h.sttc_panel);
-    histogram(sttc_matrix(~eye(num_channels)),20,'FaceColor','b');
-    xlabel('STTC'); ylabel('Count'); title('STTC Distribution');
-    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
-
+    h.sttc_hist_axes =subplot(2,2,3,'Parent',h.sttc_panel);
+    histogram(h.sttc_hist_axes,sttc_matrix(~eye(num_channels)),20,'FaceColor','b');
+    xlabel(h.sttc_hist_axes,'STTC'); ylabel(h.sttc_hist_axes,'Count'); title(h.sttc_hist_axes,'STTC Distribution');
+    tb_sttc=axtoolbar(h.sttc_hist_axes, {'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tb_sttc, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(h.sttc_hist_axes, 'sttc'));
     % Latency histogram
-    subplot(2,2,4,'Parent',h.sttc_panel);
-    histogram(latency_matrix(~eye(num_channels))*1000,20,'FaceColor','r');
-    xlabel('Latency (ms)'); ylabel('Count'); title('Latency Distribution');
-    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+    h.lat_hist_axes = subplot(2,2,4,'Parent',h.sttc_panel);
+    histogram(h.lat_hist_axes,latency_matrix(~eye(num_channels))*1000,20,'FaceColor','r');
+    xlabel(h.lat_hist_axes,'Latency (ms)'); ylabel(h.lat_hist_axes,'Count'); title(h.lat_hist_axes,'Latency Distribution');
+    tb_lat = axtoolbar(h.lat_hist_axes,{'save','zoomin','zoomout','restoreview','pan'});
+    axtoolbarbtn(tb_lat, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(h.lat_hist_axes, 'latency'));
     set_status(h.figure,"ready","STTC/Latency Matrices Complete...");
     if nargin>4
     sgtitle(titleStr)

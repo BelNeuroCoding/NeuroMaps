@@ -152,7 +152,7 @@ else
     end
 
     if p.showWelch
-        set(h.psLinesWelch, 'XData', f_axis, 'YData', PSDw);
+        set(h.psLinesWelch, 'XData', f_axis, 'YData', PSDw,'DisplayName', 'Welch_PSD');
     else
         set(h.psLinesWelch, 'XData', nan, 'YData', nan);
     end
@@ -174,7 +174,11 @@ set(h.psAxes,'XScale',p.xscale,'YScale',p.yscale);
 xlabel(h.psAxes,'Frequency (Hz)'); ylabel(h.psAxes,'Power Spectral Density (a.u.)');
 legend(h.psAxes, legendStrings,'Location','northeast');
 grid(h.psAxes,'on');
-axtoolbar(h.psAxes,{'save','zoomin','zoomout','restoreview','pan'});
+tb_pspec = axtoolbar(h.psAxes,{'save','zoomin','zoomout','restoreview','pan'});
+axtoolbarbtn(tb_pspec, 'push', ...
+    'Icon','export_data_icon.png',...
+    'Tooltip',         'Export to CSV', ...
+    'ButtonPushedFcn', @(~,~) export_axes_to_csv(h.psAxes, 'power_spectrum'));
 
 drawnow limitrate;
 set_status(h.figure,"ready","Power Spectra Plot Complete...");
