@@ -36,13 +36,16 @@ NeuroMaps is a MATLAB GUI for processing, analysing, and visualising multi-chann
 |-----------|------------|
 | MATLAB | 2024a or higher |
 | Toolboxes | Signal Processing, Statistics & Machine Learning, Wavelet, Econometrics, Mapping |
-| Python (optional) | 3.11 (for FOOOF & MATLAB-Python interface) |
+| Python | 3.11 (for FOOOF & MATLAB-Python interface) |
 | Hardware | Minimum 1.3 GHz CPU, 16 GB RAM recommended |
 
 
 ---
 
-## Python Setup (MATLAB Integration, Optional)
+## Python Setup (MATLAB Integration, REQUIRED)
+To ensure full functionality, make sure to install python 3.11.0 on your computer. This must be installed from python.org
+
+## Optional Installation Step on MATLAB 2024a
 1. Check Python configuration in MATLAB: `pyenv`  
 2. Set Python version using Python 3.11 path (e.g., `C:\Users\User\appdata\local\programs\python\python311\pythonw.exe`) with execution mode `'OutOfProcess'`  
 3. Install required packages: `numpy`, `scipy`, `matplotlib`, `fooof`  
@@ -190,6 +193,8 @@ Before applying referencing:
 2. Export processed data for multi-experiment analysis via **Save → Save Data**
 
 ![](media/demo_save_data.gif)
+
+3. CSV data for specific plots may be exported by hovering over the figure and clicking on the left-most 'download' button. A helper text indicating CSV export will appear when you hover on it.
 
 ⚠️ **Warnings:**
 - Saving all metadata comes at the cost of subsequent computation power and storage space
