@@ -111,6 +111,6 @@ for i = 1:size(selected,1)
     title(sprintf('Exp %d Port %d\n%s\n', expIdx, current_port, clusterStr));
     axtoolbar(ax, {'save','zoomin','zoomout','restoreview','pan'});
 end
-    set_status(h.figure,"loading","Raster Complete...");
+    set_status(h.figure,"ready","Raster Complete...");
 
 end

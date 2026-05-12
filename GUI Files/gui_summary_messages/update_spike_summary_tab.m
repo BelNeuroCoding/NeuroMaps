@@ -12,6 +12,8 @@ if ~iscell(allResults)
     allResults = {allResults}; 
 end
 numExpts = length(allResults);
+STDEVmin = str2double(get(h.std_value,'String'));
+STDEVmax = str2double(get(h.stdmax_value,'String'));
 
 % Build summary as a cell array of lines
 summaryLines = {};
@@ -46,19 +48,21 @@ for exps = 1:numExpts
         end
 
         summaryLines{end+1} = sprintf(' File Name: %s \n Date: %s ',string(filename),string(dateStr));
+        summaryLines{end+1} = sprintf(' Thresholding Performed between: %g and %g STDEV',STDEVmin, STDEVmax);
+
         % Main stats
-        summaryLines{end+1} = sprintf('  Number of Active Channels: %d', analysedset.num_activechans);
-        summaryLines{end+1} = sprintf('  Mean Spike Rate (Hz): %.2f ± %.2f', analysedset.mean_spike_rate, analysedset.std_spike_rate);
-        summaryLines{end+1} = sprintf('  Mean Burst Rate (Hz): %.2f ± %.2f', analysedset.mean_bursts_rate, analysedset.std_bursts_rate);
-        summaryLines{end+1} = sprintf('  Synchronicity Index (0–1): %.2f', analysedset.synchronicity);
-        summaryLines{end+1} = sprintf('  Mean FWHM (ms): %.2f ± %.2f', analysedset.mean_fwhm, analysedset.std_fwhm);
-        summaryLines{end+1} = sprintf('  Mean Peak-to-Peak Amplitude (µV): %.2f ± %.2f', analysedset.mean_ptp_amplitude, analysedset.std_ptp_amplitude);
+        summaryLines{end+1} = sprintf(' Number of Active Channels: %d', analysedset.num_activechans);
+        summaryLines{end+1} = sprintf(' Mean Spike Rate (Hz): %.2f ± %.2f', analysedset.mean_spike_rate, analysedset.std_spike_rate);
+        summaryLines{end+1} = sprintf(' Mean Burst Rate (Hz): %.2f ± %.2f', analysedset.mean_bursts_rate, analysedset.std_bursts_rate);
+        summaryLines{end+1} = sprintf(' Synchronicity Index (0–1): %.2f', analysedset.synchronicity);
+        summaryLines{end+1} = sprintf(' Mean FWHM (ms): %.2f ± %.2f', analysedset.mean_fwhm, analysedset.std_fwhm);
+        summaryLines{end+1} = sprintf(' Mean Peak-to-Peak Amplitude (µV): %.2f ± %.2f', analysedset.mean_ptp_amplitude, analysedset.std_ptp_amplitude);
 
         % Per-cluster stats
         if isfield(analysedset,'fwhm_per_cluster') && ~isempty(analysedset.fwhm_per_cluster)
             for j = 1:size(analysedset.fwhm_per_cluster,1)
                 summaryLines{end+1} = sprintf( ...
-                    '    Cluster %d:\n Spike Rate %.2f Hz, \n FWHM %.2f ± %.2f ms,\n PTP %.2f ± %.2f µV\n', ...
+                    ' Cluster %d:\n Spike Rate %.2f Hz, \n FWHM %.2f ± %.2f ms,\n PTP %.2f ± %.2f µV\n', ...
                     j, ...
                     analysedset.spike_rate_cluster(j), ...
                     analysedset.fwhm_per_cluster(j,1), analysedset.fwhm_per_cluster(j,2), ...

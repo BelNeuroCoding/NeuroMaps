@@ -56,19 +56,23 @@ mode_choice = questdlg('Choose clustering mode:', ...
 
 all_waveforms = cell2mat(arrayfun(@(x) x.spike_shape, waveforms_all, 'UniformOutput', false)');
 X_scaled = zscore(double(all_waveforms),0,2);
+
 if isempty(mode_choice)
     detected_clusters = [];
     return;
 elseif strcmp(mode_choice,'PCA/KMEANS')
-    [coeff,score,latent,tsquared,explained] = pca(all_waveforms); % PCA Feature Extraction
+    warnState = warning('off', 'all');
+    [~,score,~,~,explained] = pca(all_waveforms); % PCA Feature Extraction
+    warning(warnState)
     reduced_data = score(:,1:2);
     [clusters, centroid] = kmeans(reduced_data,clusternum);
     clust = num2cell(clusters);
   %  clusters = ClusterDataGMM_MNG([all_waveforms]);
 elseif strcmp(mode_choice,'GMM (Souza et al)')
     clusters = ClusterDataGMM_MNG([all_waveforms]);
-else
+else    warnState = warning('off', 'all');
     [coeff,score,latent,tsquared,explained] = pca(all_waveforms); % PCA Feature Extraction
+    warning(warnState)
     % Use enough components to explain a significant portion of variance
     explained_variance = 95; % in percentage
     num_components = find(cumsum(explained) >= explained_variance, 1);
@@ -97,6 +101,8 @@ end
 guidata(h.figure);
 
 results.spike_results(selected_idx).set = spike_feats_callback(h);
+update_spike_summary_tab(h);
+
 % Save updated results
 if iscell(h.figure.UserData)
     allresults = h.figure.UserData;

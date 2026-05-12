@@ -241,7 +241,12 @@ function study_stats(h)
                 end
             end
         end
-        axtoolbar({'save','zoomin','zoomout','restoreview','pan'}); hold(ax,'off');
+        tb_stats = axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
+        axtoolbarbtn(tb_stats, 'push', ...
+        'Icon','export_data_icon.png',...
+        'Tooltip',         'Export to CSV', ...
+        'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'Stats'));
+        hold(ax,'off');
     end
 
     set_status(h.figure,"ready","Plotting Stats Complete...");

@@ -3,7 +3,8 @@ function cluster_raster_plot(data_to_raster,TimeStamps,ax)
 clusters = [data_to_raster.clusters];
 unique_clusters = unique([data_to_raster.clusters]);
 nclust = length(unique_clusters);
-colors = lines(length(unique_clusters));
+colors = jet
+(length(unique_clusters));
 all_unique_channels = unique([data_to_raster.channel]); % Across All Clusters
 nallchs = length(all_unique_channels); % Across All Clusters
 spacing = 1.5;
