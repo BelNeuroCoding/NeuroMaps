@@ -25,7 +25,6 @@ function NeuroMaps
 % Second Update: March 2026 - Belquis Haider UI Improvements
 % Third Update: May 2026 - Belquis Haiders 
 clc; close all force; clearvars;
-configure_python()
 
 %% Create Figure Containing GUI 
 % Width and Height Defined with respect to screen size, colours for backgrounds and text pre-defined

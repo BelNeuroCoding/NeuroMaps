@@ -1,6 +1,9 @@
 function fooof_callback(h)
     h = guidata(h.figure);
     set_status(h.figure,"loading","LFP Analysis Initiated");
+    set_status(h.figure,"loading","Configuring Python");
+    configure_python()
+    set_status(h.figure,"loading","Proceeding with FOOOF Analysis");
 
     %% Ask user which steps to perform
     steps = {'Fit FOOOF', 'Compute Bandpower'};
