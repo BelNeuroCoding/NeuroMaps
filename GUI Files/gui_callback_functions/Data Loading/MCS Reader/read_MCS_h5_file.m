@@ -43,7 +43,9 @@ function [dat, AmpChs, t,metadata] = read_MCS_h5_file(file_path)
     [AmpChs.custom_order, sort_idx] = sort(channels);  
     dat = dat(sort_idx,:);        % reorder rows of dat
     AmpChs.port_number = 1*ones(size(channels));
-    metadata.date = data_file.Data.Date;
+    dateStr = data_file.Data.Date;
+    dt = datetime(dateStr, 'InputFormat', 'dd MMMM yyyy');
+    metadata.date = string(dt, 'yyyy-MM-dd');
     [~, name, ext] = fileparts(file_path);
     metadata.filename = [name ext];
 end
