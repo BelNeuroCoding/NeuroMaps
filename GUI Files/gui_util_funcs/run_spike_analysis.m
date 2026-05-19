@@ -140,6 +140,7 @@ update_spike_summary_tab(h);
 set_status(h.figure,"loading","Plotting Spike Waveforms...");
 drawnow limitrate
 plot_spikes_callback(h);
+h=guidata(h.figure);
 plot_fr_callback(h);
 plot_amphm_callback(h);
 plot_raster_callback(h);
