@@ -37,44 +37,78 @@ function aggregate_spikes(h)
 
         res = h.figure.UserData{expIdx};
         recording_time = max(res.timestamps)-min(res.timestamps);
-        if portIdx>numel(res.spike_results) || ~isfield(res,'spike_results')
-            warndlg(sprintf('No spikes detected for Experiment %d, Port %d — skipping.', expIdx, res.ports(portIdx).port_id));
-            continue;  % Skip this group
+        if ~isfield(res,'spike_results') || portIdx > numel(res.spike_results) || ...
+           ~isfield(res.spike_results(portIdx),'waveforms_all') || ...
+           isempty(res.spike_results(portIdx).waveforms_all)
+        
+            warndlg(sprintf('No spikes detected for Experiment %d, Port %d — skipping.', ...
+                expIdx, res.ports(portIdx).port_id));
+            continue;
         end
         wf_all = res.spike_results(portIdx).waveforms_all;
 
         if ~isempty(wf_all)
             % Interpolate all waveforms to 200 points
-            wf_interp = cell2mat(arrayfun(@(x) x.spike_shape(:)', wf_all,'UniformOutput',false)');
+            if size(wf_all,1)<size(wf_all,2)
+                wf_all=wf_all';
+            end
+            wf_mat = cell2mat(arrayfun(@(x) x.spike_shape(:)', wf_all,'UniformOutput',false));
             
-            %x = 1:size(wf_mat,2);
-            %xq = linspace(1, size(wf_mat,2), 200);
-            %wf_interp = interp1(x, wf_mat.', xq, 'spline').';
+            x = 1:size(wf_mat,2);
+            xq = linspace(1, size(wf_mat,2), 200);
+            wf_interp = interp1(x, wf_mat.', xq, 'spline').';
 
             % Flip spikes so peak is positive
             max_vals = abs(wf_interp(:,round(size(wf_interp,2)/2)));
             max_minimas = abs(min(wf_interp,[],2));
             rows_to_flip = max_vals > max_minimas;
             wf_interp(rows_to_flip,:) = -wf_interp(rows_to_flip,:);
+            ch_mat = cell2mat(arrayfun(@(x) x.channel, wf_all,'UniformOutput',false)');
 
+            if size(ch_mat,2)>size(ch_mat,1)
+                ch_mat= ch_mat';
+            end
+
+            if isempty(all_channels)
+                all_channels = ch_mat;
+            else
+                all_channels = [all_channels; ch_mat];
+            end
             % Store waveforms and metadata
             all_waveforms = [all_waveforms; wf_interp];
-            ch_mat = cell2mat(arrayfun(@(x) x.channel, wf_all,'UniformOutput',false)');
-            all_channels = [all_channels; ch_mat];
+
             spike_origin_p = [spike_origin_p; portIdx*ones(size(wf_interp,1),1)];
             spike_origin_e = [spike_origin_e; expIdx*ones(size(wf_interp,1),1)];
-            spike_times = cell2mat(arrayfun(@(x) x.time_stamp, wf_all,'UniformOutput',false)');
+            spike_times = cell2mat(arrayfun(@(x) x.time_stamp, wf_all,'UniformOutput',false));
+            ptp = cell2mat(arrayfun(@(x) x.ptp_amplitude, wf_all,'UniformOutput',false));
+            fwhm = cell2mat(arrayfun(@(x) x.fwhm, wf_all,'UniformOutput',false));
+            spec_chans = [res.channels(portIdx).id];
+            if isfield(res,'electrical_properties')
+            impedance = [res.electrical_properties(portIdx).electrode_impedance];
+            capacitance = [res.electrical_properties.electrode_capacitance];
+            end
+            if size(spike_times,1)<size(spike_times,2)
+                spike_times = spike_times';
+                ptp = ptp';
+                fwhm = fwhm';
+                spec_chans = spec_chans';
+                if isfield(res,'electrical_properties')
+
+                impedance = impedance';
+                capacitance = capacitance';
+                end
+            end
             all_spike_times = [all_spike_times; spike_times];
             % Spike metrics
-            ptp_all = [ptp_all; cell2mat(arrayfun(@(x) x.ptp_amplitude, wf_all,'UniformOutput',false)')];
-            fwhm_all = [fwhm_all; cell2mat(arrayfun(@(x) x.fwhm, wf_all,'UniformOutput',false)')];
+            ptp_all = [ptp_all; ptp];
+            fwhm_all = [fwhm_all; fwhm];
             rec_time_spike = [rec_time_spike ; recording_time*ones(size(wf_interp,1),1)];
             if isfield(res, 'channels') 
-                all_spec_chans = [all_spec_chans; [res.channels(portIdx).id]'];
+                all_spec_chans = [all_spec_chans; spec_chans ];
             end
             if isfield(res,'electrical_properties')
-                all_impedance = [all_impedance;[res.electrical_properties(portIdx).electrode_impedance]'];
-                all_capacitance = [all_capacitance;[res.electrical_properties.electrode_capacitance]'];
+                all_impedance = [all_impedance;impedance];
+                all_capacitance = [all_capacitance;capacitance];
             end
              % Check if fields exist and are non-empty
             if isfield(res, 'foof_lfp') && length(res.foof_lfp) >= portIdx && isfield(res.foof_lfp(portIdx), 'foof_results') && ~isempty(res.foof_lfp(portIdx).foof_results)

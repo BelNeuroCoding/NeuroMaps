@@ -123,6 +123,45 @@ for k = 1:nCombos
     combo_idx(mask) = k;
 end
 
+% -------------------------------------------------------------------------
+% Exclude low-amplitude spikes
+% -------------------------------------------------------------------------
+if isfield(cs,'ptp_amplitude') && ~isempty(cs.ptp_amplitude)
+
+    answer = inputdlg( ...
+        {'Exclude spikes with peak-to-peak amplitude below:'}, ...
+        'Spike amplitude threshold', ...
+        [1 50], ...
+        {'0'});
+
+    if isempty(answer)
+        return;
+    end
+
+    ampThreshold = str2double(answer{1});
+
+    if isnan(ampThreshold)
+        errordlg('Amplitude threshold must be numeric.');
+        return;
+    end
+
+    ptp_vec = cs.ptp_amplitude(:);
+
+    if numel(ptp_vec) ~= nSpikes
+        errordlg('ptp_amplitude length does not match number of spikes.');
+        return;
+    end
+
+    low_amp_mask = ptp_vec < ampThreshold;
+
+    % Low-amplitude spikes are excluded from all spike-derived metrics by
+    % invalidating their Exp/Port assignment.
+    combo_idx(low_amp_mask) = NaN;
+
+else
+    warndlg('ptp_amplitude not found. No amplitude filtering applied.');
+end
+
 % Assign spectral rows to Exp/Port combo, if available
 if isfield(cs,'spec_e') && isfield(cs,'spec_p')
     nSpec = numel(cs.spec_e);
@@ -183,7 +222,6 @@ if nSpec > 0
 else
     group_spec_idx = [];
 end
-
 
 if isfield(h,'group_expt_avg') && isvalid(h.group_expt_avg)
     delete(setdiff(allchild(h.group_expt_avg), h.group_expt_avg_button));
@@ -283,11 +321,9 @@ for m = 1:nMetrics
 
                 group_data{g} = vals;
 
-            % -------------------------------------------------------------
             % Peak-to-Peak Amplitude
             % One value per Exp/Port replicate:
             % mean channel-level PTP.
-            % -------------------------------------------------------------
             case 'Peak-to-Peak Amplitude'
 
                 for c = group_combo_ids(:)'
@@ -512,8 +548,11 @@ for m = 1:nMetrics
             group_vec = [group_vec; g * ones(numel(vals_g),1)]; %#ok<AGROW>
         end
 
-        all_values = all_values(~isnan(all_values));
-        group_vec = group_vec(~isnan(all_values));
+        % Correct NaN filtering while preserving group alignment
+        valid_stats = ~isnan(all_values);
+
+        all_values = all_values(valid_stats);
+        group_vec = group_vec(valid_stats);
 
         if numel(all_values) > 2 && nGroups > 1
 
@@ -525,30 +564,75 @@ for m = 1:nMetrics
                     cstats = multcompare(stats, 'Display','off');
 
                     add_stat_annotations(ax, cstats, group_data);
-
                 case 'Pairwise t-tests'
-
+                
                     combs = nchoosek(1:nGroups,2);
                     cstats = NaN(size(combs,1),6);
-
+                
                     for kk = 1:size(combs,1)
+                
                         g1 = combs(kk,1);
                         g2 = combs(kk,2);
-
-                        [~,p_pair] = ttest2(group_data{g1}, group_data{g2});
-
+                
+                        cond1 = group_labels{g1};
+                        cond2 = group_labels{g2};
+                
+                        [vals1_paired, vals2_paired] = get_paired_values_by_replicate( ...
+                            condition_info, exp_port_map, group_labels, cond1, cond2, ...
+                            group_data, g1, g2);
+                
+                        valid_pair = ~isnan(vals1_paired) & ~isnan(vals2_paired);
+                
+                        vals1_paired = vals1_paired(valid_pair);
+                        vals2_paired = vals2_paired(valid_pair);
+                
+                        if numel(vals1_paired) < 2
+                            p_pair = NaN;
+                        else
+                            [~, p_pair] = ttest(vals1_paired, vals2_paired);
+                        end
+                
                         cstats(kk,1) = g1;
                         cstats(kk,2) = g2;
                         cstats(kk,6) = p_pair;
                     end
-
+                
                     add_stat_annotations(ax, cstats, group_data);
+                % case 'Pairwise t-tests'
+                % 
+                %     combs = nchoosek(1:nGroups,2);
+                %     cstats = NaN(size(combs,1),6);
+                % 
+                %     for kk = 1:size(combs,1)
+                %         g1 = combs(kk,1);
+                %         g2 = combs(kk,2);
+                % 
+                %         vals1 = group_data{g1};
+                %         vals2 = group_data{g2};
+                % 
+                %         vals1 = vals1(~isnan(vals1));
+                %         vals2 = vals2(~isnan(vals2));
+                % 
+                %         if numel(vals1) < 2 || numel(vals2) < 2
+                %             p_pair = NaN;
+                %         else
+                %             [~,p_pair] = ttest2(vals1, vals2);
+                %         end
+                % 
+                %         cstats(kk,1) = g1;
+                %         cstats(kk,2) = g2;
+                %         cstats(kk,6) = p_pair;
+                %     end
+                % 
+                %     add_stat_annotations(ax, cstats, group_data);
             end
         end
     end
 end
 
 end
+
+
 function condition_info = get_condition_grouping(h)
 % GET_CONDITION_GROUPING - User assigns Exp/Port to condition, replicate and repeat.
 
@@ -597,6 +681,7 @@ uicontrol( ...
     'ForegroundColor',[0 0 0], ...
     'FontSize',9, ...
     'Position',[15 10 750 120]);
+
 colnames = {'Experiment/Port','Condition','Replicate ID','Repeat ID'};
 
 data = cell(nPorts,4);
@@ -662,6 +747,8 @@ if ishandle(t)
 end
 
 end
+
+
 function plot_box_per_group_condition(ax, group_data, group_labels, colors, ylab)
 % PLOT_BOX_PER_GROUP_CONDITION - Box/bar plot with overlaid replicate points.
 
@@ -745,6 +832,8 @@ axtoolbarbtn(tb_stats, 'push', ...
     'ButtonPushedFcn', @(~,~) export_axes_to_csv(ax, 'Condition_Stats'));
 
 end
+
+
 function add_stat_annotations(ax, cstats, group_data)
 % ADD_STAT_ANNOTATIONS - Adds significance bars to grouped plots.
 %
@@ -820,6 +909,61 @@ end
 
 if ~isempty(y_offsets)
     ylim(ax, [dataMin, max(y_offsets) + 0.15*yspan]);
+end
+
+end
+
+function [vals1_paired, vals2_paired] = get_paired_values_by_replicate( ...
+    condition_info, exp_port_map, group_labels, cond1, cond2, ...
+    group_data, g1, g2)
+
+% GET_PAIRED_VALUES_BY_REPLICATE
+% Returns paired condition values matched by biological replicate ID.
+%
+% This assumes that group_data{g} is ordered in the same order as
+% group_combo_ids were collected inside the main metric loop.
+
+rep1 = [];
+rep2 = [];
+
+fields = fieldnames(condition_info);
+
+for i = 1:numel(fields)
+
+    fld = fields{i};
+    info = condition_info.(fld);
+
+    if strcmp(info.condition, cond1)
+        rep1(end+1,1) = info.replicate; %#ok<AGROW>
+    elseif strcmp(info.condition, cond2)
+        rep2(end+1,1) = info.replicate; %#ok<AGROW>
+    end
+end
+
+vals1 = group_data{g1};
+vals2 = group_data{g2};
+
+% Safety: trim replicate vectors to match available values.
+rep1 = rep1(1:min(numel(rep1), numel(vals1)));
+rep2 = rep2(1:min(numel(rep2), numel(vals2)));
+
+vals1 = vals1(1:numel(rep1));
+vals2 = vals2(1:numel(rep2));
+
+common_reps = intersect(rep1, rep2, 'stable');
+
+vals1_paired = NaN(numel(common_reps),1);
+vals2_paired = NaN(numel(common_reps),1);
+
+for r = 1:numel(common_reps)
+
+    this_rep = common_reps(r);
+
+    idx1 = find(rep1 == this_rep, 1, 'first');
+    idx2 = find(rep2 == this_rep, 1, 'first');
+
+    vals1_paired(r) = vals1(idx1);
+    vals2_paired(r) = vals2(idx2);
 end
 
 end
