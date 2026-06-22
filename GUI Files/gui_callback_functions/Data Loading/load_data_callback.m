@@ -78,7 +78,7 @@ if FlagUp
                 Data.metadata.date = datetime(date_time_str{1}, 'InputFormat', 'yyMMdd');
                 t= datetime(date_time_str{2}, 'InputFormat', 'HHmmss');
                 Data.metadata.time = t-dateshift(t,'start','day');
-                
+                all_channels = [AmpChs.native_order];
               case 'MCS H5'
                     % Load MCS data
                     disp('Loading data for MCS...');
@@ -109,6 +109,7 @@ if FlagUp
                     end
                     Data.metadata = metadata;
                     AmpChs.custom_order = 0:59;
+                    all_channels = [AmpChs.custom_order];
                 
             case 'RHD'
                 % Load RHD data
@@ -147,6 +148,7 @@ if FlagUp
                     date_time_str = strsplit([FileName(end-16:end-4)],'_');
                 end
                 Data.metadata.date = datetime(date_time_str{1}, 'InputFormat', 'yyMMdd');
+                all_channels = [AmpChs.chip_channel];
                 t= datetime(date_time_str{2}, 'InputFormat', 'HHmmss');
                 Data.metadata.time = t-dateshift(t,'start','day');
                 
@@ -169,7 +171,6 @@ if FlagUp
     % Extract recording parameters and electrode properties
     Data.fs = round(1/(TimeStamps(2)-TimeStamps(1)));
     Data.timestamps = TimeStamps;
-    all_channels = [AmpChs.custom_order];
     ch_ports = [AmpChs.port_number];
     unique_ports = unique(ch_ports); 
     Data.metadata.ports =  unique_ports;
@@ -180,20 +181,30 @@ if FlagUp
     else
         all_impedance = zeros(size(all_channels));
     end
+
     % Categorise Data based on ports
 
     for i = 1:length(unique_ports)
         idx = find(ch_ports == unique_ports(i));
+        % Sort Data if Necessary Within Ports
+        port_channels = all_channels(idx);
+        port_data = RawData(idx,:);
+        [port_channels, sortIdx] = sort(port_channels);
+        port_data = port_data(sortIdx, :);
         % Calculate capacitance from impedance and phase
         Data.ports(i).port_id = unique_ports(i);
+        Data.signals(i).raw = port_data;
+        Data.channels(i).id = port_channels;
+
         if isfield(AmpChs,'electrode_impedance_magnitude')
-            Data.electrical_properties(i).electrode_impedance =all_impedance(idx); % impedance in kOhms
-            Data.electrical_properties(i).electrode_phase = all_phase(idx); % phase in degrees
-            Data.electrical_properties(i).electrode_capacitance = all_capacitance(idx);
+            port_impedance = all_impedance(idx);
+            port_phase = all_phase(idx);
+            port_capacitance = all_capacitance(idx);
+            Data.electrical_properties(i).electrode_impedance =port_impedance(sortIdx); % impedance in kOhms
+            Data.electrical_properties(i).electrode_phase = port_phase(sortIdx); % phase in degrees
+            Data.electrical_properties(i).electrode_capacitance = port_capacitance(sortIdx);
         end
-        Data.signals(i).raw = RawData(idx,:);
-        [T, N] = size(RawData(idx,:));
-        Data.channels(i).id = all_channels(idx);
+        [T, N] = size(port_data);
     end
     % Store Data
     set(h.figure,'UserData',Data)
@@ -235,9 +246,15 @@ if FlagUp
                                   'String','Deselect All', ...
                                   'Units','normalized','Position',[0.50 0.87 0.50 0.08], ...
                                   'Callback', @(src,evt) set(h.portList,'Value',[]),'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
+
     h.formatsPlot.Raw = uicontrol('Style', 'radiobutton', 'String', 'Raw', ...
-    'Units', 'normalized', 'Position', [0.01, 0.1, 0.2, 0.8], ...
-    'Parent', h.formatToggleGroup,'BackgroundColor',[1 1 1],'ForegroundColor',[0.1, 0.4, 0.6]);
+    'Units', 'normalized', ...
+    'Position', [0.01, 0.1, 0.18, 0.8], ...
+    'Parent', h.formatToggleGroup, ...
+    'BackgroundColor', [1 1 1], ...
+    'ForegroundColor', [0.1, 0.4, 0.6]);
+
+    h.formatToggleGroup.SelectedObject = h.formatsPlot.Raw;
     % % Set slider properties
     set(h.series_slider, 'Max', T)
     set(h.series_slider, 'SliderStep', [1/(T-1), 1/(T-1)]) 

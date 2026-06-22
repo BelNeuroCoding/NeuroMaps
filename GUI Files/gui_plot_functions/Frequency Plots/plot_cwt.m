@@ -22,14 +22,14 @@ function plot_cwt(h,src)
     if nargin>1
         time_plot = str2num(src.String);
     else
-        time_plot = [min(resampled_time),min(max(resampled_time),60)];
+        time_plot = [round(min(resampled_time)),round(min(max(resampled_time),60))];
     end
     % Validate times
     if isnan(time_plot(1)) || time_plot(1) < min(resampled_time)
-        time_plot(1) = min(resampled_time);
+        time_plot(1) = round(min(resampled_time));
     end
     if isnan(time_plot(2)) || time_plot(2) <= time_plot(1) || time_plot(2)>max(resampled_time)
-        time_plot(2) = max(resampled_time);
+        time_plot(2) = round(max(resampled_time));
     end
     if nargin>1
     src.String=num2str(time_plot);

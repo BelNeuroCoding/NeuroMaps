@@ -22,7 +22,13 @@ selected = map(idx,:);
 
 exclude_impedance_chans_toggle = get(h.excl_imp_toggle,'Value');
 exclude_noisy_chans_toggle = get(h.excl_high_STD_toggle,'Value');
-selectedStr = get(h.formatToggleGroup,'SelectedObject').String;
+selectedObj = h.formatToggleGroup.SelectedObject;
+
+if isempty(selectedObj) || ~isvalid(selectedObj) || ~isprop(selectedObj, 'String')
+    selectedStr = 'Raw';
+else
+    selectedStr = selectedObj.String;
+end
 lab = extract_lab(selectedStr);
 legendStrings = {};
 

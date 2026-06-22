@@ -27,6 +27,12 @@ else
     results = h.figure.UserData;
 end
 data = results.spike_results(selected_idx).waveforms_all;
+if isempty(data)
+        errordlg(['No spike waveforms found for the selected port.' newline newline ...
+              'Please make sure you selected the correct port and that spikes have been detected for it.'], ...
+              'No Detected Spikes');
+    return;
+end
 fs = results.fs;
 try
 duration_sec = max(results.timestamps)-min(results.timestamps);

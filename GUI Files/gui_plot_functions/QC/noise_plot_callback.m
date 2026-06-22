@@ -10,7 +10,13 @@ map = h.portList.UserData;        % Nx2 mapping array [expIdx, portIdx]
 selected = map(idx,:);            % rows correspond to each selected port
 
 % Get user-selected data format
-selectedStr = get(h.formatToggleGroup, 'SelectedObject').String;
+selectedObj = h.formatToggleGroup.SelectedObject;
+
+if isempty(selectedObj) || ~isvalid(selectedObj) || ~isprop(selectedObj, 'String')
+    selectedStr = 'Raw';
+else
+    selectedStr = selectedObj.String;
+end
 lab = extract_lab(selectedStr);
 
 numTiles = size(selected,1);

@@ -4,7 +4,13 @@ set_status(h.figure,"loading","Waterfall Plot...");
 
 h = guidata(h.figure);  
 
-selectedStr = get(h.formatToggleGroup, 'SelectedObject').String;
+selectedObj = h.formatToggleGroup.SelectedObject;
+
+if isempty(selectedObj) || ~isvalid(selectedObj) || ~isprop(selectedObj, 'String')
+    selectedStr = 'Raw';
+else
+    selectedStr = selectedObj.String;
+end
 lab = extract_lab(selectedStr);
 
 exclude_impedance_chans_toggle = get(h.excl_imp_toggle, 'Value');

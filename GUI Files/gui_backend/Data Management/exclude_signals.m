@@ -32,6 +32,10 @@ mask = true(1,numel(channels));
 if exclude_noisy_chans_toggle || exclude_impedance_chans_toggle
 bad_impedance = results.channels(port_idx).bad_impedance;
 noisy = results.channels(port_idx).high_psd & results.channels(port_idx).high_std;
+if isempty(bad_impedance) || isempty(noisy)
+    run_qc_callback(h);
+    h = guidata(h.figure);  
+end
 if exclude_impedance_chans_toggle
     mask = mask & ~bad_impedance;
 end
