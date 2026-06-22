@@ -34,6 +34,7 @@ for exps = 1:numExpts
     if isfield(results,'spike_results') && isfield(results.spike_results,'set')
         for ports = 1:numel(results.spike_results)
         analysedset = results.spike_results(ports).set;
+        if ~isempty(analysedset)
         % Per-experiment header
         summaryLines{end+1} = sprintf('\nExperiment: %d Port: %d', exps,results.ports(ports).port_id);
         % Safe access with fallbacks
@@ -68,6 +69,7 @@ for exps = 1:numExpts
                     analysedset.fwhm_per_cluster(j,1), analysedset.fwhm_per_cluster(j,2), ...
                     analysedset.ptp_amplitude_per_cluster(j,1), analysedset.ptp_amplitude_per_cluster(j,2));
             end
+        end
         end
         end
     end
