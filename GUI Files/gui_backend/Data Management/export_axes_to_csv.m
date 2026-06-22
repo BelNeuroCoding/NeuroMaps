@@ -1,17 +1,14 @@
 function export_axes_to_csv(ax, filename)
-% EXPORT_AXES_TO_CSV  Export NeuroMaps axes data to one CSV without NaNs.
+% EXPORT_AXES_TO_CSV Export NeuroMaps axes data to CSV.
 %
-% Exports compatible line/scatter/bar/histogram objects as:
-%   x, object1, object2, object3
+% For grouped plots, exports in long format:
+%   Object, x, Group, y
 %
-% Exports compatible image/surface objects as:
-%   x, y, object1, object2, object3
+% For image/surface plots:
+%   Object, x, y, value
 %
-% Notes:
-%   - NaNs are omitted before export.
-%   - Objects are only combined if their coordinates match.
-%   - Mixed 1D and 2D data are not combined.
-%   - Histogram x-values are exported as bin centres.
+% This avoids losing groups such as PRE / TTX / POST when each group has
+% different x-coordinates.
 
 if nargin < 1 || isempty(ax)
     ax = gca;
@@ -25,33 +22,37 @@ end
 
 children = flipud(get(ax, 'Children'));
 
+rows_1d = table();
+rows_2d = table();
+
 usedNames = {};
 
-commonCoords = [];
-coordNames = {};
-dataCols = {};
-headers = {};
+% Get axis tick labels, e.g. PRE / TTX / POST
+xt = get(ax, 'XTick');
+xtlbl = get(ax, 'XTickLabel');
+
+if ischar(xtlbl)
+    xtlbl = cellstr(xtlbl);
+end
 
 for k = 1:numel(children)
 
     obj = children(k);
     typ = lower(get(obj, 'Type'));
 
-    % Some objects, e.g. Image, do not have DisplayName.
+    % Get object name
     if isprop(obj, 'DisplayName')
         tag = get(obj, 'DisplayName');
     else
         tag = '';
     end
 
-    % Fallback to Tag if available.
     if isempty(tag) || all(isspace(tag))
         if isprop(obj, 'Tag')
             tag = get(obj, 'Tag');
         end
     end
 
-    % Final fallback.
     if isempty(tag) || all(isspace(tag))
         tag = sprintf('%s_%d', typ, k);
     end
@@ -62,7 +63,7 @@ for k = 1:numel(children)
 
     switch typ
 
-        case {'line', 'scatter', 'bar'}
+        case {'scatter', 'bar'}
 
             x = get(obj, 'XData');
             y = get(obj, 'YData');
@@ -73,27 +74,22 @@ for k = 1:numel(children)
                 continue;
             end
 
-            coords = x;
-            thisCoordNames = {'x'};
+            group = map_x_to_group_labels(x, xt, xtlbl);
 
-            if isempty(commonCoords)
-                commonCoords = coords;
-                coordNames = thisCoordNames;
-            end
+            thisT = table( ...
+                repmat(string(tag), numel(x), 1), ...
+                x(:), ...
+                group(:), ...
+                y(:), ...
+                'VariableNames', {'Object','x','Group','y'});
 
-            if coords_match(commonCoords, coords)
-                headers{end+1} = tag; %#ok<AGROW>
-                dataCols{end+1} = y;  %#ok<AGROW>
-            else
-                warning('Skipping %s because its coordinates do not match the first exported object.', tag);
-            end
+            rows_1d = [rows_1d; thisT]; %#ok<AGROW>
 
         case 'histogram'
 
             edges  = get(obj, 'BinEdges');
             counts = get(obj, 'Values');
 
-            % Use bin centres as x-values.
             x = edges(1:end-1) + diff(edges)./2;
             y = counts;
 
@@ -103,20 +99,16 @@ for k = 1:numel(children)
                 continue;
             end
 
-            coords = x;
-            thisCoordNames = {'x'};
+            group = map_x_to_group_labels(x, xt, xtlbl);
 
-            if isempty(commonCoords)
-                commonCoords = coords;
-                coordNames = thisCoordNames;
-            end
+            thisT = table( ...
+                repmat(string(tag), numel(x), 1), ...
+                x(:), ...
+                group(:), ...
+                y(:), ...
+                'VariableNames', {'Object','x','Group','y'});
 
-            if coords_match(commonCoords, coords)
-                headers{end+1} = tag; %#ok<AGROW>
-                dataCols{end+1} = y;  %#ok<AGROW>
-            else
-                warning('Skipping %s because its coordinates do not match the first exported object.', tag);
-            end
+            rows_1d = [rows_1d; thisT]; %#ok<AGROW>
 
         case {'image', 'surface'}
 
@@ -150,52 +142,62 @@ for k = 1:numel(children)
                 continue;
             end
 
-            coords = [X, Y];
-            thisCoordNames = {'x', 'y'};
+            thisT = table( ...
+                repmat(string(tag), numel(V), 1), ...
+                X(:), ...
+                Y(:), ...
+                V(:), ...
+                'VariableNames', {'Object','x','y','value'});
 
-            if isempty(commonCoords)
-                commonCoords = coords;
-                coordNames = thisCoordNames;
-            end
-
-            if coords_match(commonCoords, coords)
-                headers{end+1} = tag; %#ok<AGROW>
-                dataCols{end+1} = V;  %#ok<AGROW>
-            else
-                warning('Skipping %s because its coordinates do not match the first exported object.', tag);
-            end
+            rows_2d = [rows_2d; thisT]; %#ok<AGROW>
 
         otherwise
-
-            % Ignore annotations, legends, colorbars, etc.
             continue;
     end
 end
 
-if ~isempty(dataCols)
+% Choose what to export
+if ~isempty(rows_1d) && ~isempty(rows_2d)
 
-    T = array2table(commonCoords, 'VariableNames', coordNames);
+    choice = questdlg( ...
+        'This axes contains both 1D and 2D data. What do you want to export?', ...
+        'Mixed data export', ...
+        '1D data','2D data','Cancel','1D data');
 
-    for j = 1:numel(dataCols)
-        T.(headers{j}) = dataCols{j};
+    if isempty(choice) || strcmp(choice,'Cancel')
+        return;
+    elseif strcmp(choice,'1D data')
+        T = rows_1d;
+    else
+        T = rows_2d;
     end
 
-    [f, p] = uiputfile('*.csv', 'Save plot data', [filename '.csv']);
+elseif ~isempty(rows_1d)
 
-    if ~isequal(f, 0)
-        writetable(T, fullfile(p, f));
-        msgbox(sprintf('Data saved:\n%s', f), 'Saved', 'help');
-    end
+    T = rows_1d;
+
+elseif ~isempty(rows_2d)
+
+    T = rows_2d;
 
 else
+
     warning('No compatible exportable objects found for export.');
+    return;
+end
+
+[f, p] = uiputfile('*.csv', 'Save plot data', [filename '.csv']);
+
+if ~isequal(f, 0)
+    writetable(T, fullfile(p, f));
+    msgbox(sprintf('Data saved:\n%s', f), 'Saved', 'help');
 end
 
 end
 
 
 function [x, y] = clean_xy(x, y)
-%CLEAN_XY  Convert x/y to column vectors and remove NaNs.
+% CLEAN_XY Convert x/y to column vectors and remove NaNs.
 
 x = x(:);
 y = y(:);
@@ -213,18 +215,37 @@ y = y(valid);
 end
 
 
-function tf = coords_match(a, b)
-%COORDS_MATCH  True if coordinate arrays have same size and values.
+function group = map_x_to_group_labels(x, xt, xtlbl)
+% MAP_X_TO_GROUP_LABELS Convert numeric x positions into axis tick labels.
 
-tf = size(a, 1) == size(b, 1) && ...
-     size(a, 2) == size(b, 2) && ...
-     isequaln(a, b);
+group = strings(numel(x),1);
+
+if isempty(xt) || isempty(xtlbl)
+    return;
+end
+
+if ischar(xtlbl)
+    xtlbl = cellstr(xtlbl);
+end
+
+for ii = 1:numel(x)
+
+    % Use nearest tick rather than exact ismember, because scatter jitter or
+    % floating point x-values can prevent exact matching.
+    [dist, loc] = min(abs(xt(:) - x(ii)));
+
+    if ~isempty(loc) && loc <= numel(xtlbl) && dist < 0.25
+        group(ii) = string(xtlbl{loc});
+    else
+        group(ii) = "";
+    end
+end
 
 end
 
 
 function v = infer_axis_vector(data, n)
-%INFER_AXIS_VECTOR  Infer full axis vector from image/surface axis data.
+% INFER_AXIS_VECTOR Infer full axis vector from image/surface axis data.
 
 if isempty(data)
 
@@ -248,7 +269,7 @@ end
 
 
 function name = make_unique_name(name, usedNames)
-%MAKE_UNIQUE_NAME  Ensure table variable names are unique.
+% MAKE_UNIQUE_NAME Ensure table variable names are unique.
 
 base = name;
 idx = 2;

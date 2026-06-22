@@ -41,9 +41,9 @@ function save_curated_spikes(h)
             fwhm_cells    = num2cell(cs.fwhm(mask));
             cluster_cells = num2cell(cs.cluster_idx(mask));
             
-            % Preallocate struct array
-            waveforms_all(N) = struct('channel',[],'spike_shape',[],'time_stamp',[],...
-                                      'ptp_amplitude',[],'fwhm',[],'clusters',[]);
+            % Preallocate fresh struct array
+            waveforms_all = repmat(struct('channel',[],'spike_shape',[],'time_stamp',[],...
+                                          'ptp_amplitude',[],'fwhm',[],'clusters',[]), N, 1);
             
             % Assign fields
             [waveforms_all.spike_shape]   = wf_cells{:};
@@ -52,6 +52,7 @@ function save_curated_spikes(h)
             [waveforms_all.ptp_amplitude] = ptp_cells{:};
             [waveforms_all.fwhm]          = fwhm_cells{:};
             [waveforms_all.clusters]      = cluster_cells{:};
+            
             % Save back into res
             results.spike_results(portIdx).waveforms_all = waveforms_all;
             end
@@ -66,10 +67,8 @@ function save_curated_spikes(h)
             guidata(h.figure,h);
             h=guidata(h.figure);    
 end
-    set_status(h.figure,'loading','Computing Spike Features.')  
-    spike_feats_callback(h);
     h=guidata(h.figure);
-    update_spike_summary_tab(h);
+    cs = h.cumulative_spikes;
     if isfield(h,'clusterListBox')
         clusters = cs.cluster_idx;
         set(h.clusterListBox, 'Value',1:numel(unique(clusters)),'String',cellstr(num2str(unique(clusters))));
