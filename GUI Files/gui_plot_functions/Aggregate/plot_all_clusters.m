@@ -86,6 +86,7 @@ function plot_all_clusters(h)
         xlim(ax1,cfg.xlim_1);
     end
     h.cluster_axes = [h.cluster_axes ax1];
+    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
 
     %% Clustered waveforms (ax2)
     ax2 = nexttile(t); hold(ax2,'on');
@@ -103,6 +104,7 @@ function plot_all_clusters(h)
     end
     legend(ax2,lineHandles, arrayfun(@(k) sprintf('Cluster %d', selected_clusters(k)), 1:numel(selected_clusters),'UniformOutput',false),'Location','northeastoutside');
     title(ax2,'Clustered Waveforms'); xlabel(ax2,'Normalized Time'); ylabel(ax2,'Amplitude');
+    axtoolbar({'save','zoomin','zoomout','restoreview','pan'});
     h.cluster_axes = [h.cluster_axes ax2];
     if strcmp(cfg.ylim_2_mode,'manual') && ~isempty(cfg.ylim_2_mode)
         ylim(ax2,cfg.ylim_2);

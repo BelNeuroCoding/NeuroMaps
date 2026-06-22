@@ -8,6 +8,7 @@ function plot_all_spikes(h)
     selected = map(idx,:);
     if ~isfield(h,'cumulative_spikes')
        errordlg('Please aggregate spikes before proceeding..');
+       return;
     end
     all_waveforms     = h.cumulative_spikes.all_waveforms;
     all_channels      = h.cumulative_spikes.channels;
@@ -32,7 +33,10 @@ function plot_all_spikes(h)
         delete(h.spikesPanel);
     end
     if exist('spike_config.mat','file')
-        cfg = load('spike_config.mat'); cfg = cfg.config;
+        tmp = load('spike_config.mat');
+        cfg = tmp.config;
+    else
+        cfg = struct();
     end
 
     % DEFAULTS
@@ -61,6 +65,11 @@ function plot_all_spikes(h)
         chan    = unique_combos(i,3);
 
         sel_idx = find(spike_origin_e==expIdx & spike_origin_p==portIdx & all_channels==chan);
+        nSpikes = numel(all_channels);
+        
+        if size(all_waveforms,1) ~= nSpikes && size(all_waveforms,2) == nSpikes
+            all_waveforms = all_waveforms';
+        end
         wf = all_waveforms(sel_idx,:);
 
         %  Flip (standardise polarity) 
